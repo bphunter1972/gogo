@@ -1,0 +1,372 @@
+#!/usr/bin/env python2.7
+
+"""
+A lightweight compile and simulate script
+"""
+
+########################################################################################
+# Globals
+
+__version__       = '0.0'
+__author__        = "Brian Hunter"
+__email__         = 'brian.hunter@cavium.com'
+
+# All of the global variables in the GVars dictionary
+Keys = (
+        # Global variables
+        'UVM_REV',         # (string) UVM Revision to use
+        'USE_RUNMOD',      # (bool) When set, build/sim commands will be launched with runmod
+        
+        # Testbench-related variables
+        'VKITS',           # (list of strings) Vkits that this testbench relies upon, in order
+        'FLISTS',          # (list of strings) Testbench FLISTs to include
+        'TB_TOP',          # (string) The module name of the top-level of the testbench
+        
+        # Build-related
+        'BLD_TOOL',        # (string) Command needed to run a build
+        'BLD_MODULES',     # (list of strings) Added to runmod for all builds
+        'BLD_OPTIONS',     # (string) Additional build options
+        'BLD_TAB_FILES',   # (list of strings) PLI files that should also be added to the build command-line (-P <name>)
+        'BLD_SO_FILES',    # (list of strings) Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
+        'BLD_ARC_LIBS',    # (list of strings) .a archive libraries that will be added to the build command-line
+        'BLD_VCOMP_DIR',   # (string) The name of the compile directory
+        'BLD_DEFINES',     # (list of strings) All +BLD_defines as needed
+        
+        # Simulation-related
+        'SIM_MODULES',     # (list of string) List of modules, added to runmod for all sims
+        'SIM_GUI',         # (string) Add this to simulation command-line when you want to run in GUI mode
+        'SIMOPTS',         # (string) Added to the simulation command-line (not overridden by --simopts)
+        'SIM_PLUSARGS',    # (list of string) Added to the simulation command-line (all preceded by +)
+        'SIM_WAVE_OPTIONS',# (string) Run-time options
+        
+        # LSF-related
+        'LSF_SUBMIT_TOOL', # (string) The LSF tool to call
+        'LSF_BLD_LICS',    # (string) Additional licenses used for building
+        'LSF_SIM_LICS',    # (string) Additional licences used for simulation
+        
+        # Cleaning-related
+        'CLEAN_DIRS',      # (list of strings) Names of directories to delete
+        'CLEAN_FILES',     # (list of strings) Names of files to delete
+)
+
+# The names of all the library files that will be imported
+Libraries = ('project', 'tb')
+
+# A dictionary of all the global variables imported from the libraries
+GVars = None
+
+# These keys do NOT need to be specified, if you don't want to
+OPTIONAL = ('SIMOPTS', 'SIM_PLUSARGS', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
+    'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
+
+# Command-line Options
+Options = None
+
+# Command-Line actions
+Actions = None
+
+# Logger
+Log = None
+
+#######################################################################################
+# Imports
+import os
+import subprocess
+import sys
+import argparse
+import logging
+import logging, cn_logging
+
+########################################################################################
+def setup_globals():
+    """
+    Set up the GVars dictionary with imported information from project and the local tb.py
+    Set up the Actions dictionary
+    """
+
+    global GVars
+
+    GVars = {it : None for it in Keys}
+
+    def import_lib(mod_name):
+        try:
+            lib = __import__(mod_name)
+        except ImportError:
+            Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'" % mod_name)
+            sys.exit(253)
+
+        lib_dict = lib.__dict__
+        for key in GVars:
+            if key in lib_dict:
+                try:
+                    if type(GVars[key]) == str:
+                        GVars[key] = GVars[key] + ' ' + lib_dict[key]
+                    else:
+                        GVars[key] += lib_dict[key]
+                except:
+                    GVars[key] = lib_dict[key]
+
+    map(import_lib, Libraries)
+
+    GVars['VKITS_DIR'] = '../vkits'
+    GVars['UVM_DIR']   = os.path.join(GVars['VKITS_DIR'], 'uvm/%s' % GVars['UVM_REV'])
+    GVars['UVM_FLIST'] = os.path.join(GVars['UVM_DIR'], 'uvm.flist')
+
+    for key in GVars:
+        if GVars[key] is None and key not in OPTIONAL:
+            Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in Libraries])))
+            sys.exit(1)
+
+########################################################################################
+def parse_args():
+    """
+    Parse Command-Line
+    """
+
+    global Options, Actions, Log
+
+    Log = cn_logging.getLogger('gogo.log')
+    Log.setLevel(logging.INFO)
+    # create the handler
+    console = logging.StreamHandler()
+    console.setFormatter(cn_logging.formatter)
+    Log.addHandler(console)
+
+    Actions = {'b'       : build,
+               'build'   : build,
+               'bld'     : build,
+               'c'       : clean,
+               'cln'     : clean,
+               'clean'   : clean,
+               's'       : simulate,
+               'sim'     : simulate,
+               'simu'    : simulate,
+               'simulate': simulate}
+
+    p = argparse.ArgumentParser(
+        prog='gogo',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        usage="%(prog)s [actions] [options]",
+        version=("%(prog)s v"+__version__),
+        description=__doc__)
+
+    p.add_argument('actions',        action='store', nargs='*',  help="Any one of (b)uild, (s)imulate, or (c)lean")
+
+    p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
+    p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
+    p.add_argument('--verb', '-V',   action='store',             default=None,    help="Specify UVM Verbosity.")
+
+    p.add_argument('--simopts',      action='store',             default=None,    help="Add simulation opts as a string to simulator command-line.")
+    p.add_argument('--cmpopts',      action='store',             default=None,    help="Add compilation opts as a string to compiler command-line.")
+    p.add_argument('--seed', '-s',   action='store', type=int,   default=1,       help="Run with the given seed (0 for a random seed).")
+
+    p.add_argument('--topo',         action='store', type=int,   default=None,    help="Print UVM topology at this depth.")
+    p.add_argument('--wdog',         action='store', type=int,   default=None,    help="Time (in ns) at which the testbench will watchdog timeout.")
+    p.add_argument('--gui',  '-g',   action='store_true',        default=False,   help="Run DVE in GUI mode.")
+    p.add_argument('--wave', '-w',   action='store_true',        default=False,   help="Dump waves to VPD file.")
+    p.add_argument('--svfcov',       action='store_true',        default=False,   help="Run with SV Functional Coverage")
+
+    Options = p.parse_args()
+
+    for action in Options.actions:
+        if action not in Actions.keys():
+            Log.critical("Unknown action: %s" % action)
+            sys.exit(252)
+
+    if Options.actions == []:
+        Options.actions = ['bld', 'sim']
+
+########################################################################################
+def run_cmd(cmd_line):
+    """
+    Run the given command in a sub-process, exiting on failure
+    """
+
+    Log.info("++ Running %s" % cmd_line)
+
+    proc = subprocess.Popen(args=cmd_line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=file(os.devnull, 'r+'))
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        print line.rstrip()
+
+    returnCode = proc.poll()
+    if returnCode != 0:
+        print
+        print '*'*40
+        print ' '*15 + "FAILED"
+        print '*'*40
+        sys.exit(returnCode)
+
+########################################################################################
+def clean():
+    """
+    Remove unwanted directories and files.
+    """
+    from shutil import rmtree
+
+    Log.info("> Cleaning...")
+    for dname in GVars['CLEAN_DIRS']:
+        try:
+            rmtree(dname)
+            Log.info("++ Removed dir %s" % dname)
+        except:
+            pass
+
+    for fname in GVars['CLEAN_FILES']:
+        try:
+            os.remove(fname)
+            Log.info("++ Removed file %s" % fname)
+        except:
+            pass
+
+########################################################################################
+def get_runmod_cmd(modULEs):
+    if GVars['USE_RUNMOD']:
+        return "runmod -m %s" % (' -m '.join(modULEs))
+    else:
+        return ''
+
+########################################################################################
+def build():
+    """
+    Build the simulation executable
+    """
+
+    Log.info("> Building...")
+
+    # determine all of the vkits and flists
+    vkits = [os.path.join(GVars['VKITS_DIR'], it, "%s.flist" % it) for it in GVars['VKITS']]
+    flists = [GVars['UVM_FLIST']] + vkits + GVars['FLISTS']
+
+    if not os.path.exists(GVars['BLD_VCOMP_DIR']):
+        try:
+            os.makedirs(GVars['BLD_VCOMP_DIR'], 0777)
+        except OSError:
+            Log.critical("Unable to create directory %s" % GVars['BLD_VCOMP_DIR'])
+            sys.exit(255)
+
+    bld_cmd = GVars['BLD_TOOL']
+    bld_cmd += ' -o %s -Mupdate' % (os.path.join(GVars['BLD_VCOMP_DIR'], 'sim.exe'))
+    bld_cmd += " %s/src/dpi/uvm_dpi.cc" % GVars['UVM_DIR']
+    bld_cmd += ' -f ' + ' -f '.join(flists)
+    bld_cmd += " %s" % GVars['BLD_OPTIONS']
+
+    if GVars['BLD_TAB_FILES']:
+        bld_cmd += ' -P ' + ' -P '.join(GVars['BLD_TAB_FILES'])
+
+    if GVars['BLD_SO_FILES']:
+        bld_cmd += " -LDFLAGS '%s'" % (' '.join(GVars['BLD_SO_FILES']))
+
+    if GVars['BLD_ARC_LIBS']:
+        bld_cmd += ' ' + ' '.join(GVars['BLD_ARC_LIBS'])
+
+    if GVars['BLD_DEFINES']:
+        bld_cmd += ' +define+' + '+'.join(GVars['BLD_DEFINES'])
+
+    # compile-time options specified on command-line
+    if Options.cmpopts:
+        bld_cmd += " " + Options.cmpopts
+
+    runmod_cmd = get_runmod_cmd(GVars['BLD_MODULES'])
+
+    sge_cmd = "%s -N build" % GVars['LSF_SUBMIT_TOOL']
+    if GVars['LSF_BLD_LICS']:
+        sge_cmd += " %s=1" % GVars['LSF_BLD_LICS']
+
+    # check to see if bld_cmd will be too long
+    if len(bld_cmd) > 1024:
+        with open('.bld_cmd', 'w') as f:
+            print >>f, '#!/usr/bin/csh'
+            print >>f, '%s %s' % (runmod_cmd, bld_cmd)
+        cmd_line = '%s "source ./.bld_cmd"' % sge_cmd
+    else:
+        cmd_line = '%s "%s %s"' % (sge_cmd, runmod_cmd, bld_cmd)
+    run_cmd(cmd_line)
+
+########################################################################################
+def simulate(test_name):
+    """
+    Run the simulation
+    """
+
+    Log.info("> Simulating...")
+
+    modULEs = GVars['SIM_MODULES']
+    runmod_cmd = get_runmod_cmd(modULEs)
+
+    sim_cmd = os.path.join(GVars['BLD_VCOMP_DIR'], 'sim.exe')
+    sim_cmd += " +UVM_TESTNAME=%s_test_c" % test_name
+
+    sim_dir = os.path.join('sim', (Options.dir if Options.dir else test_name))
+    sim_cmd += " -l %s/logfile" % sim_dir
+
+    if Options.seed == 0:
+        import random
+        Options.seed = random.getrandbits(32)
+    sim_cmd += " +seed=%d" % Options.seed
+
+    if not os.path.exists(sim_dir):
+        try:
+            os.makedirs(sim_dir)
+        except OSError:
+            Log.critical("Unable to create %s" % sim_dir)
+            sys.exit(254)
+
+    # OPTIONS
+    if Options.verb:
+        sim_cmd += " +UVM_VERBOSITY=%s" % Options.verb
+
+    if Options.topo:
+        sim_cmd += " +UVM_TOPO_DEPTH=%d" % Options.topo
+
+    if Options.wdog:
+        sim_cmd += " +wdog=%d" % Options.wdog
+
+    if Options.gui:
+        sim_cmd += GVars['SIM_GUI']
+
+    if Options.wave:
+        sim_cmd += " +vpdon +vpdfile+%s/waves.vpd " % (sim_dir)
+
+    if Options.svfcov:
+        sim_cmd += " +svfcov"
+
+    # add simulation command-line options
+    if GVars['SIMOPTS']:
+        sim_cmd += " " + GVars['SIMOPTS']
+    if Options.simopts:
+        sim_cmd += " " + Options.simopts
+
+    if GVars['SIM_PLUSARGS']:
+        sim_cmd += " " + ' '.join(['+%s' % it for it in GVars['SIM_PLUSARGS']])
+
+    sge_cmd = '%s -N %s' % (GVars['LSF_SUBMIT_TOOL'], test_name)
+    if GVars['LSF_SIM_LICS']:
+        sge_cmd += " %s=1" % GVars['LSF_SIM_LICS']
+
+    cmd_line = '%s "%s %s"' % (sge_cmd, runmod_cmd, sim_cmd)
+    run_cmd(cmd_line)
+
+########################################################################################
+if __name__ == '__main__':
+    parse_args()
+    setup_globals()
+
+    try:
+        actions = [Actions[action] for action in Options.actions]
+
+        if clean in actions:
+            clean()
+        if build in actions:
+            build()
+        if simulate in actions:
+            simulate(Options.test)
+    except KeyboardInterrupt:
+        Log.critical("Exiting due to Ctrl-C.")
+        sys.exit(255)
+
+    # if we get here, we must have passed
+    logging.shutdown()
+    sys.exit(0)
