@@ -4,50 +4,48 @@ Contains all of the global variables.
 
 import os
 
-# All of the global variables in the Vars dictionary
-Keys = (
-        # Global variables
-        'UVM_REV',         # (string) UVM Revision to use
-        
-        # Testbench-related variables
-        'VKITS',           # (list of strings) Vkits that this testbench relies upon, in order
-        'FLISTS',          # (list of strings) Testbench FLISTs to include
-        'TB_TOP',          # (string) The module name of the top-level of the testbench
-        
-        # Build-related
-        'BLD_PARTITION',   # (bool) When true, runs in partition-compile mode
-        'BLD_TOOL',        # (string) Command needed to run a build
-        'BLD_MODULES',     # (list of strings) Added to runmod for all builds
-        'BLD_OPTIONS',     # (string) Additional build options
-        'BLD_TAB_FILES',   # (list of strings) PLI files that should also be added to the build command-line (-P <name>)
-        'BLD_SO_FILES',    # (list of strings) Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
-        'BLD_ARC_LIBS',    # (list of strings) .a archive libraries that will be added to the build command-line
-        'BLD_VCOMP_DIR',   # (string) The name of the compile directory
-        'BLD_DEFINES',     # (list of strings) All +BLD_defines as needed
-        
-        # Simulation-related
-        'SIM_MODULES',     # (list of string) List of modules, added to runmod for all sims
-        'SIM_GUI',         # (string) Add this to simulation command-line when you want to run in GUI mode
-        'SIMOPTS',         # (string) Added to the simulation command-line (not overridden by --simopts)
-        'SIM_PLUSARGS',    # (list of string) Added to the simulation command-line (all preceded by +)
-        'SIM_WAVE_OPTIONS',# (string) Run-time options
-        
-        # LSF-related
-        'LSF_SUBMIT_TOOL', # (string) The LSF tool to call
-        'LSF_BLD_LICS',    # (string) Additional licenses used for building
-        'LSF_SIM_LICS',    # (string) Additional licences used for simulation
-        
-        # Cleaning-related
-        'CLEAN_DIRS',      # (list of strings) Names of directories to delete
-        'CLEAN_FILES',     # (list of strings) Names of files to delete
-)
+# Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
+# Setup files do not assign to Vars directly, rather, they assign to variables with the same name as the keys of Vars.
+Vars = {
+    # Testbench-related variables
+    'VKITS'           : None,   # (list of strings) Vkits that this testbench relies upon, in order
+    'FLISTS'          : None,   # (list of strings) Testbench FLISTs to include
+    'TB_TOP'          : None,   # (string) The module name of the top-level of the testbench
+    
+    # Build-related
+    'BLD_PARTITION'   : None,   # (bool) When true, runs in partition-compile mode
+    'BLD_TOOL'        : None,   # (string) Command needed to run a build
+    'BLD_MODULES'     : None,   # (list of strings) Added to runmod for all builds
+    'BLD_OPTIONS'     : None,   # (string) Additional build options
+    'BLD_TAB_FILES'   : None,   # (list of strings) PLI files that should also be added to the build command-line (-P <name>)
+    'BLD_SO_FILES'    : None,   # (list of strings) Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
+    'BLD_ARC_LIBS'    : None,   # (list of strings) .a archive libraries that will be added to the build command-line
+    'BLD_VCOMP_DIR'   : None,   # (string) The name of the compile directory
+    'BLD_DEFINES'     : None,   # (list of strings) All +BLD_defines as needed
+    
+    # Simulation-related
+    'SIM_MODULES'     : None,   # (list of string) List of modules, added to runmod for all sims
+    'SIM_GUI'         : None,   # (string) Add this to simulation command-line when you want to run in GUI mode
+    'SIMOPTS'         : None,   # (string) Added to the simulation command-line (not overridden by --simopts)
+    'SIM_PLUSARGS'    : None,   # (list of string) Added to the simulation command-line (all preceded by +)
+    'SIM_WAVE_OPTIONS': None,   # (string) Run-time options
+    
+    # LSF-related
+    'LSF_SUBMIT_TOOL' : None,   # (string) The LSF tool to call
+    'LSF_BLD_LICS'    : None,   # (string) Additional licenses used for building
+    'LSF_SIM_LICS'    : None,   # (string) Additional licences used for simulation
+    
+    # Cleaning-related
+    'CLEAN_DIRS'      : None,   # (list of strings) Names of directories to delete
+    'CLEAN_FILES'     : None,   # (list of strings) Names of files to delete
+
+    # Miscellaneous
+    'UVM_REV'         : None,   # (string) UVM Revision to use
+}
 
 # These keys do NOT need to be specified, if you don't want to
 OptionalKeys = ('SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
     'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
-
-# A dictionary of all the global variables imported from the libraries
-Vars = {it : None for it in Keys}
 
 # All of the command-line options from parse_args
 Options = None
