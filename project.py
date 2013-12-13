@@ -37,7 +37,6 @@ BLD_ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli
 
 # VCS Bld Options
 BLD_OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog +libext+.v+.sv'
-BLD_OPTIONS += ' +define+UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR'
 BLD_OPTIONS += '  -CFLAGS -DVCS -full64 +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma'
 
 BLD_DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
@@ -71,10 +70,10 @@ SIM_WAVE_OPTIONS = ''
 LSF_SUBMIT_TOOL = 'qrsh'
 
 # Bld Licenses
-LSF_BLD_LICS = '-q build -l lic_cmp_vcs'
+LSF_BLD_LICS = 'lic_cmp_vcs'
 
 # Simulation Licenses
-LSF_SIM_LICS = '-q verilog -l lic_sim_vcs'
+LSF_SIM_LICS = 'lic_sim_vcs'
 
 ################
 # How to Clean Up
