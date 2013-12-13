@@ -2,11 +2,12 @@
 Contains all of the global variables.
 """
 
+import os
+
 # All of the global variables in the Vars dictionary
 Keys = (
         # Global variables
         'UVM_REV',         # (string) UVM Revision to use
-        'USE_RUNMOD',      # (bool) When set, build/sim commands will be launched with runmod
         
         # Testbench-related variables
         'VKITS',           # (list of strings) Vkits that this testbench relies upon, in order
@@ -52,3 +53,45 @@ Options = None
 
 # the Logger
 Log = None
+
+########################################################################################
+def setup_globals():
+    """
+    Set up the Vars dictionary with imported information from project and the local tb.py
+    Set up the CmdLineActions dictionary
+    """
+
+    global Vars
+
+    # The names of all the library files that will be imported
+    libraries = ('project', 'tb')
+
+    def import_lib(mod_name):
+        try:
+            lib = __import__(mod_name)
+        except ImportError:
+            Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'" % mod_name)
+            sys.exit(253)
+
+        lib_dict = lib.__dict__
+        for key in Vars:
+            if key in lib_dict:
+                try:
+                    if type(Vars[key]) == str:
+                        Vars[key] = Vars[key] + ' ' + lib_dict[key]
+                    else:
+                        Vars[key] += lib_dict[key]
+                except:
+                    Vars[key] = lib_dict[key]
+
+    map(import_lib, libraries)
+
+    Vars['VKITS_DIR'] = '../vkits'
+    Vars['UVM_DIR']   = os.path.join(Vars['VKITS_DIR'], 'uvm/%s' % Vars['UVM_REV'])
+    Vars['UVM_FLIST'] = os.path.join(Vars['UVM_DIR'], 'uvm.flist')
+
+    for key in Vars:
+        if Vars[key] is None and key not in OptionalKeys:
+            Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
+            sys.exit(1)
+

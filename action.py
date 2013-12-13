@@ -23,18 +23,23 @@ class Action(sge.Job):
     def create_cmds(self):
         """
         Returns the commands as a list of strings.
+        Descendants which do not override this will not run on SGE.
         """
 
-        return [""]
+        return None
 
     #--------------------------------------------
     def run(self):
         """
         Executes the commands.
+        Get the commands to run
+        In the event that create_cmds is undefined, then do nothing. Presumably the __init__ function
+        did all the work for us.
         """
 
-        # Get the commands to run
         self.commands = self.create_cmds()
+        if self.commands is None:
+            return
 
         Log.info("Running %s" % self.name)
 

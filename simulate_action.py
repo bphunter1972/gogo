@@ -9,13 +9,16 @@ import os
 Log = gvars.Log
 
 class SimulateAction(action.Action):
-    """A Job that executes the simulation"""
+    """
+    A Job that executes the simulation
+    The test to run is contained in gvars.Options.test
+    """
 
     #--------------------------------------------
-    def __init__(self, test_name):
+    def __init__(self):
         super(SimulateAction, self).__init__()
         
-        self.name = test_name
+        self.name = gvars.Options.test
         self.resources = [gvars.Vars['LSF_SIM_LICS']]
         self.queue = 'verilog'
         self.interactive = True

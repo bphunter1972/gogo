@@ -5,10 +5,6 @@
 UVM_REV   = '1_1d'
 
 ###############
-# Use runmod
-USE_RUNMOD = 1
-
-###############
 # How to build with VCS
 VCS_VERSION = 'H-2013.06-SP1'
 BLD_MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]

@@ -12,16 +12,9 @@ __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
 
-# The names of all the library files that will be imported
-Libraries = ('project', 'tb')
-
-# Command-Line actions
-CmdLineActions = None
-
 #######################################################################################
 # Imports
 import os
-# import subprocess
 import sys
 import argparse
 import logging
@@ -30,49 +23,15 @@ import cn_logging
 import gvars
 import sge_tools as sge
 
-########################################################################################
-def setup_globals():
-    """
-    Set up the gvars.Vars dictionary with imported information from project and the local tb.py
-    Set up the CmdLineActions dictionary
-    """
-
-    def import_lib(mod_name):
-        try:
-            lib = __import__(mod_name)
-        except ImportError:
-            gvars.Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'" % mod_name)
-            sys.exit(253)
-
-        lib_dict = lib.__dict__
-        for key in gvars.Vars:
-            if key in lib_dict:
-                try:
-                    if type(gvars.Vars[key]) == str:
-                        gvars.Vars[key] = gvars.Vars[key] + ' ' + lib_dict[key]
-                    else:
-                        gvars.Vars[key] += lib_dict[key]
-                except:
-                    gvars.Vars[key] = lib_dict[key]
-
-    map(import_lib, Libraries)
-
-    gvars.Vars['VKITS_DIR'] = '../vkits'
-    gvars.Vars['UVM_DIR']   = os.path.join(gvars.Vars['VKITS_DIR'], 'uvm/%s' % gvars.Vars['UVM_REV'])
-    gvars.Vars['UVM_FLIST'] = os.path.join(gvars.Vars['UVM_DIR'], 'uvm.flist')
-
-    for key in gvars.Vars:
-        if gvars.Vars[key] is None and key not in gvars.OptionalKeys:
-            gvars.Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in Libraries])))
-            sys.exit(1)
+Log = None
 
 ########################################################################################
 def parse_args():
     """
-    Parse Command-Line
+    Parse Command-Line. Return the actions to be run
     """
 
-    global CmdLineActions
+    global Log
 
     gvars.Log = cn_logging.getLogger('gogo.log')
     gvars.Log.setLevel(logging.INFO)
@@ -82,18 +41,8 @@ def parse_args():
     console.setFormatter(cn_logging.formatter)
     gvars.Log.addHandler(console)
 
+    Log = gvars.Log
     sge.Log = gvars.Log
-
-    CmdLineActions = {'b'       : 'build',
-                      'build'   : 'build',
-                      'bld'     : 'build',
-                      'c'       : 'clean',
-                      'cln'     : 'clean',
-                      'clean'   : 'clean',
-                      's'       : 'simulate',
-                      'sim'     : 'simulate',
-                      'simu'    : 'simulate',
-                      'simulate': 'simulate'}
 
     p = argparse.ArgumentParser(
         prog='gogo',
@@ -120,64 +69,48 @@ def parse_args():
 
     gvars.Options = p.parse_args()
 
+    shortcuts = {'b'       : 'build',
+                 'build'   : 'build',
+                 'bld'     : 'build',
+                 'c'       : 'clean',
+                 'cln'     : 'clean',
+                 'clean'   : 'clean',
+                 's'       : 'simulate',
+                 'sim'     : 'simulate',
+                 'simu'    : 'simulate',
+                 'simulate': 'simulate',
+                 }
+
     for action in gvars.Options.actions:
-        if action not in CmdLineActions.keys():
-            gvars.Log.critical("Unknown action: %s" % action)
+        if action not in shortcuts.keys():
+            Log.critical("Unknown action: %s" % action)
             sys.exit(252)
 
     if gvars.Options.actions == []:
         gvars.Options.actions = ['bld', 'sim']
 
-########################################################################################
-def clean():
-    """
-    Remove unwanted directories and files.
-    """
-
-    from shutil import rmtree
-
-    gvars.Log.info("> Cleaning...")
-    for dname in gvars.Vars['CLEAN_DIRS']:
-        try:
-            rmtree(dname)
-            gvars.Log.info("++ Removed dir %s" % dname)
-        except:
-            pass
-
-    for fname in gvars.Vars['CLEAN_FILES']:
-        try:
-            os.remove(fname)
-            gvars.Log.info("++ Removed file %s" % fname)
-        except:
-            pass
-
-########################################################################################
-def get_runmod_cmd(modules):
-    if gvars.Vars['USE_RUNMOD']:
-        return "runmod -m %s" % (' -m '.join(modules))
-    else:
-        return ''
+    return [shortcuts[action] for action in gvars.Options.actions]
 
 ########################################################################################
 if __name__ == '__main__':
-    parse_args()
-    setup_globals()
+    actions = parse_args()
+    gvars.setup_globals()
 
     try:
-        actions = [CmdLineActions[action] for action in gvars.Options.actions]
-
         if 'clean' in actions:
-            clean()
+            import clean_action
+            job = clean_action.CleanAction()
+            job.run()
         if 'build' in actions:
             import build_action
-            build = build_action.BuildAction()
-            build.run()
+            job = build_action.BuildAction()
+            job.run()
         if 'simulate' in actions:
             import simulate_action
-            sim = simulate_action.SimulateAction(gvars.Options.test)
-            sim.run()
+            job = simulate_action.SimulateAction()
+            job.run()
     except KeyboardInterrupt:
-        gvars.Log.critical("Exiting due to Ctrl-C.")
+        Log.critical("Exiting due to Ctrl-C.")
         sys.exit(255)
 
     # if we get here, we must have passed
