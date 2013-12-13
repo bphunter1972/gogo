@@ -69,6 +69,7 @@ def parse_args():
 
     gvars.Options = p.parse_args()
 
+    actions = gvars.Options.actions
     shortcuts = {'b'       : 'build',
                  'build'   : 'build',
                  'bld'     : 'build',
@@ -81,15 +82,16 @@ def parse_args():
                  'simulate': 'simulate',
                  }
 
-    for action in gvars.Options.actions:
+    for action in actions:
         if action not in shortcuts.keys():
             Log.critical("Unknown action: %s" % action)
             sys.exit(252)
 
-    if gvars.Options.actions == []:
-        gvars.Options.actions = ['bld', 'sim']
+    # Shortcut: just running 'gogo' will build and simulate
+    if actions == []:
+        actions = ['bld', 'sim']
 
-    return [shortcuts[action] for action in gvars.Options.actions]
+    return [shortcuts[action] for action in actions]
 
 ########################################################################################
 if __name__ == '__main__':

@@ -11,3 +11,4 @@ BLD_DEFINES = ['SYS_TB_PATH=ut_swi_tb_top',
                'UT_SWI_TB',
               ]
 
+BLD_PARTITION = True

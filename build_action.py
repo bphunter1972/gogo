@@ -28,6 +28,8 @@ class BuildAction(action.Action):
         Returns the commands as a list of strings.
         """
 
+        run_partition = gvars.Vars['BLD_PARTITION']
+
         # determine all of the vkits and flists
         vkits = [os.path.join(gvars.Vars['VKITS_DIR'], it, "%s.flist" % it) for it in gvars.Vars['VKITS']]
         flists = [gvars.Vars['UVM_FLIST']] + vkits + gvars.Vars['FLISTS']
@@ -56,12 +58,13 @@ class BuildAction(action.Action):
             cmpopts += " " + gvars.Options.cmpopts
         bld_options = " %s" % gvars.Vars['BLD_OPTIONS']
 
-        # create vlogan command
-        vlogan_cmd = 'vlogan'
-        vlogan_cmd += uvm_dpi
-        vlogan_cmd += flists
-        vlogan_cmd += bld_options
-        vlogan_cmd += bld_defines
+        # create vlogan command if running partition compile
+        if run_partition:
+            vlogan_cmd = 'vlogan'
+            vlogan_cmd += uvm_dpi
+            vlogan_cmd += flists
+            vlogan_cmd += bld_options
+            vlogan_cmd += bld_defines
 
         # create build command
         bld_cmd = gvars.Vars['BLD_TOOL']
@@ -69,11 +72,19 @@ class BuildAction(action.Action):
         bld_cmd += uvm_dpi
         bld_cmd += flists
         bld_cmd += bld_options
-        bld_cmd += ' -partcomp +optconfigfile+vcs_partition_config.file'
+        if run_partition:
+            bld_cmd += ' -partcomp +optconfigfile+vcs_partition_config.file'
         bld_cmd += tab_files
         bld_cmd += so_files
         bld_cmd += arc_libs
         bld_cmd += bld_defines
         bld_cmd += cmpopts
 
-        return ["echo '++ Running vlogan'", vlogan_cmd, "echo '++ Running vcs'", bld_cmd]
+        cmds = []
+        if run_partition:
+            cmds.append("echo '++ Running vlogan'")
+            cmds.append(vlogan_cmd)
+        cmds.append("echo '++ Running vcs'")
+        cmds.append(bld_cmd)
+
+        return cmds

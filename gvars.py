@@ -15,6 +15,7 @@ Keys = (
         'TB_TOP',          # (string) The module name of the top-level of the testbench
         
         # Build-related
+        'BLD_PARTITION',   # (bool) When true, runs in partition-compile mode
         'BLD_TOOL',        # (string) Command needed to run a build
         'BLD_MODULES',     # (list of strings) Added to runmod for all builds
         'BLD_OPTIONS',     # (string) Additional build options
@@ -42,7 +43,7 @@ Keys = (
 )
 
 # These keys do NOT need to be specified, if you don't want to
-OptionalKeys = ('SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
+OptionalKeys = ('SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
     'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
 
 # A dictionary of all the global variables imported from the libraries
