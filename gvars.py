@@ -9,11 +9,13 @@ import os
 Vars = {
     # Testbench-related variables
     'VKITS'           : None,   # (list of strings) Vkits that this testbench relies upon, in order
+    'STATIC_VKITS'    : None,   # (list of strings) Vkits that should be considered static for the purposes of partition compilation
     'FLISTS'          : None,   # (list of strings) Testbench FLISTs to include
     'TB_TOP'          : None,   # (string) The module name of the top-level of the testbench
     
     # Build-related
-    'BLD_PARTITION'   : None,   # (bool) When true, runs in partition-compile mode
+    'BLD_PARTITION'   : None,   # (string) When 'auto', compiles and creates a vcs_partition_config.file. 
+                                #          If 'custom', runs in partition-compile mode with file named 'partition.cfg'.
     'BLD_TOOL'        : None,   # (string) Command needed to run a build
     'BLD_MODULES'     : None,   # (list of strings) Added to runmod for all builds
     'BLD_OPTIONS'     : None,   # (string) Additional build options
@@ -43,8 +45,8 @@ Vars = {
     'UVM_REV'         : None,   # (string) UVM Revision to use
 }
 
-# These keys do NOT need to be specified, if you don't want to
-OptionalKeys = ('SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
+# These keys do NOT need to be specified
+OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
     'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
 
 # All of the command-line options from parse_args
@@ -57,7 +59,6 @@ Log = None
 def setup_globals():
     """
     Set up the Vars dictionary with imported information from project and the local tb.py
-    Set up the CmdLineActions dictionary
     """
 
     global Vars
@@ -70,7 +71,6 @@ def setup_globals():
             lib = __import__(mod_name)
         except ImportError:
             Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'" % mod_name)
-            sys.exit(253)
 
         lib_dict = lib.__dict__
         for key in Vars:
@@ -92,5 +92,7 @@ def setup_globals():
     for key in Vars:
         if Vars[key] is None and key not in OptionalKeys:
             Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
-            sys.exit(1)
 
+    # check that some dictionary items only contain correct values
+    if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto'):
+        Log.critical("BLD_PARTITION value '%s' must be one of 'custom' or 'auto'" % Vars['BLD_PARTITION'])

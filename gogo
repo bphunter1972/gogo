@@ -14,10 +14,8 @@ __email__         = 'brian.hunter@cavium.com'
 
 #######################################################################################
 # Imports
-import os
 import sys
 import argparse
-import logging
 import logging
 import cn_logging
 import gvars
@@ -70,16 +68,20 @@ def parse_args():
     gvars.Options = p.parse_args()
 
     actions = gvars.Options.actions
-    shortcuts = {'b'       : 'build',
-                 'build'   : 'build',
-                 'bld'     : 'build',
-                 'c'       : 'clean',
-                 'cln'     : 'clean',
-                 'clean'   : 'clean',
-                 's'       : 'simulate',
-                 'sim'     : 'simulate',
-                 'simu'    : 'simulate',
-                 'simulate': 'simulate',
+    shortcuts = {
+                 'c'        : 'clean',
+                 'cln'      : 'clean',
+                 'clean'    : 'clean',
+                 'partition': 'partition',
+                 'par'      : 'partition',
+                 'p'        : 'partition',
+                 'b'        : 'build',
+                 'build'    : 'build',
+                 'bld'      : 'build',
+                 's'        : 'simulate',
+                 'sim'      : 'simulate',
+                 'simu'     : 'simulate',
+                 'simulate' : 'simulate',
                  }
 
     for action in actions:
@@ -102,6 +104,10 @@ if __name__ == '__main__':
         if 'clean' in actions:
             import clean_action
             job = clean_action.CleanAction()
+            job.run()
+        if 'partition' in actions:
+            import partition_action
+            job = partition_action.PartitionAction()
             job.run()
         if 'build' in actions:
             import build_action

@@ -28,7 +28,13 @@ class BuildAction(action.Action):
         Returns the commands as a list of strings.
         """
 
-        run_partition = gvars.Vars['BLD_PARTITION']
+        bld_partition = gvars.Vars['BLD_PARTITION'] 
+        run_partition = bld_partition in ('auto', 'custom')
+
+        # check that partition.cfg file exists, else emit a warning
+        if bld_partition == 'custom' and not os.path.exists('partition.cfg'):
+            Log.warning("Unable to find file 'partition.cfg'.  Setting to run in auto mode instead.")
+            bld_partition = 'auto'
 
         # determine all of the vkits and flists
         vkits = [os.path.join(gvars.Vars['VKITS_DIR'], it, "%s.flist" % it) for it in gvars.Vars['VKITS']]
@@ -72,8 +78,10 @@ class BuildAction(action.Action):
         bld_cmd += uvm_dpi
         bld_cmd += flists
         bld_cmd += bld_options
-        if run_partition:
-            bld_cmd += ' -partcomp +optconfigfile+vcs_partition_config.file'
+        if bld_partition is 'auto':
+            bld_cmd += ' -partcomp=autopartdbg'
+        elif bld_partition is 'custom':
+            bld_cmd += ' -partcomp +optconfigfile+partition.cfg'
         bld_cmd += tab_files
         bld_cmd += so_files
         bld_cmd += arc_libs
