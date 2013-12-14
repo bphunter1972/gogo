@@ -8,6 +8,9 @@ import gvars
 
 Log = gvars.Log
 
+class ActionFailed(Exception): pass
+
+
 class Action(sge.Job):
     """The base class action."""
 
@@ -29,6 +32,17 @@ class Action(sge.Job):
         return None
 
     #--------------------------------------------
+    def completedCallback(self):
+        """
+        If the exit status is bad, raise an error.
+        """
+
+        status = self.getExitStatus()
+
+        if status:
+            raise ActionFailed(self.name)
+
+    #--------------------------------------------
     def run(self):
         """
         Executes the commands.
@@ -45,21 +59,51 @@ class Action(sge.Job):
 
         # Add runmod to each command if necessary
         if self.runmod_modules:
-            modules = ' -m '.join(self.runmod_modules)
-            runmod_cmd = "runmod -m %s" % (modules)
-            self.commands = ["%s %s" % (runmod_cmd, it) for it in self.commands]
+            self.prepend_runmod()
 
-        # Concatenate the commands
+        # check for exit status between each (non-echo) command
         # If it's too long, send it to a dot-file
-        self.cmd = ' ;'.join(self.commands)
-        if len(self.cmd) > 1024:
-            file_name = ".%s" % self.name
-            with open(file_name, 'w') as f:
-                print >>f, "#!/usr/bin/csh"
-                for command in self.commands:
-                    print >>f, command
-                print >>f
-            self.cmd = "source ./%s" % (file_name)
+        if len(self.commands) > 1:
+            self.add_check_exit_status()
+
+        file_name = ".%s" % self.name
+        with open(file_name, 'w') as f:
+            print >>f, "#!/usr/bin/csh"
+            for command in self.commands:
+                print >>f, command
+            print >>f
+        self.cmd = "source ./%s" % (file_name)
 
         # Launch me!
         sge.launch(self)
+
+    #--------------------------------------------
+    def prepend_runmod(self):
+        """
+        Adds a runmod command in front of every command that doesn't start with an echo
+        """
+
+        modules = ' -m '.join(self.runmod_modules)
+        runmod_cmd = "runmod -m %s" % (modules)
+
+        def prepend_it(cmd):
+            if not cmd.startswith('echo'):
+                return "%s %s" % (runmod_cmd, cmd)
+            else:
+                return cmd
+
+        self.commands = [prepend_it(it) for it in self.commands]
+
+    #--------------------------------------------
+    def add_check_exit_status(self):
+        """
+        Between each of the commands in self.commands, adds an exit-status checker
+        """
+
+        new_commands = []
+        for cmd in self.commands:
+            new_commands.append(cmd)
+            if cmd.startswith('echo'):
+                continue
+            new_commands.extend(["if($?) then", "exit(-1);", "endif"])
+        self.commands = new_commands

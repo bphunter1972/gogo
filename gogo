@@ -14,7 +14,6 @@ __email__         = 'brian.hunter@cavium.com'
 
 #######################################################################################
 # Imports
-import sys
 import argparse
 import logging
 import cn_logging
@@ -87,7 +86,6 @@ def parse_args():
     for action in actions:
         if action not in shortcuts.keys():
             Log.critical("Unknown action: %s" % action)
-            sys.exit(252)
 
     # Shortcut: just running 'gogo' will build and simulate
     if actions == []:
@@ -99,6 +97,8 @@ def parse_args():
 if __name__ == '__main__':
     actions = parse_args()
     gvars.setup_globals()
+
+    from action import ActionFailed
 
     try:
         if 'clean' in actions:
@@ -119,9 +119,10 @@ if __name__ == '__main__':
             job.run()
     except KeyboardInterrupt:
         Log.critical("Exiting due to Ctrl-C.")
-        sys.exit(255)
+
+    except ActionFailed as inst:
+        Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     # if we get here, we must have passed
     logging.shutdown()
-    sys.exit(0)
 
