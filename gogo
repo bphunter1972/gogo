@@ -53,6 +53,7 @@ def parse_args():
     p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
     p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
     p.add_argument('--verb', '-V',   action='store',             default=None,    help="Specify UVM Verbosity.")
+    p.add_argument('--tb',           action='store',             default='tb',    help="Specify a different tb.py configuration file.")
 
     p.add_argument('--simopts',      action='store',             default=None,    help="Add simulation opts as a string to simulator command-line.")
     p.add_argument('--cmpopts',      action='store',             default=None,    help="Add compilation opts as a string to compiler command-line.")

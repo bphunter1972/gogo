@@ -16,12 +16,18 @@ class BuildAction(action.Action):
         super(BuildAction, self).__init__()
 
         self.name = 'build'
-        self.resources = [gvars.Vars['LSF_BLD_LICS']]
+        self.resources = gvars.Vars['LSF_BLD_LICS']
         self.queue = 'build'
         self.interactive = True
         self.quiet = True
         self.runmod_modules = gvars.Vars['BLD_MODULES']
 
+        # create a symbolic link called 'project', ignore error if it already exists
+        try:
+            os.symlink('../..', 'project')
+        except OSError:
+            pass
+        
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -37,8 +43,10 @@ class BuildAction(action.Action):
             bld_partition = 'auto'
 
         # determine all of the vkits and flists
-        vkits = [os.path.join(gvars.Vars['VKITS_DIR'], it, "%s.flist" % it) for it in gvars.Vars['VKITS']]
-        flists = [gvars.Vars['UVM_FLIST']] + vkits + gvars.Vars['FLISTS']
+        vkits = [it.flist_file() for it in gvars.Vkits]
+
+        # all the flist files in total
+        flists = vkits + gvars.Vars['FLISTS']
 
         # create vcomp directory if it does not already exist
         if not os.path.exists(gvars.Vars['BLD_VCOMP_DIR']):
@@ -67,16 +75,17 @@ class BuildAction(action.Action):
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_cmd = 'vlogan'
-            vlogan_cmd += uvm_dpi
-            vlogan_cmd += flists
+            # vlogan_cmd += uvm_dpi
             vlogan_cmd += bld_options
             vlogan_cmd += bld_defines
+            vlogan_cmd += flists
+            for not_in in ('-DVCS', "+vpi"):
+                vlogan_cmd = vlogan_cmd.replace(not_in, '')
 
         # create build command
         bld_cmd = gvars.Vars['BLD_TOOL']
         bld_cmd += ' -o %s -Mupdate' % (os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'sim.exe'))
-        bld_cmd += uvm_dpi
-        bld_cmd += flists
+        # bld_cmd += uvm_dpi
         bld_cmd += bld_options
         if bld_partition is 'auto':
             bld_cmd += ' -partcomp=autopartdbg'
@@ -87,6 +96,7 @@ class BuildAction(action.Action):
         bld_cmd += arc_libs
         bld_cmd += bld_defines
         bld_cmd += cmpopts
+        bld_cmd += flists
 
         cmds = []
         if run_partition:

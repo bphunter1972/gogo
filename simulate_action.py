@@ -19,7 +19,7 @@ class SimulateAction(action.Action):
         super(SimulateAction, self).__init__()
         
         self.name = gvars.Options.test
-        self.resources = [gvars.Vars['LSF_SIM_LICS']]
+        self.resources = gvars.Vars['LSF_SIM_LICS']
         self.queue = 'verilog'
         self.interactive = True
         self.quiet = True

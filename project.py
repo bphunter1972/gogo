@@ -66,12 +66,13 @@ SIM_WAVE_OPTIONS = ''
 LSF_SUBMIT_TOOL = 'qrsh'
 
 # Bld Licenses
-LSF_BLD_LICS = 'lic_cmp_vcs'
+LSF_BLD_LICS = ['lic_cmp_vcs']
 
 # Simulation Licenses
-LSF_SIM_LICS = 'lic_sim_vcs'
+LSF_SIM_LICS = ['lic_sim_vcs']
 
 ################
 # How to Clean Up
 CLEAN_DIRS = ('sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib')
-CLEAN_FILES = ('ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt')
+CLEAN_FILES = ('ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project')
+

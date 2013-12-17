@@ -3,6 +3,7 @@ Contains all of the global variables.
 """
 
 import os
+from vkit import Vkit
 
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
 # Setup files do not assign to Vars directly, rather, they assign to variables with the same name as the keys of Vars.
@@ -34,8 +35,8 @@ Vars = {
     
     # LSF-related
     'LSF_SUBMIT_TOOL' : None,   # (string) The LSF tool to call
-    'LSF_BLD_LICS'    : None,   # (string) Additional licenses used for building
-    'LSF_SIM_LICS'    : None,   # (string) Additional licences used for simulation
+    'LSF_BLD_LICS'    : None,   # (list of strings) Additional licenses used for building
+    'LSF_SIM_LICS'    : None,   # (list of strings) Additional licences used for simulation
     
     # Cleaning-related
     'CLEAN_DIRS'      : None,   # (list of strings) Names of directories to delete
@@ -55,16 +56,20 @@ Options = None
 # the Logger
 Log = None
 
+# The Vkit and StaticVkit arrays of Vkit classes
+Vkits = StaticVkits = None
+
+
 ########################################################################################
 def setup_globals():
     """
     Set up the Vars dictionary with imported information from project and the local tb.py
     """
 
-    global Vars
+    global Vars, Vkits, StaticVkits
 
     # The names of all the library files that will be imported
-    libraries = ('project', 'tb')
+    libraries = ('project', Options.tb)
 
     def import_lib(mod_name):
         try:
@@ -87,7 +92,6 @@ def setup_globals():
 
     Vars['VKITS_DIR'] = '../vkits'
     Vars['UVM_DIR']   = os.path.join(Vars['VKITS_DIR'], 'uvm/%s' % Vars['UVM_REV'])
-    Vars['UVM_FLIST'] = os.path.join(Vars['UVM_DIR'], 'uvm.flist')
 
     for key in Vars:
         if Vars[key] is None and key not in OptionalKeys:
@@ -96,3 +100,11 @@ def setup_globals():
     # check that some dictionary items only contain correct values
     if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto'):
         Log.critical("BLD_PARTITION value '%s' must be one of 'custom' or 'auto'" % Vars['BLD_PARTITION'])
+
+    # build the Vkits and StaticVkits arrays
+    Vkits = [Vkit(it, Vars['VKITS_DIR']) for it in Vars['VKITS']]
+    uvm_vkit = Vkit(os.path.join(Vars['UVM_DIR'], 'uvm'), Vars['VKITS_DIR'])
+    Vkits.insert(0, uvm_vkit)
+    StaticVkits = [Vkit(it, Vars['VKITS_DIR']) for it in Vars['STATIC_VKITS']]
+    StaticVkits.insert(0, uvm_vkit)
+
