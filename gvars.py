@@ -17,6 +17,7 @@ Vars = {
     # Build-related
     'BLD_PARTITION'   : None,   # (string) When 'auto', compiles and creates a vcs_partition_config.file. 
                                 #          If 'custom', runs in partition-compile mode with file named 'partition.cfg'.
+    'BLD_PARALLEL'    : None,   # (int) The number of cores on which to compile in parallel (partition-compile only)
     'BLD_TOOL'        : None,   # (string) Command needed to run a build
     'BLD_MODULES'     : None,   # (list of strings) Added to runmod for all builds
     'BLD_OPTIONS'     : None,   # (string) Additional build options
@@ -47,8 +48,8 @@ Vars = {
 }
 
 # These keys do NOT need to be specified
-OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_SO_FILES', 'BLD_TAB_FILES', 
-    'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
+OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_PARALLEL', 
+    'BLD_SO_FILES', 'BLD_TAB_FILES', 'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
 
 # All of the command-line options from parse_args
 Options = None

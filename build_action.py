@@ -27,7 +27,18 @@ class BuildAction(action.Action):
             os.symlink('../..', 'project')
         except OSError:
             pass
-        
+
+    #--------------------------------------------     
+    def genCmdLine(self):
+        """
+        Parallel partition compiles on a multi-core machine 
+        """
+
+        cmdLine = super(BuildAction, self).genCmdLine()
+        if gvars.Vars['BLD_PARALLEL']:
+            cmdLine += ' -pe smp_pe %d' % int(gvars.Vars['BLD_PARALLEL'])
+        return cmdLine
+
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -59,7 +70,7 @@ class BuildAction(action.Action):
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
         flists = ' -f ' + ' -f '.join(flists)
 
-        tab_files = so_files = arc_libs = bld_defines = cmpopts = bld_options = ""
+        tab_files = so_files = arc_libs = bld_defines = cmpopts = bld_options = parallel = ""
         if gvars.Vars['BLD_TAB_FILES']:
             tab_files = ' -P ' + ' -P '.join(gvars.Vars['BLD_TAB_FILES'])
         if gvars.Vars['BLD_SO_FILES']:
@@ -71,11 +82,13 @@ class BuildAction(action.Action):
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
         bld_options = " %s" % gvars.Vars['BLD_OPTIONS']
+        if gvars.Vars['BLD_PARALLEL']:
+            parallel = ' -fastpartcomp=j%d' % gvars.Vars['BLD_PARALLEL']
 
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_cmd = 'vlogan'
-            # vlogan_cmd += uvm_dpi
+            vlogan_cmd += uvm_dpi
             vlogan_cmd += bld_options
             vlogan_cmd += bld_defines
             vlogan_cmd += flists
@@ -85,7 +98,7 @@ class BuildAction(action.Action):
         # create build command
         bld_cmd = gvars.Vars['BLD_TOOL']
         bld_cmd += ' -o %s -Mupdate' % (os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'sim.exe'))
-        # bld_cmd += uvm_dpi
+        bld_cmd += uvm_dpi
         bld_cmd += bld_options
         if bld_partition is 'auto':
             bld_cmd += ' -partcomp=autopartdbg'
@@ -96,6 +109,7 @@ class BuildAction(action.Action):
         bld_cmd += arc_libs
         bld_cmd += bld_defines
         bld_cmd += cmpopts
+        bld_cmd += parallel
         bld_cmd += flists
 
         cmds = []
