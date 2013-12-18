@@ -125,6 +125,7 @@ if __name__ == '__main__':
             job = simulate_action.SimulateAction()
             job.run()
 
+            Log.info("%s...PASSED" % job.name)
             # TODO: run simrpt?
     except KeyboardInterrupt:
         Log.critical("Exiting due to Ctrl-C.")

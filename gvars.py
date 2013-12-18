@@ -108,8 +108,8 @@ def setup_globals():
     #         Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
 
     # check that some dictionary items only contain correct values
-    if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto'):
-        Log.critical("BLD_PARTITION value '%s' must be one of 'custom' or 'auto'" % Vars['BLD_PARTITION'])
+    if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto', 'off'):
+        Log.critical("BLD_PARTITION value '%s' must be one of 'custom', 'auto', or 'off'" % Vars['BLD_PARTITION'])
 
     # build the Vkits and StaticVkits arrays
     Vkits = [Vkit(it) for it in Vars['VKITS']]
