@@ -1,14 +1,14 @@
 """
-An action class that executes the simulation
+An gadget class that executes the simulation
 """
 
-import action
+import gadget
 import gvars
 import os
 
 Log = gvars.Log
 
-class SimulateAction(action.Action):
+class SimulateGadget(gadget.Gadget):
     """
     A Job that executes the simulation
     The test to run is contained in gvars.Options.test
@@ -16,7 +16,7 @@ class SimulateAction(action.Action):
 
     #--------------------------------------------
     def __init__(self):
-        super(SimulateAction, self).__init__()
+        super(SimulateGadget, self).__init__()
         
         self.name = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
         self.resources = gvars.Vars['LSF_SIM_LICS']

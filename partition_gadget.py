@@ -2,17 +2,17 @@
 Creates a new partition file for partition-compile.
 """
 
-import action
+import gadget
 import gvars
 
 Log = gvars.Log
 
-class PartitionAction(action.Action):
+class PartitionGadget(gadget.Gadget):
     """Creates a partition file for a testbench"""
 
     #--------------------------------------------
     def __init__(self):
-        super(PartitionAction, self).__init__()
+        super(PartitionGadget, self).__init__()
 
         gvars.Log.info("Creating partition.cfg")
 

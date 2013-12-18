@@ -141,6 +141,6 @@ command-line option.
 
 
 ########################################################################################
-# These variables supply gogo with extendability. Add your own actions to these lists.
-pre_build_actions = []
-post_build_actions = []
+# These variables supply gogo with extendability. Add your own gadgets to these lists.
+pre_build_gadgets = []
+post_build_gadgets = []

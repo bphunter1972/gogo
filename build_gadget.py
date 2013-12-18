@@ -1,19 +1,19 @@
 """
-An Action class representing the Build action.
+An Gadget class representing the Build gadget.
 """
 
-import action
+import gadget
 import gvars
 import os
 
 Log = gvars.Log
 
-class BuildAction(action.Action):
+class BuildGadget(gadget.Gadget):
     """Builds the simulation executable"""
 
     #--------------------------------------------
     def __init__(self):
-        super(BuildAction, self).__init__()
+        super(BuildGadget, self).__init__()
 
         self.name = 'build'
         self.resources = gvars.Vars['LSF_BLD_LICS']
@@ -34,7 +34,7 @@ class BuildAction(action.Action):
         Parallel partition compiles on a multi-core machine 
         """
 
-        cmdLine = super(BuildAction, self).genCmdLine()
+        cmdLine = super(BuildGadget, self).genCmdLine()
         if gvars.Vars['BLD_PARALLEL']:
             cmdLine += ' -pe smp_pe %d' % int(gvars.Vars['BLD_PARALLEL'])
         return cmdLine
@@ -123,4 +123,4 @@ class BuildAction(action.Action):
 
 ########################################################################################
 def get_builder():
-    return BuildAction
+    return BuildGadget

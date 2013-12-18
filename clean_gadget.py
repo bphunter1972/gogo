@@ -2,19 +2,19 @@
 Cleans a testbench tree.
 """
 
-import action
+import gadget
 import gvars
 from shutil import rmtree
 import os
 
 Log = gvars.Log
 
-class CleanAction(action.Action):
+class CleanGadget(gadget.Gadget):
     """Clean up!"""
 
     #--------------------------------------------
     def __init__(self):
-        super(CleanAction, self).__init__()
+        super(CleanGadget, self).__init__()
 
         gvars.Log.info("Cleaning...")
         for dname in gvars.Vars['CLEAN_DIRS']:

@@ -25,7 +25,7 @@ Log = None
 ########################################################################################
 def parse_args():
     """
-    Parse Command-Line. Return the actions to be run
+    Parse Command-Line and return the gadgets to be run as a list of strings.
     """
 
     global Log
@@ -44,11 +44,11 @@ def parse_args():
     p = argparse.ArgumentParser(
         prog='gogo',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="%(prog)s [actions] [options]",
+        usage="%(prog)s [gadgets] [options]",
         version=("%(prog)s v"+__version__),
         description=__doc__)
 
-    p.add_argument('actions',        action='store', nargs='*',  help="Any one of (b)uild, (s)imulate, (p)artition, (c)lean, or help")
+    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (b)uild, (s)imulate, (p)artition, (c)lean, or help")
 
     p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
     p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
@@ -68,7 +68,7 @@ def parse_args():
 
     gvars.Options = p.parse_args()
 
-    actions = gvars.Options.actions
+    gadgets = gvars.Options.gadgets
     shortcuts = {
                  'c'        : 'clean',
                  'cln'      : 'clean',
@@ -86,34 +86,34 @@ def parse_args():
                  'help'     : 'help',
                  }
 
-    for action in actions:
-        if action not in shortcuts.keys():
-            Log.critical("Unknown action: %s" % action)
+    for gadget in gadgets:
+        if gadget not in shortcuts.keys():
+            Log.critical("Unknown gadget: %s" % gadget)
 
     # Shortcut: just running 'gogo' will build and simulate
-    if actions == []:
-        actions = ['bld', 'sim']
+    if gadgets == []:
+        gadgets = ['bld', 'sim']
 
-    return [shortcuts[action] for action in actions]
+    return [shortcuts[gadget] for gadget in gadgets]
 
 ########################################################################################
 def run_build():
-    import build_action
-    for JobAction in gvars.pre_build_actions:
-        job = JobAction()
+    import build_gadget
+    for JobGadget in gvars.pre_build_gadgets:
+        job = JobGadget()
         job.run()
 
-    job = build_action.get_builder()()
+    job = build_gadget.get_builder()()
     job.run()
 
-    for JobAction in gvars.post_build_actions:
-        job = JobAction()
+    for JobGadget in gvars.post_build_gadgets:
+        job = JobGadget()
         job.run()
 
 ########################################################################################
 def run_simulate():
-    import simulate_action
-    job = simulate_action.SimulateAction()
+    import simulate_gadget
+    job = simulate_gadget.SimulateGadget()
     job.run()
 
     Log.info("%s...PASSED" % job.name)
@@ -121,32 +121,32 @@ def run_simulate():
 
 ########################################################################################
 if __name__ == '__main__':
-    actions = parse_args()
+    gadgets = parse_args()
     gvars.setup_globals()
 
-    from action import ActionFailed
+    from gadget import GadgetFailed
 
     try:
-        if 'help' in actions:
+        if 'help' in gadgets:
             import sys
             gvars.print_keys()
             sys.exit(0)
-        if 'clean' in actions:
-            import clean_action
-            job = clean_action.CleanAction()
+        if 'clean' in gadgets:
+            import clean_gadget
+            job = clean_gadget.CleanGadget()
             job.run()
-        if 'partition' in actions:
-            import partition_action
-            job = partition_action.PartitionAction()
+        if 'partition' in gadgets:
+            import partition_gadget
+            job = partition_gadget.PartitionGadget()
             job.run()
-        if 'build' in actions:
+        if 'build' in gadgets:
             run_build()
-        if 'simulate' in actions:
+        if 'simulate' in gadgets:
             run_simulate()
     except KeyboardInterrupt:
         Log.critical("Exiting due to Ctrl-C.")
 
-    except ActionFailed as inst:
+    except GadgetFailed as inst:
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     # if we get here, we must have passed

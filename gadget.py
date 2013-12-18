@@ -1,5 +1,5 @@
 """
-Defines the base class Action.
+Defines the base class Gadget.
 Commands returned by create_cmds will be concatenated with semicolons and run as a single sge Job.
 """
 
@@ -8,15 +8,15 @@ import gvars
 
 Log = gvars.Log
 
-class ActionFailed(Exception): pass
+class GadgetFailed(Exception): pass
 
 
-class Action(sge.Job):
-    """The base class action."""
+class Gadget(sge.Job):
+    """The base class gadget."""
 
     #--------------------------------------------
     def __init__(self):
-        super(Action, self).__init__()
+        super(Gadget, self).__init__()
 
         self.runmod_modules = []
         self.quiet = False
@@ -40,7 +40,7 @@ class Action(sge.Job):
         status = self.getExitStatus()
 
         if status:
-            raise ActionFailed(self.name)
+            raise GadgetFailed(self.name)
 
     #--------------------------------------------
     def run(self):

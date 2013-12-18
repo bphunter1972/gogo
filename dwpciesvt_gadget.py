@@ -1,11 +1,11 @@
 import gvars
-import action
+import gadget
 import os
 
-class DWPciesvtAction(action.Action):
+class DWPciesvtGadget(gadget.Gadget):
     "Build the designware component"
     def __init__(self):
-        super(DWPciesvtAction, self).__init__()
+        super(DWPciesvtGadget, self).__init__()
         
         self.name = 'DWPciesvt'
         self.queue = 'build'
