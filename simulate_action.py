@@ -72,6 +72,14 @@ class SimulateAction(action.Action):
 
         if gvars.Options.wave:
             sim_cmd += " +vpdon +vpdfile+%s/waves.vpd " % (sim_dir)
+            sim_cmd += " -ucli -do .wave_script +vpdupdate +vpdfilesize+2048"
+
+            # create the waves script
+            with open(os.path.join(sim_dir, '.wave_script'), 'w') as file:
+                print >>file, "set d [string map {logfile waves.vpd} [senv logFilename] ]"
+                print >>file, "dump -file $d -type vpd"
+                print >>file, "dump -add %s -depth 0" % gvars.Vars['TB_TOP']
+                print >>file, "run"
 
         if gvars.Options.svfcov:
             sim_cmd += " +svfcov"

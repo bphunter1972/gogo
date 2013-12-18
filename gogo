@@ -97,6 +97,29 @@ def parse_args():
     return [shortcuts[action] for action in actions]
 
 ########################################################################################
+def run_build():
+    import build_action
+    for JobAction in gvars.pre_build_actions:
+        job = JobAction()
+        job.run()
+
+    job = build_action.get_builder()()
+    job.run()
+
+    for JobAction in gvars.post_build_actions:
+        job = JobAction()
+        job.run()
+
+########################################################################################
+def run_simulate():
+    import simulate_action
+    job = simulate_action.SimulateAction()
+    job.run()
+
+    Log.info("%s...PASSED" % job.name)
+    # TODO: run simrpt?
+
+########################################################################################
 if __name__ == '__main__':
     actions = parse_args()
     gvars.setup_globals()
@@ -117,16 +140,9 @@ if __name__ == '__main__':
             job = partition_action.PartitionAction()
             job.run()
         if 'build' in actions:
-            import build_action
-            job = build_action.BuildAction()
-            job.run()
+            run_build()
         if 'simulate' in actions:
-            import simulate_action
-            job = simulate_action.SimulateAction()
-            job.run()
-
-            Log.info("%s...PASSED" % job.name)
-            # TODO: run simrpt?
+            run_simulate()
     except KeyboardInterrupt:
         Log.critical("Exiting due to Ctrl-C.")
 

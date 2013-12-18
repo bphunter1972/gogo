@@ -52,7 +52,7 @@ class Action(sge.Job):
         """
 
         self.commands = self.create_cmds()
-        if self.commands is None:
+        if self.commands is None or self.commands == []:
             return
 
         Log.info("Running %s" % self.name)
@@ -67,15 +67,19 @@ class Action(sge.Job):
             self.add_check_exit_status()
 
         file_name = ".%s" % self.name
+        if self.cwd is not None:
+            import os.path
+            file_name = os.path.join(self.cwd, file_name)
+
         with open(file_name, 'w') as f:
             print >>f, "#!/usr/bin/csh"
             for command in self.commands:
                 print >>f, command
             print >>f
-        self.cmd = "source ./%s" % (file_name)
+        self.cmd = "source %s" % (file_name)
 
         # Launch me!
-        sge.launch(self)
+        sge.waitForJob(self)
 
     #--------------------------------------------
     def prepend_runmod(self):

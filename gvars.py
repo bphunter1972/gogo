@@ -139,3 +139,8 @@ command-line option.
         for line in txt[1:]:
             print("%-18s%s" % (' ', line))
 
+
+########################################################################################
+# These variables supply gogo with extendability. Add your own actions to these lists.
+pre_build_actions = []
+post_build_actions = []

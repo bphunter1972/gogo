@@ -22,7 +22,7 @@ class BuildAction(action.Action):
         self.quiet = True
         self.runmod_modules = gvars.Vars['BLD_MODULES']
 
-        # create a symbolic link called 'project', ignore error if it already exists
+        # create a symbolic link called 'project'. 
         try:
             os.symlink('../..', 'project')
         except OSError:
@@ -120,3 +120,7 @@ class BuildAction(action.Action):
         cmds.append(bld_cmd)
 
         return cmds
+
+########################################################################################
+def get_builder():
+    return BuildAction
