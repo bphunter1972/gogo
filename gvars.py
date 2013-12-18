@@ -9,42 +9,42 @@ from vkit import Vkit
 # Setup files do not assign to Vars directly, rather, they assign to variables with the same name as the keys of Vars.
 Vars = {
     # Testbench-related variables
-    'VKITS'           : None,   # (list of strings) Vkits that this testbench relies upon, in order
-    'STATIC_VKITS'    : None,   # (list of strings) Vkits that should be considered static for the purposes of partition compilation
-    'FLISTS'          : None,   # (list of strings) Testbench FLISTs to include
-    'TB_TOP'          : None,   # (string) The module name of the top-level of the testbench
+    'VKITS'           : None,   # Vkits that this testbench relies upon, in order
+    'STATIC_VKITS'    : None,   # Vkits that should be considered static for the purposes of partition compilation
+    'FLISTS'          : None,   # Testbench FLISTs to include
+    'TB_TOP'          : None,   # The module name of the top-level of the testbench
     
     # Build-related
-    'BLD_PARTITION'   : None,   # (string) When 'auto', compiles and creates a vcs_partition_config.file. 
-                                #          If 'custom', runs in partition-compile mode with file named 'partition.cfg'.
-    'BLD_PARALLEL'    : None,   # (int) The number of cores on which to compile in parallel (partition-compile only)
-    'BLD_TOOL'        : None,   # (string) Command needed to run a build
-    'BLD_MODULES'     : None,   # (list of strings) Added to runmod for all builds
-    'BLD_OPTIONS'     : None,   # (string) Additional build options
-    'BLD_TAB_FILES'   : None,   # (list of strings) PLI files that should also be added to the build command-line (-P <name>)
-    'BLD_SO_FILES'    : None,   # (list of strings) Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
-    'BLD_ARC_LIBS'    : None,   # (list of strings) .a archive libraries that will be added to the build command-line
-    'BLD_VCOMP_DIR'   : None,   # (string) The name of the compile directory
-    'BLD_DEFINES'     : None,   # (list of strings) All +BLD_defines as needed
+    'BLD_PARTITION'   : None,    # When 'auto', compiles and creates a vcs_partition_config.file. 
+                                 # If 'custom', runs in partition-compile mode with file named 'partition.cfg'.
+    'BLD_PARALLEL'    : None,    # The number of cores on which to compile in parallel (partition-compile only)
+    'BLD_TOOL'        : None,    # Command needed to run a build
+    'BLD_MODULES'     : None,   # Added to runmod for all builds
+    'BLD_OPTIONS'     : None,    # Additional build options
+    'BLD_TAB_FILES'   : None,   # PLI files that should also be added to the build command-line (-P <name>)
+    'BLD_SO_FILES'    : None,   # Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
+    'BLD_ARC_LIBS'    : None,   # .a/.o archive libraries that will be added to the build command-line
+    'BLD_VCOMP_DIR'   : None,    # The name of the compile directory
+    'BLD_DEFINES'     : None,   # All +defines as needed
     
     # Simulation-related
-    'SIM_MODULES'     : None,   # (list of string) List of modules, added to runmod for all sims
-    'SIM_GUI'         : None,   # (string) Add this to simulation command-line when you want to run in GUI mode
-    'SIMOPTS'         : None,   # (string) Added to the simulation command-line (not overridden by --simopts)
-    'SIM_PLUSARGS'    : None,   # (list of string) Added to the simulation command-line (all preceded by +)
-    'SIM_WAVE_OPTIONS': None,   # (string) Run-time options
+    'SIM_MODULES'     : None,   # List of modules, added to runmod for all sims
+    'SIM_GUI'         : None,    # Add this to simulation command-line when you want to run in GUI mode
+    'SIMOPTS'         : None,    # Added to the simulation command-line (not overridden by --simopts)
+    'SIM_PLUSARGS'    : None,   # Added to the simulation command-line (all preceded by +)
+    'SIM_WAVE_OPTIONS': None,    # Run-time options
     
     # LSF-related
-    'LSF_SUBMIT_TOOL' : None,   # (string) The LSF tool to call
-    'LSF_BLD_LICS'    : None,   # (list of strings) Additional licenses used for building
-    'LSF_SIM_LICS'    : None,   # (list of strings) Additional licences used for simulation
+    'LSF_SUBMIT_TOOL' : None,    # The LSF tool to call
+    'LSF_BLD_LICS'    : None,   # Additional licenses used for building
+    'LSF_SIM_LICS'    : None,   # Additional licences used for simulation
     
     # Cleaning-related
-    'CLEAN_DIRS'      : None,   # (list of strings) Names of directories to delete
-    'CLEAN_FILES'     : None,   # (list of strings) Names of files to delete
+    'CLEAN_DIRS'      : None,   # Names of directories to delete
+    'CLEAN_FILES'     : None,   # Names of files to delete
 
     # Miscellaneous
-    'UVM_REV'         : None,   # (string) UVM Revision to use
+    'UVM_REV'         : None,    # UVM Revision to use
 }
 
 # These keys do NOT need to be specified

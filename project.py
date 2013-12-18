@@ -73,6 +73,6 @@ LSF_SIM_LICS = ['lic_sim_vcs']
 
 ################
 # How to Clean Up
-CLEAN_DIRS = ('sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib')
-CLEAN_FILES = ('ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project')
+CLEAN_DIRS = ['sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib']
+CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project']
 
