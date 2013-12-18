@@ -81,7 +81,11 @@ def setup_globals():
         try:
             lib = __import__(mod_name)
         except ImportError:
-            Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'"% mod_name)
+            import sys
+            path_str = 'PYTHONPATH = '
+            for p in sys.path:
+                path_str += '\n\t%s' % p
+            Log.critical("'%s.py' file not found! Modify your PYTHONPATH?\n%s" % (mod_name, path_str))
 
         lib_dict = lib.__dict__
         for key in Vars:
