@@ -5,47 +5,49 @@ Contains all of the global variables.
 import os
 from vkit import Vkit
 
+# Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
 # Setup files do not assign to Vars directly, rather, they assign to variables with the same name as the keys of Vars.
-Vars = {
+__DEFAULT_VAL__, __TYPES__, __COMMENT__ = range(3)
+Keys = {
     # Testbench-related variables
-    'VKITS'           : None,   # Vkits that this testbench relies upon, in order
-    'STATIC_VKITS'    : None,   # Vkits that should be considered static for the purposes of partition compilation
-    'FLISTS'          : None,   # Testbench FLISTs to include
-    'TB_TOP'          : None,   # The module name of the top-level of the testbench
+    'VKITS'           : ([], (list,),   "Vkits that this testbench relies upon, in order"),
+    'STATIC_VKITS'    : ([], (list,),   "Vkits that should be considered static for the purposes of partition compilation"),
+    'FLISTS'          : ([], (list,),   "Testbench FLISTs to include"),
+    'TB_TOP'          : ("", (str,),    "The module name of the top-level of the testbench"),
     
     # Build-related
-    'BLD_PARTITION'   : None,    # When 'auto', compiles and creates a vcs_partition_config.file. 
-                                 # If 'custom', runs in partition-compile mode with file named 'partition.cfg'.
-    'BLD_PARALLEL'    : None,    # The number of cores on which to compile in parallel (partition-compile only)
-    'BLD_TOOL'        : None,    # Command needed to run a build
-    'BLD_MODULES'     : None,   # Added to runmod for all builds
-    'BLD_OPTIONS'     : None,    # Additional build options
-    'BLD_TAB_FILES'   : None,   # PLI files that should also be added to the build command-line (-P <name>)
-    'BLD_SO_FILES'    : None,   # Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')
-    'BLD_ARC_LIBS'    : None,   # .a/.o archive libraries that will be added to the build command-line
-    'BLD_VCOMP_DIR'   : None,    # The name of the compile directory
-    'BLD_DEFINES'     : None,   # All +defines as needed
+    'BLD_PARTITION'   : ("", (str,),    "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
+    'BLD_PARALLEL'    : (0, (int,),     "The number of cores on which to compile in parallel (partition-compile only)"),
+    'BLD_TOOL'        : ("", (str,),    "Command needed to run a build"),
+    'BLD_MODULES'     : ([], (list,),   "Added to runmod for all builds"),
+    'BLD_OPTIONS'     : ("", (str,),    "Additional build options"),
+    'BLD_TAB_FILES'   : ([], (list,),   "PLI files that should also be added to the build command-line (-P <name>)"),
+    'BLD_SO_FILES'    : ([], (list,),   "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
+    'BLD_ARC_LIBS'    : ([], (list,),   ".a/.o archive libraries that will be added to the build command-line"),
+    'BLD_VCOMP_DIR'   : ("", (str,),    "The name of the compile directory"),
+    'BLD_DEFINES'     : ([], (list,),   "All +defines as needed"),
     
     # Simulation-related
-    'SIM_MODULES'     : None,   # List of modules, added to runmod for all sims
-    'SIM_GUI'         : None,    # Add this to simulation command-line when you want to run in GUI mode
-    'SIMOPTS'         : None,    # Added to the simulation command-line (not overridden by --simopts)
-    'SIM_PLUSARGS'    : None,   # Added to the simulation command-line (all preceded by +)
-    'SIM_WAVE_OPTIONS': None,    # Run-time options
+    'SIM_MODULES'     : ([], (list,),   "List of modules, added to runmod for all sims"),
+    'SIM_GUI'         : ("", (str,),    "Add this to simulation command-line when you want to run in GUI mode"),
+    'SIMOPTS'         : ("", (str,),    "Added to the simulation command-line (not overridden by --simopts)"),
+    'SIM_PLUSARGS'    : ([], (list,),   "Added to the simulation command-line (all preceded by +)"),
+    'SIM_WAVE_OPTIONS': ("", (str,),    "Run-time options"),
     
     # LSF-related
-    'LSF_SUBMIT_TOOL' : None,    # The LSF tool to call
-    'LSF_BLD_LICS'    : None,   # Additional licenses used for building
-    'LSF_SIM_LICS'    : None,   # Additional licences used for simulation
+    'LSF_BLD_LICS'    : ([], (list,),   "Additional licenses used for building"),
+    'LSF_SIM_LICS'    : ([], (list,),   "Additional licences used for simulation"),
     
     # Cleaning-related
-    'CLEAN_DIRS'      : None,   # Names of directories to delete
-    'CLEAN_FILES'     : None,   # Names of files to delete
-
+    'CLEAN_DIRS'      : ([], (list,),   "Names of directories to delete"),
+    'CLEAN_FILES'     : ([], (list,),   "Names of files to delete"),
+    
     # Miscellaneous
-    'UVM_REV'         : None,    # UVM Revision to use
+    'UVM_REV'         : ("1_1d", (str,), "UVM Revision to use"),
 }
+
+Vars = {}
 
 # These keys do NOT need to be specified
 OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_PARALLEL', 
@@ -60,7 +62,6 @@ Log = None
 # The Vkit and StaticVkit arrays of Vkit classes
 Vkits = StaticVkits = None
 
-
 ########################################################################################
 def setup_globals():
     """
@@ -72,40 +73,69 @@ def setup_globals():
     # The names of all the library files that will be imported
     libraries = ('project', Options.tb)
 
+    # Initialize Vars with default values from Keys
+    for key in Keys:
+        Vars[key] = Keys[key][__DEFAULT_VAL__]
+
     def import_lib(mod_name):
         try:
             lib = __import__(mod_name)
         except ImportError:
-            Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'" % mod_name)
+            Log.critical("%s.py file not found! Ensure that your PYTHONPATH variable includes '.'"% mod_name)
 
         lib_dict = lib.__dict__
         for key in Vars:
             if key in lib_dict:
-                try:
-                    if type(Vars[key]) == str:
-                        Vars[key] = Vars[key] + ' ' + lib_dict[key]
-                    else:
-                        Vars[key] += lib_dict[key]
-                except:
-                    Vars[key] = lib_dict[key]
+                # check that the type is correct
+                if type(lib_dict[key]) not in Keys[key][__TYPES__]:
+                    Log.critical("Expected type(s) %s for %s, but saw %s instead.", 
+                        Keys[key][__TYPES__], key, type(lib_dict[key]))
+
+                if type(Vars[key]) == str:
+                    # concatenate with a space if it's already set to something
+                    Vars[key] = Vars[key] + ' ' + lib_dict[key] if (Vars[key] != "" and lib_dict[key] != Vars[key]) else lib_dict[key]
+                else:
+                    Vars[key] += lib_dict[key]
 
     map(import_lib, libraries)
 
     Vars['VKITS_DIR'] = '../vkits'
-    Vars['UVM_DIR']   = os.path.join(Vars['VKITS_DIR'], 'uvm/%s' % Vars['UVM_REV'])
+    Vars['UVM_DIR']   = os.path.join(Vars['VKITS_DIR'], 'uvm', Vars['UVM_REV'])
 
-    for key in Vars:
-        if Vars[key] is None and key not in OptionalKeys:
-            Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
+    # TODO: Fix this checker
+    # for key in Vars:
+    #     if Vars[key] is None and key not in OptionalKeys:
+    #         Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
 
     # check that some dictionary items only contain correct values
     if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto'):
         Log.critical("BLD_PARTITION value '%s' must be one of 'custom' or 'auto'" % Vars['BLD_PARTITION'])
 
     # build the Vkits and StaticVkits arrays
-    Vkits = [Vkit(it, Vars['VKITS_DIR']) for it in Vars['VKITS']]
-    uvm_vkit = Vkit(os.path.join(Vars['UVM_DIR'], 'uvm'), Vars['VKITS_DIR'])
+    Vkits = [Vkit(it) for it in Vars['VKITS']]
+    uvm_flist = os.path.join(Vars['UVM_DIR'], 'uvm.flist')
+    uvm_vkit = Vkit(uvm_flist)
     Vkits.insert(0, uvm_vkit)
-    StaticVkits = [Vkit(it, Vars['VKITS_DIR']) for it in Vars['STATIC_VKITS']]
+    StaticVkits = [Vkit(it) for it in Vars['STATIC_VKITS']]
     StaticVkits.insert(0, uvm_vkit)
+
+########################################################################################
+def print_keys():
+    from textwrap import wrap
+    print """
+Assign variables with the following names in either project.py or tb.py.
+
+project.py : There should be one of these per-project.
+tb.py      : There should be one (or more) of these per-testbench.
+
+If more than 1 tb.py are created, select which tb.py to use with the --tb 
+command-line option.
+"""
+
+    for key in sorted(Keys.keys()):
+        txt = wrap(Keys[key][__COMMENT__], 60)
+        print("%-18s%s" % (key, txt[0]))
+
+        for line in txt[1:]:
+            print("%-18s%s" % (' ', line))
 
