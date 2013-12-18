@@ -18,10 +18,16 @@ class SimulateAction(action.Action):
     def __init__(self):
         super(SimulateAction, self).__init__()
         
-        self.name = gvars.Options.test
+        self.name = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
         self.resources = gvars.Vars['LSF_SIM_LICS']
         self.queue = 'verilog'
-        self.interactive = True
+
+        # if verbosity is 0 or --interactive is on the command-line, then run interactively
+        if gvars.Options.verb == 0 or gvars.Options.interactive:
+            self.interactive = True
+        else:
+            self.interactive = False
+
         self.quiet = True
         self.runmod_modules = gvars.Vars['SIM_MODULES']
 
@@ -34,9 +40,9 @@ class SimulateAction(action.Action):
         Log.info("Simulating...%s" % self.name)
 
         sim_cmd = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'sim.exe')
-        sim_cmd += " +UVM_TESTNAME=%s_test_c" % self.name
+        sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
 
-        sim_dir = os.path.join('sim', (gvars.Options.dir if gvars.Options.dir else self.name))
+        sim_dir = os.path.join('sim', self.name)
         sim_cmd += " -l %s/logfile" % sim_dir
 
         if gvars.Options.seed == 0:
@@ -53,8 +59,7 @@ class SimulateAction(action.Action):
                 sys.exit(254)
 
         # OPTIONS
-        if gvars.Options.verb:
-            sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
+        sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
 
         if gvars.Options.topo:
             sim_cmd += " +UVM_TOPO_DEPTH=%d" % gvars.Options.topo
