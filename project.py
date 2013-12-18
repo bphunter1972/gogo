@@ -63,7 +63,6 @@ SIM_WAVE_OPTIONS = ''
 
 ###############
 # LSF Command
-LSF_SUBMIT_TOOL = 'qrsh'
 
 # Bld Licenses
 LSF_BLD_LICS = ['lic_cmp_vcs']
