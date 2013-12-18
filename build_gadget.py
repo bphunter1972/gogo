@@ -45,6 +45,8 @@ class BuildGadget(gadget.Gadget):
         Returns the commands as a list of strings.
         """
 
+        cmds = []
+
         bld_partition = gvars.Vars['BLD_PARTITION'] 
         run_partition = bld_partition in ('auto', 'custom')
 
@@ -94,16 +96,26 @@ class BuildGadget(gadget.Gadget):
             vlogan_cmd += flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
+            cmds.append("echo '++ Running vlogan'")
+            cmds.append(vlogan_cmd)
 
         # create build command
+        simv_file = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'simv')
         bld_cmd = gvars.Vars['BLD_TOOL']
-        bld_cmd += ' -o %s -Mupdate' % (os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'sim.exe'))
+        bld_cmd += ' -o %s -Mupdate' % (simv_file)
         bld_cmd += uvm_dpi
         bld_cmd += bld_options
-        if bld_partition is 'auto':
-            bld_cmd += ' -partcomp=autopartdbg'
-        elif bld_partition is 'custom':
-            bld_cmd += ' -partcomp +optconfigfile+partition.cfg'
+
+        try:
+            part = {
+                'auto'  : ' -partcomp=autopartdbg',
+                'custom': ' -partcomp +optconfigfile+partition.cfg',
+                'off'   : '',
+            }[bld_partition]
+            bld_cmd += part
+        except KeyError:
+            Log.critical("The BLD_PARTITION variable %s must be set to (auto, custom, or off)." % bld_partition)
+
         bld_cmd += tab_files
         bld_cmd += so_files
         bld_cmd += arc_libs
@@ -111,11 +123,6 @@ class BuildGadget(gadget.Gadget):
         bld_cmd += cmpopts
         bld_cmd += parallel
         bld_cmd += flists
-
-        cmds = []
-        if run_partition:
-            cmds.append("echo '++ Running vlogan'")
-            cmds.append(vlogan_cmd)
         cmds.append("echo '++ Running vcs'")
         cmds.append(bld_cmd)
 
