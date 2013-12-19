@@ -22,6 +22,9 @@ class Gadget(sge.Job):
         self.quiet = False
         self.echo = True
 
+        # descendant classes must set this to one of the schedule phases
+        self.schedule_phase = None
+
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -43,7 +46,7 @@ class Gadget(sge.Job):
             raise GadgetFailed(self.name)
 
     #--------------------------------------------
-    def run(self):
+    def prepare(self):
         """
         Executes the commands.
         Get the commands to run
@@ -79,7 +82,7 @@ class Gadget(sge.Job):
         self.cmd = "source %s" % (file_name)
 
         # Launch me!
-        sge.waitForJob(self)
+        return self
 
     #--------------------------------------------
     def prepend_runmod(self):

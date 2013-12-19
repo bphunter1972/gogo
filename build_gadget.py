@@ -15,6 +15,8 @@ class BuildGadget(gadget.Gadget):
     def __init__(self):
         super(BuildGadget, self).__init__()
 
+        self.schedule_phase = 'build'
+
         self.name = 'build'
         self.resources = gvars.Vars['LSF_BLD_LICS']
         self.queue = 'build'
@@ -55,12 +57,6 @@ class BuildGadget(gadget.Gadget):
             Log.warning("Unable to find file 'partition.cfg'.  Setting to run in auto mode instead.")
             bld_partition = 'auto'
 
-        # determine all of the vkits and flists
-        vkits = [it.flist_file() for it in gvars.Vkits]
-
-        # all the flist files in total
-        flists = vkits + gvars.Vars['FLISTS']
-
         # create vcomp directory if it does not already exist
         if not os.path.exists(gvars.Vars['BLD_VCOMP_DIR']):
             try:
@@ -70,17 +66,17 @@ class BuildGadget(gadget.Gadget):
                 sys.exit(255)
 
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
-        flists = ' -f ' + ' -f '.join(flists)
+        flists = get_flists() 
 
         tab_files = so_files = arc_libs = bld_defines = cmpopts = bld_options = parallel = ""
         if gvars.Vars['BLD_TAB_FILES']:
-            tab_files = ' -P ' + ' -P '.join(gvars.Vars['BLD_TAB_FILES'])
+            tab_files = get_tab_files()
         if gvars.Vars['BLD_SO_FILES']:
-            so_files = " -LDFLAGS '%s'" % (' '.join(gvars.Vars['BLD_SO_FILES']))
+            so_files = get_so_files()
         if gvars.Vars['BLD_ARC_LIBS']:
             arc_libs = ' ' + ' '.join(gvars.Vars['BLD_ARC_LIBS'])
         if gvars.Vars['BLD_DEFINES']:
-            bld_defines = ' +define+' + '+'.join(gvars.Vars['BLD_DEFINES'])
+            bld_defines = get_defines()
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
         bld_options = " %s" % gvars.Vars['BLD_OPTIONS']
@@ -129,5 +125,23 @@ class BuildGadget(gadget.Gadget):
         return cmds
 
 ########################################################################################
-def get_builder():
-    return BuildGadget
+def get_defines():
+    return ' +define+' + '+'.join(gvars.Vars['BLD_DEFINES'])
+
+########################################################################################
+def get_flists():
+    # determine all of the vkits and flists
+    vkits = [it.flist_file() for it in gvars.Vkits]
+
+    # all the flist files in total
+    flists = vkits + gvars.Vars['FLISTS']
+
+    return ' -f ' + ' -f '.join(flists)
+
+########################################################################################
+def get_tab_files():
+    return ' -P ' + ' -P '.join(gvars.Vars['BLD_TAB_FILES'])
+
+########################################################################################
+def get_so_files():
+    return " -LDFLAGS '%s'" % (' '.join(gvars.Vars['BLD_SO_FILES']))

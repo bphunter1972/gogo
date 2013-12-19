@@ -19,6 +19,7 @@ import logging
 import cn_logging
 import gvars
 import sge_tools as sge
+import schedule
 
 Log = None
 
@@ -100,10 +101,6 @@ def parse_args():
 ########################################################################################
 def run_build():
     import build_gadget
-    for JobGadget in gvars.pre_build_gadgets:
-        job = JobGadget()
-        job.run()
-
     job = build_gadget.get_builder()()
     job.run()
 
@@ -132,18 +129,26 @@ if __name__ == '__main__':
             import sys
             gvars.print_keys()
             sys.exit(0)
+
         if 'clean' in gadgets:
             import clean_gadget
-            job = clean_gadget.CleanGadget()
-            job.run()
+            schedule.add_gadget(clean_gadget.CleanGadget())
+
         if 'partition' in gadgets:
             import partition_gadget
-            job = partition_gadget.PartitionGadget()
-            job.run()
+            schedule.add_gadget(partition_gadget.PartitionGadget())
+
         if 'build' in gadgets:
-            run_build()
+            import build_gadget
+            schedule.add_gadget(build_gadget.BuildGadget())
+
         if 'simulate' in gadgets:
-            run_simulate()
+            import simulate_gadget
+            schedule.add_gadget(simulate_gadget.SimulateGadget())
+
+        schedule.set_schedule()
+        schedule.run_schedule()
+
     except KeyboardInterrupt:
         sge.killAll()
         Log.critical("Exiting due to Ctrl-C.")

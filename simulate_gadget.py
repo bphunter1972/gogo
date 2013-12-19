@@ -17,7 +17,9 @@ class SimulateGadget(gadget.Gadget):
     #--------------------------------------------
     def __init__(self):
         super(SimulateGadget, self).__init__()
-        
+
+        self.schedule_phase = 'simulate'
+
         self.name = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
         self.resources = gvars.Vars['LSF_SIM_LICS']
         self.queue = 'verilog'
@@ -28,12 +30,21 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.quiet = False
+        self.quiet = True
         self.runmod_modules = gvars.Vars['SIM_MODULES']
 
+        self.tb_top = gvars.Vars['TB_TOP']
         self.sim_dir = os.path.join('sim', self.name)
+        self.vcomp_dir = gvars.Vars['BLD_VCOMP_DIR']
 
-        Log.info("waves = %s" % gvars.Options.wave)
+        # ensure that executable has been built
+        self.sim_exe = os.path.join(self.vcomp_dir, 'simv')
+        if os.path.exists(self.sim_exe) == False:
+            Log.critical("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
+
+        # if necessary, add Vericom to the list of gadgets, among other things
+        if gvars.Options.wave == 'fsdb':
+            self.handle_fsdb()
 
     #--------------------------------------------
     def create_cmds(self):
@@ -41,9 +52,7 @@ class SimulateGadget(gadget.Gadget):
         Returns the commands as a list of strings.
         """
 
-        Log.info("Simulating...%s" % self.name)
-
-        sim_cmd = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'simv')
+        sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
 
         sim_cmd += " -l %s/logfile" % self.sim_dir
@@ -77,10 +86,10 @@ class SimulateGadget(gadget.Gadget):
             wave_script_name = os.path.join(self.sim_dir, '.wave_script')
             sim_cmd += " +vpdon +vpdfile+%s/waves.vpd " % (self.sim_dir)
             sim_cmd += " -ucli -do %s +vpdupdate +vpdfilesize+2048" % wave_script_name
-            self.create_wave_script(wave_script_name)
+            self.handle_vpd(wave_script_name)
         elif gvars.Options.wave == 'fsdb':
-            sim_cmd += self.handle_verdi()
-
+            sim_cmd += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
+            sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
         if gvars.Options.svfcov:
             sim_cmd += " +svfcov"
 
@@ -96,25 +105,21 @@ class SimulateGadget(gadget.Gadget):
         return [sim_cmd]
 
     #--------------------------------------------
-    def create_wave_script(self, wave_script_name):
+    def handle_vpd(self, wave_script_name):
         "Create the .wave_script file that VCS will do."
         with open(wave_script_name, 'w') as file:
-            print >>file, "set d [string map {logfile waves.vpd} [senv logFilename] ]"
-            print >>file, "dump -file $d -type vpd"
-            print >>file, "dump -add %s -depth 0" % gvars.Vars['TB_TOP']
-            print >>file, "run"
+            print >>file, """set d [string map {logfile waves.vpd} [senv logFilename] ]
+            dump -file $d -type vpd
+            dump -add %(tb_top)s -depth 0
+            run""" % self.__dict__
 
     #--------------------------------------------
-    def handle_verdi(self):
-        Log.info("Handling verdi")
-
+    def handle_fsdb(self):
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
-        str =  " +fsdb_siglist=%s/.signal_list" % self.sim_dir
-        str += " +fsdb_outfile=%s/verilog.fsdb" % self.sim_dir
-        str += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
 
-        # make a file with the tb_top in it, call it .signal_list
-        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
-            print >>file, "0 %s" % gvars.Vars['TB_TOP']
+        # Run vericom gadget during pre_simulate
+        import verdi_gadget
+        import schedule
+        vericom = verdi_gadget.VerdiGadget(self.sim_dir)
+        schedule.add_gadget(vericom)
 
-        return str

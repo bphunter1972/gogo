@@ -16,6 +16,8 @@ class CleanGadget(gadget.Gadget):
     def __init__(self):
         super(CleanGadget, self).__init__()
 
+        self.schedule_phase = 'clean'
+        
         gvars.Log.info("Cleaning...")
         for dname in gvars.Vars['CLEAN_DIRS']:
             try:
