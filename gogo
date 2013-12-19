@@ -63,7 +63,8 @@ def parse_args():
     p.add_argument('--topo',         action='store', type=int,   default=None,    help="Print UVM topology at this depth.")
     p.add_argument('--wdog',         action='store', type=int,   default=None,    help="Time (in ns) at which the testbench will watchdog timeout.")
     p.add_argument('--gui',  '-g',   action='store_true',        default=False,   help="Run DVE in GUI mode.")
-    p.add_argument('--wave', '-w',   action='store_true',        default=False,   help="Dump waves to VPD file.")
+    p.add_argument('--wave', '-w',   action='store', type=str,   default=False,   help="Dump waves to VPD file.",
+        choices=('vpd', 'fsdb'))
     p.add_argument('--svfcov',       action='store_true',        default=False,   help="Run with SV Functional Coverage")
 
     gvars.Options = p.parse_args()
@@ -144,6 +145,7 @@ if __name__ == '__main__':
         if 'simulate' in gadgets:
             run_simulate()
     except KeyboardInterrupt:
+        sge.killAll()
         Log.critical("Exiting due to Ctrl-C.")
 
     except GadgetFailed as inst:

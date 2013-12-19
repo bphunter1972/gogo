@@ -1,10 +1,10 @@
-###############
+#--------------------------------------------
 # UVM Options
 
 # Select UVM_REV
 UVM_REV   = '1_1d'
 
-###############
+#--------------------------------------------
 # How to build with VCS
 VCS_VERSION = 'H-2013.06-SP1'
 BLD_MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]
@@ -38,7 +38,7 @@ BLD_OPTIONS += '  -CFLAGS -DVCS -full64 +warn=noISALS,noULSU,noIDTS,noLCA_FEATUR
 BLD_DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
             'UVM_NO_DEPRECATED', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
 
-###############
+#--------------------------------------------
 # Various Simulation Flags
 SIM_GUI = ' -gui'
 SIM_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
@@ -57,11 +57,11 @@ SIM_PLUSARGS = ['bug_file=../../verif/bugs.bdf',
                 'UVM_MAX_QUIT_COUNT=10,0'
                 ]
 
-###############
+#--------------------------------------------
 # Simulation options
 SIM_WAVE_OPTIONS = ''
 
-###############
+#--------------------------------------------
 # LSF Command
 
 # Bld Licenses
@@ -70,8 +70,12 @@ LSF_BLD_LICS = ['lic_cmp_vcs']
 # Simulation Licenses
 LSF_SIM_LICS = ['lic_sim_vcs']
 
-################
+#--------------------------------------------
 # How to Clean Up
 CLEAN_DIRS = ['sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib']
 CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project']
+
+#--------------------------------------------
+# Miscellaneous
+VERDI_MODULE = 'synopsys-verdi'
 

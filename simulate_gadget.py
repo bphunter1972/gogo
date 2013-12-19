@@ -28,8 +28,12 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.quiet = True
+        self.quiet = False
         self.runmod_modules = gvars.Vars['SIM_MODULES']
+
+        self.sim_dir = os.path.join('sim', self.name)
+
+        Log.info("waves = %s" % gvars.Options.wave)
 
     #--------------------------------------------
     def create_cmds(self):
@@ -39,23 +43,22 @@ class SimulateGadget(gadget.Gadget):
 
         Log.info("Simulating...%s" % self.name)
 
-        sim_cmd = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'sim.exe')
+        sim_cmd = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'simv')
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
 
-        sim_dir = os.path.join('sim', self.name)
-        sim_cmd += " -l %s/logfile" % sim_dir
+        sim_cmd += " -l %s/logfile" % self.sim_dir
 
         if gvars.Options.seed == 0:
             import random
             gvars.Options.seed = random.getrandbits(32)
         sim_cmd += " +seed=%d" % gvars.Options.seed
 
-        if not os.path.exists(sim_dir):
+        if not os.path.exists(self.sim_dir):
             try:
-                os.makedirs(sim_dir)
+                os.makedirs(self.sim_dir)
             except OSError:
                 import sys
-                Log.critical("Unable to create %s" % sim_dir)
+                Log.critical("Unable to create %s" % self.sim_dir)
                 sys.exit(254)
 
         # OPTIONS
@@ -70,16 +73,13 @@ class SimulateGadget(gadget.Gadget):
         if gvars.Options.gui:
             sim_cmd += gvars.Vars['SIM_GUI']
 
-        if gvars.Options.wave:
-            sim_cmd += " +vpdon +vpdfile+%s/waves.vpd " % (sim_dir)
-            sim_cmd += " -ucli -do .wave_script +vpdupdate +vpdfilesize+2048"
-
-            # create the waves script
-            with open(os.path.join(sim_dir, '.wave_script'), 'w') as file:
-                print >>file, "set d [string map {logfile waves.vpd} [senv logFilename] ]"
-                print >>file, "dump -file $d -type vpd"
-                print >>file, "dump -add %s -depth 0" % gvars.Vars['TB_TOP']
-                print >>file, "run"
+        if gvars.Options.wave == 'vpd':
+            wave_script_name = os.path.join(self.sim_dir, '.wave_script')
+            sim_cmd += " +vpdon +vpdfile+%s/waves.vpd " % (self.sim_dir)
+            sim_cmd += " -ucli -do %s +vpdupdate +vpdfilesize+2048" % wave_script_name
+            self.create_wave_script(wave_script_name)
+        elif gvars.Options.wave == 'fsdb':
+            sim_cmd += self.handle_verdi()
 
         if gvars.Options.svfcov:
             sim_cmd += " +svfcov"
@@ -95,3 +95,26 @@ class SimulateGadget(gadget.Gadget):
 
         return [sim_cmd]
 
+    #--------------------------------------------
+    def create_wave_script(self, wave_script_name):
+        "Create the .wave_script file that VCS will do."
+        with open(wave_script_name, 'w') as file:
+            print >>file, "set d [string map {logfile waves.vpd} [senv logFilename] ]"
+            print >>file, "dump -file $d -type vpd"
+            print >>file, "dump -add %s -depth 0" % gvars.Vars['TB_TOP']
+            print >>file, "run"
+
+    #--------------------------------------------
+    def handle_verdi(self):
+        Log.info("Handling verdi")
+
+        self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
+        str =  " +fsdb_siglist=%s/.signal_list" % self.sim_dir
+        str += " +fsdb_outfile=%s/verilog.fsdb" % self.sim_dir
+        str += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
+
+        # make a file with the tb_top in it, call it .signal_list
+        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
+            print >>file, "0 %s" % gvars.Vars['TB_TOP']
+
+        return str

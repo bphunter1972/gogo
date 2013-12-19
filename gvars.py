@@ -45,6 +45,8 @@ Keys = {
     
     # Miscellaneous
     'UVM_REV'         : ("1_1d", (str,), "UVM Revision to use"),
+    'VERDI_MODULE'    : ("", (str,),     "Module to load for Verdi usage."),
+
 }
 
 Vars = {}
