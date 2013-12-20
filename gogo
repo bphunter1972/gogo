@@ -67,6 +67,8 @@ def parse_args():
         choices=('vpd', 'fsdb'))
     p.add_argument('--svfcov',       action='store_true',        default=False,   help="Run with SV Functional Coverage")
 
+    p.add_argument('--dbg',          action='store_true',        default=False,   help="Used for debugging gogo.")
+
     gvars.Options = p.parse_args()
 
     gadgets_to_run = gvars.Options.gadgets
@@ -95,6 +97,9 @@ def parse_args():
     if gadgets_to_run == []:
         gadgets_to_run = ['bld', 'sim']
 
+    if gvars.Options.dbg:
+        gvars.Log.setLevel(logging.DEBUG)
+        
     return [shortcuts[gadget] for gadget in gadgets_to_run]
 
 ########################################################################################

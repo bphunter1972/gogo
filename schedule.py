@@ -35,10 +35,12 @@ def set_schedule():
         if gadget.schedule_phase not in PHASES:
             gvars.Log.critical("The gadget %s (%s) has an illegal schedule_phase of %s." % (gadget.name, str(type(gadget)), gadget.schedule_phase))
         Schedule[gadget.schedule_phase].append(gadget)
+        gvars.Log.debug("Added gadget %s to %s" % (gadget.name, gadget.schedule_phase))
 
 ########################################################################################
 def run_schedule():
     for phase in PHASES:
+        gvars.Log.debug("Entering Phase %s" % phase)
         if len(Schedule[phase]):
             # set all of the command-lines for each of the jobs
             for job in Schedule[phase]:
