@@ -20,7 +20,7 @@ class Gadget(sge.Job):
 
         self.runmod_modules = []
         self.quiet = True
-        self.echo = True
+        self.echo = False
 
         # descendant classes must set this to one of the schedule phases
         self.schedule_phase = None
