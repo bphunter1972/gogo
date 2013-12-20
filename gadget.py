@@ -25,6 +25,8 @@ class Gadget(sge.Job):
         # descendant classes must set this to one of the schedule phases
         self.schedule_phase = None
 
+        self.name = self.__class__.__name__
+
     #--------------------------------------------
     def create_cmds(self):
         """
