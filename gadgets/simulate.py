@@ -101,7 +101,8 @@ class SimulateGadget(gadget.Gadget):
         if gvars.Vars['SIM_PLUSARGS']:
             sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.Vars['SIM_PLUSARGS']])
 
-        return [sim_cmd]
+        simrpt_cmd = 'simrpt %s/logfile' % self.sim_dir
+        return [sim_cmd, simrpt_cmd]
 
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):
@@ -121,4 +122,3 @@ class SimulateGadget(gadget.Gadget):
         import schedule
         vericom = gadgets.vericom.VericomGadget(self.sim_dir)
         schedule.add_gadget(vericom)
-
