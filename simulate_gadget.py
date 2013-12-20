@@ -30,7 +30,6 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.quiet = True
         self.runmod_modules = gvars.Vars['SIM_MODULES']
 
         self.tb_top = gvars.Vars['TB_TOP']
@@ -118,8 +117,8 @@ class SimulateGadget(gadget.Gadget):
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
 
         # Run vericom gadget during pre_simulate
-        import verdi_gadget
+        import vericom_gadget
         import schedule
-        vericom = verdi_gadget.VerdiGadget(self.sim_dir)
+        vericom = vericom_gadget.VericomGadget(self.sim_dir)
         schedule.add_gadget(vericom)
 

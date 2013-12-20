@@ -21,7 +21,6 @@ class BuildGadget(gadget.Gadget):
         self.resources = gvars.Vars['LSF_BLD_LICS']
         self.queue = 'build'
         self.interactive = True
-        self.quiet = True
         self.runmod_modules = gvars.Vars['BLD_MODULES']
 
         # create a symbolic link called 'project'. 

@@ -12,7 +12,6 @@ class DWPciesvtGadget(gadget.Gadget):
         self.name = 'DWPciesvt'
         self.queue = 'build'
         self.interactive = True
-        self.quiet = True
         self.runmod_modules = ["synopsys-designware"]
 
     #--------------------------------------------     

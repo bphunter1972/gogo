@@ -2,11 +2,11 @@ import gadget
 import gvars
 import os.path
 
-class VerdiGadget(gadget.Gadget):
+class VericomGadget(gadget.Gadget):
     """Runs vericom for Verdi usage"""
 
     def __init__(self, sim_dir):
-        super(VerdiGadget, self).__init__()
+        super(VericomGadget, self).__init__()
 
         self.schedule_phase = 'pre_simulate'
 
@@ -16,7 +16,7 @@ class VerdiGadget(gadget.Gadget):
         self.tb_top = gvars.Vars['TB_TOP']
         self.interactive = True
         self.queue = 'build'
-
+        
     #--------------------------------------------
     def create_cmds(self):
         """
