@@ -87,8 +87,9 @@ def setup_globals():
             path_str = 'PYTHONPATH = '
             for p in sys.path:
                 path_str += '\n\t%s' % p
-            Log.critical("'%s.py' file not found! Modify your PYTHONPATH?\n%s" % (mod_name, path_str))
-
+            Log.warning("'%s.py' file not found! Modify your PYTHONPATH?\n%s" % (mod_name, path_str))
+            raise
+            
         lib_dict = lib.__dict__
         for key in Vars:
             if key in lib_dict:
