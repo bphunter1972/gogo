@@ -48,6 +48,10 @@ class Gadget(sge.Job):
             raise GadgetFailed(self.name)
 
     #--------------------------------------------
+    def preLaunchCallback(self):
+        Log.info("Running %s" % self.name)
+        
+    #--------------------------------------------
     def prepare(self):
         """
         Executes the commands.

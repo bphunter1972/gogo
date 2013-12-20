@@ -29,6 +29,14 @@ class BuildGadget(gadget.Gadget):
         except OSError:
             pass
 
+        # create the partition file if one does not already exist
+        if gvars.Vars['BLD_PARTITION'] == 'custom' and not os.path.exists('partition.cfg'):
+            # note that this does not actually go to the schedule yet (everything runs in init(), 
+            # we still will add it to the schedule in case that changes someday)
+            import partition
+            import schedule
+            schedule.add_gadget(partition.PartitionGadget())
+
     #--------------------------------------------     
     def genCmdLine(self):
         """
@@ -91,7 +99,6 @@ class BuildGadget(gadget.Gadget):
             vlogan_cmd += flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
-            cmds.append("echo '++ Running vlogan'")
             cmds.append(vlogan_cmd)
 
         # create build command
@@ -118,7 +125,6 @@ class BuildGadget(gadget.Gadget):
         bld_cmd += cmpopts
         bld_cmd += parallel
         bld_cmd += flists
-        cmds.append("echo '++ Running vcs'")
         cmds.append(bld_cmd)
 
         return cmds

@@ -4,9 +4,6 @@
 A lightweight compile and simulate script
 """
 
-########################################################################################
-# Globals
-
 __version__       = '0.0'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
@@ -18,7 +15,9 @@ import logging
 import cn_logging
 import gvars
 import sge_tools as sge
-import schedule
+
+########################################################################################
+# Globals
 
 Log = None
 
@@ -76,9 +75,6 @@ def parse_args():
                  'c'        : 'clean',
                  'cln'      : 'clean',
                  'clean'    : 'clean',
-                 'partition': 'partition',
-                 'par'      : 'partition',
-                 'p'        : 'partition',
                  'b'        : 'build',
                  'build'    : 'build',
                  'bld'      : 'build',
@@ -99,29 +95,27 @@ def parse_args():
 
     if gvars.Options.dbg:
         gvars.Log.setLevel(logging.DEBUG)
-        
+
     return [shortcuts[gadget] for gadget in gadgets_to_run]
 
 ########################################################################################
 if __name__ == '__main__':
+    import schedule
+
     gadgets_to_run = parse_args()
     gvars.setup_globals()
 
     from gadget import GadgetFailed
 
-    try:
-        if 'help' in gadgets_to_run:
-            import sys
-            gvars.print_keys()
-            sys.exit(0)
+    if 'help' in gadgets_to_run:
+        import sys
+        gvars.print_keys()
+        sys.exit(0)
 
+    try:
         if 'clean' in gadgets_to_run:
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
-
-        if 'partition' in gadgets_to_run:
-            import gadgets.partition
-            schedule.add_gadget(gadgets.partition.PartitionGadget())
 
         if 'build' in gadgets_to_run:
             import gadgets.build

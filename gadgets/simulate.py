@@ -20,9 +20,9 @@ class SimulateGadget(gadget.Gadget):
 
         self.schedule_phase = 'simulate'
 
-        self.name = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
+        self.name      = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
         self.resources = gvars.Vars['LSF_SIM_LICS']
-        self.queue = 'verilog'
+        self.queue     = 'verilog'
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
         if gvars.Options.verb == 0 or gvars.Options.interactive:
@@ -31,15 +31,10 @@ class SimulateGadget(gadget.Gadget):
             self.interactive = False
 
         self.runmod_modules = gvars.Vars['SIM_MODULES']
-
-        self.tb_top = gvars.Vars['TB_TOP']
-        self.sim_dir = os.path.join('sim', self.name)
-        self.vcomp_dir = gvars.Vars['BLD_VCOMP_DIR']
-
-        # ensure that executable has been built
-        self.sim_exe = os.path.join(self.vcomp_dir, 'simv')
-        if os.path.exists(self.sim_exe) == False:
-            Log.critical("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
+        self.tb_top         = gvars.Vars['TB_TOP']
+        self.sim_dir        = os.path.join('sim', self.name)
+        self.vcomp_dir      = gvars.Vars['BLD_VCOMP_DIR']
+        self.sim_exe        = os.path.join(self.vcomp_dir, 'simv')
 
         # if necessary, add Vericom to the list of gadgets, among other things
         if gvars.Options.wave == 'fsdb':
@@ -51,9 +46,12 @@ class SimulateGadget(gadget.Gadget):
         Returns the commands as a list of strings.
         """
 
+        # ensure that executable has been built
+        if os.path.exists(self.sim_exe) == False:
+            Log.critical("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
+
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
-
         sim_cmd += " -l %s/logfile" % self.sim_dir
 
         if gvars.Options.seed == 0:
@@ -69,7 +67,7 @@ class SimulateGadget(gadget.Gadget):
                 Log.critical("Unable to create %s" % self.sim_dir)
                 sys.exit(254)
 
-        # OPTIONS
+        # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
 
         if gvars.Options.topo:
@@ -89,6 +87,7 @@ class SimulateGadget(gadget.Gadget):
         elif gvars.Options.wave == 'fsdb':
             sim_cmd += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
             sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
+
         if gvars.Options.svfcov:
             sim_cmd += " +svfcov"
 

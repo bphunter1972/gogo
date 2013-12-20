@@ -13,6 +13,8 @@ Gadgets = []
 # The schedule that will be run. Populated by set_schedule
 Schedule = {it:[] for it in PHASES}
 
+# NOTE: Log = gvars.Log breaks if any tb.py add gadgets to the schedule, because they are imported before the Log is set up
+
 ########################################################################################
 def add_gadget(gadget):
     "Add a gadget to the list of gadgets."
@@ -40,7 +42,7 @@ def set_schedule():
 ########################################################################################
 def run_schedule():
     for phase in PHASES:
-        gvars.Log.debug("Entering Phase %s" % phase)
+        gvars.Log.debug("Entering phase.%s" % phase)
         if len(Schedule[phase]):
             # set all of the command-lines for each of the jobs
             for job in Schedule[phase]:
@@ -50,5 +52,5 @@ def run_schedule():
             # then boot it (it will not run)
             jobs = [it for it in Schedule[phase] if it.cmd and not it.doNotLaunch]
             if jobs:
-                gvars.Log.info("Running Phase %s (%d jobs to run)." % (phase, len(jobs)))
+                gvars.Log.debug("Running phase.%s (%d jobs to run)." % (phase, len(jobs)))
                 sge.waitForSomeJobs(jobs, pollingMode=False)
