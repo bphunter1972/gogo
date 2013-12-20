@@ -11,7 +11,6 @@ __version__       = '0.0'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
-
 #######################################################################################
 # Imports
 import argparse
@@ -70,7 +69,7 @@ def parse_args():
 
     gvars.Options = p.parse_args()
 
-    gadgets = gvars.Options.gadgets
+    gadgets_to_run = gvars.Options.gadgets
     shortcuts = {
                  'c'        : 'clean',
                  'cln'      : 'clean',
@@ -88,63 +87,44 @@ def parse_args():
                  'help'     : 'help',
                  }
 
-    for gadget in gadgets:
+    for gadget in gadgets_to_run:
         if gadget not in shortcuts.keys():
             Log.critical("Unknown gadget: %s" % gadget)
 
     # Shortcut: just running 'gogo' will build and simulate
-    if gadgets == []:
-        gadgets = ['bld', 'sim']
+    if gadgets_to_run == []:
+        gadgets_to_run = ['bld', 'sim']
 
-    return [shortcuts[gadget] for gadget in gadgets]
-
-########################################################################################
-def run_build():
-    import build_gadget
-    job = build_gadget.get_builder()()
-    job.run()
-
-    for JobGadget in gvars.post_build_gadgets:
-        job = JobGadget()
-        job.run()
-
-########################################################################################
-def run_simulate():
-    import simulate_gadget
-    job = simulate_gadget.SimulateGadget()
-    job.run()
-
-    Log.info("%s...PASSED" % job.name)
-    # TODO: run simrpt?
+    return [shortcuts[gadget] for gadget in gadgets_to_run]
 
 ########################################################################################
 if __name__ == '__main__':
-    gadgets = parse_args()
+    gadgets_to_run = parse_args()
     gvars.setup_globals()
 
     from gadget import GadgetFailed
 
     try:
-        if 'help' in gadgets:
+        if 'help' in gadgets_to_run:
             import sys
             gvars.print_keys()
             sys.exit(0)
 
-        if 'clean' in gadgets:
-            import clean_gadget
-            schedule.add_gadget(clean_gadget.CleanGadget())
+        if 'clean' in gadgets_to_run:
+            import gadgets.clean
+            schedule.add_gadget(gadgets.clean.CleanGadget())
 
-        if 'partition' in gadgets:
-            import partition_gadget
-            schedule.add_gadget(partition_gadget.PartitionGadget())
+        if 'partition' in gadgets_to_run:
+            import gadgets.partition
+            schedule.add_gadget(gadgets.partition.PartitionGadget())
 
-        if 'build' in gadgets:
-            import build_gadget
-            schedule.add_gadget(build_gadget.BuildGadget())
+        if 'build' in gadgets_to_run:
+            import gadgets.build
+            schedule.add_gadget(gadgets.build.BuildGadget())
 
-        if 'simulate' in gadgets:
-            import simulate_gadget
-            schedule.add_gadget(simulate_gadget.SimulateGadget())
+        if 'simulate' in gadgets_to_run:
+            import gadgets.simulate
+            schedule.add_gadget(gadgets.simulate.SimulateGadget())
 
         schedule.set_schedule()
         schedule.run_schedule()
@@ -158,4 +138,3 @@ if __name__ == '__main__':
 
     # if we get here, we must have passed
     logging.shutdown()
-

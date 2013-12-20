@@ -117,8 +117,8 @@ class SimulateGadget(gadget.Gadget):
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
 
         # Run vericom gadget during pre_simulate
-        import vericom_gadget
+        import gadgets.vericom
         import schedule
-        vericom = vericom_gadget.VericomGadget(self.sim_dir)
+        vericom = gadgets.vericom.VericomGadget(self.sim_dir)
         schedule.add_gadget(vericom)
 

@@ -24,14 +24,14 @@ class VericomGadget(gadget.Gadget):
         Then, it builds and returns the command-line to run vericom. It uses functions in build_gadget to do the job.
         """
 
-        import build_gadget
+        import gadgets.build as builder
 
         # get all variables
         vcomp_dir = gvars.Vars['BLD_VCOMP_DIR']
-        bld_defines = build_gadget.get_defines()
-        flists = build_gadget.get_flists()
+        bld_defines = builder.get_defines()
+        flists = builder.get_flists()
         cmp_opts = gvars.Options.cmpopts or ''
-        tab_files = build_gadget.get_tab_files()
+        tab_files = builder.get_tab_files()
         tb_top = gvars.Vars['TB_TOP']
         lib_dir = "%(vcomp_dir)s.lib++" % locals()
         sim_dir = self.sim_dir
