@@ -37,13 +37,21 @@ class VericomGadget(gadget.Gadget):
         sim_dir = self.sim_dir
 
         # make a file with the tb_top in it, call it .signal_list
+        if not os.path.exists(self.sim_dir):
+            try:
+                os.makedirs(self.sim_dir)
+            except OSError:
+                import sys
+                Log.critical("Unable to create %s" % self.sim_dir)
+                sys.exit(254)
+
         with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
             print >>file, "0 %s" % self.tb_top
 
         # create an fsdb.sh executable that people can use to run Verdi
         fsdb_name = os.path.join(self.sim_dir, 'fsdb.sh')
         with open(fsdb_name, 'w') as fsdb_file:
-            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s" % locals()
+            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % locals()
         os.chmod(fsdb_name, 0o777)
 
         # create the vericom command

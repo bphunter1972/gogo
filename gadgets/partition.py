@@ -14,8 +14,8 @@ class PartitionGadget(gadget.Gadget):
     def __init__(self):
         super(PartitionGadget, self).__init__()
 
-        gvars.Log.info("Creating partition.cfg")
-
+        self.schedule_phase = 'pre_build'
+        
         static_vkits = gvars.StaticVkits
         vkits = [it for it in gvars.Vkits if it not in static_vkits]
 
