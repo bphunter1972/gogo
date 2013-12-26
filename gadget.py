@@ -60,6 +60,10 @@ class Gadget(sge.Job):
         if self.commands is None or self.commands == []:
             return
 
+        # make it a list if it's just a string
+        if type(self.commands) is str:
+            self.commands = [self.commands]
+
         Log.info("Running %s" % self.name)
 
         # Add runmod to each command if necessary
