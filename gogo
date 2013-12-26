@@ -4,7 +4,7 @@
 A lightweight compile and simulate script
 """
 
-__version__       = '0.0'
+__version__       = '0.0.1'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -105,7 +105,9 @@ if __name__ == '__main__':
     gadgets_to_run = parse_args()
     gvars.setup_globals()
 
-    from gadget import GadgetFailed
+    from gadget import GadgetFailed # note: this import must come after setup_globals
+
+    Log.info("Welcome to gogo v%s" % __version__)
 
     if 'help' in gadgets_to_run:
         import sys
