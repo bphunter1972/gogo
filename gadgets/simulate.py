@@ -5,6 +5,7 @@ An gadget class that executes the simulation
 import gadget
 import gvars
 import os
+import schedule
 
 Log = gvars.Log
 
@@ -39,6 +40,10 @@ class SimulateGadget(gadget.Gadget):
         # if necessary, add Vericom to the list of gadgets, among other things
         if gvars.Options.wave == 'fsdb':
             self.handle_fsdb()
+
+        from gadgets.simrpt import SimrptGadget
+        simrpt = SimrptGadget(self.sim_dir)
+        schedule.add_gadget(simrpt)
 
     #--------------------------------------------
     def create_cmds(self):
@@ -100,9 +105,11 @@ class SimulateGadget(gadget.Gadget):
         if gvars.Vars['SIM_PLUSARGS']:
             sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.Vars['SIM_PLUSARGS']])
 
-        simrpt_cmd = 'simrpt %s/logfile' % self.sim_dir
-        return [sim_cmd, simrpt_cmd]
+        # simrpt_cmd = 'simrpt %s/logfile' % self.sim_dir
+        # return [sim_cmd, simrpt_cmd]
 
+        return [sim_cmd]
+        
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):
         "Create the .wave_script file that VCS will do."
