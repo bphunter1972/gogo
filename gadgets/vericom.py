@@ -2,6 +2,8 @@ import gadget
 import gvars
 import os.path
 
+Log = None
+
 class VericomGadget(gadget.Gadget):
     """Runs vericom for Verdi usage"""
 
