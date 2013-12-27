@@ -83,6 +83,7 @@ def parse_args():
                  'simu'     : 'simulate',
                  'simulate' : 'simulate',
                  'help'     : 'help',
+                 'print_deps' : 'print_deps',
                  }
 
     for gadget in gadgets_to_run:
@@ -113,6 +114,15 @@ if __name__ == '__main__':
         import sys
         gvars.print_keys()
         sys.exit(0)
+
+    # Test Code to print dependencies
+    if 'print_deps' in gadgets_to_run:
+        import sys, pymake
+        srcs = gvars.get_all_sources() 
+        # print(srcs)
+        answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
+        print("Latest=%s" % answer[1])
+        sys.exit(1)
 
     try:
         if 'clean' in gadgets_to_run:

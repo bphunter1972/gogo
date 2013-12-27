@@ -44,13 +44,16 @@ def run_schedule():
     for phase in PHASES:
         gvars.Log.debug("Entering phase.%s" % phase)
         if len(Schedule[phase]):
+            # check each job's dependencies
+            jobs = [it for it in Schedule[phase] if it.check_dependencies() == True]
             # set all of the command-lines for each of the jobs
-            for job in Schedule[phase]:
+            for job in jobs:
+                # check each job's dependencies
                 job.prepare()
 
             # if each job didn't fill out its command, or its doNotLaunch is set, 
             # then boot it (it will not run)
-            jobs = [it for it in Schedule[phase] if it.cmd and not it.doNotLaunch]
+            jobs = [it for it in jobs if it.cmd and not it.doNotLaunch]
             if jobs:
                 gvars.Log.debug("Running phase.%s (%d jobs to run)." % (phase, len(jobs)))
                 sge.waitForSomeJobs(jobs, pollingMode=False)

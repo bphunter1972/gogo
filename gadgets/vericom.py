@@ -2,7 +2,7 @@ import gadget
 import gvars
 import os.path
 
-Log = None
+Log = gvars.Log
 
 class VericomGadget(gadget.Gadget):
     """Runs vericom for Verdi usage"""
@@ -11,13 +11,14 @@ class VericomGadget(gadget.Gadget):
         super(VericomGadget, self).__init__()
 
         self.schedule_phase = 'pre_simulate'
-
-        self.name = 'vericom'
+        self.name           = 'vericom'
+        self.sim_dir        = sim_dir
+        self.tb_top         = gvars.Vars['TB_TOP']
+        self.interactive    = True
+        self.queue          = 'build'
+        self.vcomp_dir      = gvars.Vars['BLD_VCOMP_DIR']
+        self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
-        self.sim_dir = sim_dir
-        self.tb_top = gvars.Vars['TB_TOP']
-        self.interactive = True
-        self.queue = 'build'
         
     #--------------------------------------------
     def create_cmds(self):
@@ -29,14 +30,10 @@ class VericomGadget(gadget.Gadget):
         import gadgets.build as builder
 
         # get all variables
-        vcomp_dir = gvars.Vars['BLD_VCOMP_DIR']
-        bld_defines = builder.get_defines()
-        flists = builder.get_flists()
-        cmp_opts = gvars.Options.cmpopts or ''
-        tab_files = builder.get_tab_files()
-        tb_top = gvars.Vars['TB_TOP']
-        lib_dir = "%(vcomp_dir)s.lib++" % locals()
-        sim_dir = self.sim_dir
+        self.bld_defines = builder.get_defines()
+        self.flists      = builder.get_flists()
+        self.cmp_opts    = gvars.Options.cmpopts or ''
+        self.tab_files   = builder.get_tab_files()
 
         # make a file with the tb_top in it, call it .signal_list
         if not os.path.exists(self.sim_dir):
@@ -53,20 +50,36 @@ class VericomGadget(gadget.Gadget):
         # create an fsdb.sh executable that people can use to run Verdi
         fsdb_name = os.path.join(self.sim_dir, 'fsdb.sh')
         with open(fsdb_name, 'w') as fsdb_file:
-            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % locals()
+            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__
         os.chmod(fsdb_name, 0o777)
 
         # create the vericom command
 
-        cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % locals()
+        cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % self.__dict__
         cmd += " -smartinc -ssy -ssv -autoalias -sv +libext+.v+.sv+.vh"
-        cmd += " %(bld_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % locals()
+        cmd += " %(bld_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % self.__dict__
 
         # make the vcomp.lib++ directory if necessary
         try:
-            os.mkdir(lib_dir)
+            os.mkdir(self.lib_dir)
         except OSError:
             pass
             
         # return the command
         return [cmd]
+
+    #--------------------------------------------
+    def check_dependencies(self):
+        """
+        Returns true if vericom needs to be run.
+        """
+
+        from pymake import pymake
+
+        all_sources = gvars.get_all_sources('verilog')
+        target = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
+
+        answer = pymake(targets=target, sources=all_sources, get_cause=True)
+        if answer.result:
+            Log.info("vericom does need to run: %s" % answer)
+        return answer.result

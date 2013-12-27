@@ -3,7 +3,7 @@ Contains all of the global variables.
 """
 
 import os
-from vkit import Vkit
+from area_utils import calcRootDir
 
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
@@ -64,13 +64,19 @@ Log = None
 # The Vkit and StaticVkit arrays of Vkit classes
 Vkits = StaticVkits = None
 
+# The root directory of the project
+RootDir = None
+
+# A list of all the verilog sources (fore dependency checking)
+AllVerilogSources = None
+
 ########################################################################################
 def setup_globals():
     """
     Set up the Vars dictionary with imported information from project and the local tb.py
     """
 
-    global Vars, Vkits, StaticVkits
+    global Vars, Vkits, StaticVkits, RootDir
 
     # The names of all the library files that will be imported
     libraries = ('project', Options.tb)
@@ -119,6 +125,7 @@ def setup_globals():
         Log.critical("BLD_PARTITION value '%s' must be one of 'custom', 'auto', or 'off'" % Vars['BLD_PARTITION'])
 
     # build the Vkits and StaticVkits arrays
+    from vkit import Vkit
     Vkits = [Vkit(it) for it in Vars['VKITS']]
     uvm_flist = os.path.join(Vars['UVM_DIR'], 'uvm.flist')
     uvm_vkit = Vkit(uvm_flist)
@@ -126,10 +133,12 @@ def setup_globals():
     StaticVkits = [Vkit(it) for it in Vars['STATIC_VKITS']]
     StaticVkits.insert(0, uvm_vkit)
 
+    RootDir = calcRootDir()
+
 ########################################################################################
 def print_keys():
     from textwrap import wrap
-    print """
+    print("""
 Assign variables with the following names in either project.py or tb.py.
 
 project.py : There should be one of these per-project.
@@ -137,7 +146,7 @@ tb.py      : There should be one (or more) of these per-testbench.
 
 If more than 1 tb.py are created, select which tb.py to use with the --tb 
 command-line option.
-"""
+""")
 
     for key in sorted(Keys.keys()):
         txt = wrap(Keys[key][__COMMENT__], 60)
@@ -146,6 +155,22 @@ command-line option.
         for line in txt[1:]:
             print("%-18s%s" % (' ', line))
 
+########################################################################################
+def get_all_sources(source_type='verilog'):
+    """
+    Returns a list of all of the sources of the given type.
+    source_type : (str) Currently only 'verilog' is supported
+    =>          : (list of str) The list of all of the source files.
+    """
+
+    global AllVerilogSources
+
+    if AllVerilogSources is None:
+        AllVerilogSources = []
+        for vkit in Vkits:
+            AllVerilogSources.extend(vkit.get_all_sources())
+
+    return AllVerilogSources
 
 ########################################################################################
 # These variables supply gogo with extendability. Add your own gadgets to these lists.

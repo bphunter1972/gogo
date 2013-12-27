@@ -120,3 +120,12 @@ class Gadget(sge.Job):
                 continue
             new_commands.extend(["if($?) then", "exit(-1);", "endif"])
         self.commands = new_commands
+
+    #--------------------------------------------
+    def check_dependencies(self):
+        """
+        Returns True if this job must run based on dependencies, or False if it can be skipped.
+        Most gadgets may have no dependencies, so this base class just returns true.
+        """
+
+        return True
