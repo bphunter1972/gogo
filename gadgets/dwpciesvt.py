@@ -4,10 +4,11 @@ import os
 
 class DWPciesvtGadget(gadget.Gadget):
     "Build the designware component"
+    
     def __init__(self):
         super(DWPciesvtGadget, self).__init__()
       
-        self.schedule_phase = 'pre_build'
+        self.schedule_phase = 'pre_vlog'
         
         self.name = 'DWPciesvt'
         self.queue = 'build'

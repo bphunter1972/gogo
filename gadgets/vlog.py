@@ -1,5 +1,5 @@
 """
-An Gadget class representing the Build gadget.
+An Gadget class representing the verilog-compile gadget.
 """
 
 import gadget
@@ -8,20 +8,20 @@ import os
 
 Log = gvars.Log
 
-class BuildGadget(gadget.Gadget):
+class VlogGadget(gadget.Gadget):
     """Builds the simulation executable"""
 
     #--------------------------------------------
     def __init__(self):
-        super(BuildGadget, self).__init__()
+        super(VlogGadget, self).__init__()
 
-        self.schedule_phase = 'build'
+        self.schedule_phase = 'vlog'
 
-        self.name = 'build'
-        self.resources = gvars.Vars['LSF_BLD_LICS']
+        self.name = 'vlog'
+        self.resources = gvars.Vars['LSF_VLOG_LICS']
         self.queue = 'build'
         self.interactive = True
-        self.runmod_modules = gvars.Vars['BLD_MODULES']
+        self.runmod_modules = gvars.Vars['VLOG_MODULES']
 
         # create a symbolic link called 'project'. 
         try:
@@ -30,7 +30,7 @@ class BuildGadget(gadget.Gadget):
             pass
 
         # create the partition file if one does not already exist
-        if gvars.Vars['BLD_PARTITION'] == 'custom' and not os.path.exists('partition.cfg'):
+        if gvars.Vars['VLOG_PARTITION'] == 'custom' and not os.path.exists('partition.cfg'):
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
@@ -43,9 +43,9 @@ class BuildGadget(gadget.Gadget):
         Parallel partition compiles on a multi-core machine 
         """
 
-        cmdLine = super(BuildGadget, self).genCmdLine()
-        if gvars.Vars['BLD_PARALLEL']:
-            cmdLine += ' -pe smp_pe %d' % int(gvars.Vars['BLD_PARALLEL'])
+        cmdLine = super(VlogGadget, self).genCmdLine()
+        if gvars.Vars['VLOG_PARALLEL']:
+            cmdLine += ' -pe smp_pe %d' % int(gvars.Vars['VLOG_PARALLEL'])
         return cmdLine
 
     #--------------------------------------------
@@ -56,82 +56,82 @@ class BuildGadget(gadget.Gadget):
 
         cmds = []
 
-        bld_partition = gvars.Vars['BLD_PARTITION'] 
-        run_partition = bld_partition in ('auto', 'custom')
+        VLOG_partition = gvars.Vars['VLOG_PARTITION'] 
+        run_partition = VLOG_partition in ('auto', 'custom')
 
         # check that partition.cfg file exists, else emit a warning
-        if bld_partition == 'custom' and not os.path.exists('partition.cfg'):
+        if VLOG_partition == 'custom' and not os.path.exists('partition.cfg'):
             Log.warning("Unable to find file 'partition.cfg'.  Setting to run in auto mode instead.")
-            bld_partition = 'auto'
+            VLOG_partition = 'auto'
 
         # create vcomp directory if it does not already exist
-        if not os.path.exists(gvars.Vars['BLD_VCOMP_DIR']):
+        if not os.path.exists(gvars.Vars['VLOG_VCOMP_DIR']):
             try:
-                os.makedirs(gvars.Vars['BLD_VCOMP_DIR'], 0777)
+                os.makedirs(gvars.Vars['VLOG_VCOMP_DIR'], 0777)
             except OSError:
-                Log.critical("Unable to create directory %s" % gvars.Vars['BLD_VCOMP_DIR'])
+                Log.critical("Unable to create directory %s" % gvars.Vars['VLOG_VCOMP_DIR'])
                 sys.exit(255)
 
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
         flists = get_flists() 
 
-        tab_files = so_files = arc_libs = bld_defines = cmpopts = bld_options = parallel = ""
-        if gvars.Vars['BLD_TAB_FILES']:
+        tab_files = so_files = arc_libs = VLOG_defines = cmpopts = VLOG_options = parallel = ""
+        if gvars.Vars['VLOG_TAB_FILES']:
             tab_files = get_tab_files()
-        if gvars.Vars['BLD_SO_FILES']:
+        if gvars.Vars['VLOG_SO_FILES']:
             so_files = get_so_files()
-        if gvars.Vars['BLD_ARC_LIBS']:
-            arc_libs = ' ' + ' '.join(gvars.Vars['BLD_ARC_LIBS'])
-        if gvars.Vars['BLD_DEFINES']:
-            bld_defines = get_defines()
+        if gvars.Vars['VLOG_ARC_LIBS']:
+            arc_libs = ' ' + ' '.join(gvars.Vars['VLOG_ARC_LIBS'])
+        if gvars.Vars['VLOG_DEFINES']:
+            VLOG_defines = get_defines()
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
-        bld_options = " %s" % gvars.Vars['BLD_OPTIONS']
-        if gvars.Vars['BLD_PARALLEL']:
-            parallel = ' -fastpartcomp=j%d' % gvars.Vars['BLD_PARALLEL']
+        VLOG_options = " %s" % gvars.Vars['VLOG_OPTIONS']
+        if gvars.Vars['VLOG_PARALLEL']:
+            parallel = ' -fastpartcomp=j%d' % gvars.Vars['VLOG_PARALLEL']
 
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_cmd = 'vlogan'
             vlogan_cmd += uvm_dpi
-            vlogan_cmd += bld_options
-            vlogan_cmd += bld_defines
+            vlogan_cmd += VLOG_options
+            vlogan_cmd += VLOG_defines
             vlogan_cmd += flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
             cmds.append(vlogan_cmd)
 
-        # create build command
-        simv_file = os.path.join(gvars.Vars['BLD_VCOMP_DIR'], 'simv')
-        bld_cmd = gvars.Vars['BLD_TOOL']
-        bld_cmd += ' -o %s -Mupdate' % (simv_file)
-        bld_cmd += uvm_dpi
-        bld_cmd += bld_options
+        # create vlog command
+        simv_file = os.path.join(gvars.Vars['VLOG_VCOMP_DIR'], 'simv')
+        VLOG_cmd = gvars.Vars['VLOG_TOOL']
+        VLOG_cmd += ' -o %s -Mupdate' % (simv_file)
+        VLOG_cmd += uvm_dpi
+        VLOG_cmd += VLOG_options
 
         try:
             part = {
                 'auto'  : ' -partcomp=autopartdbg',
                 'custom': ' -partcomp +optconfigfile+partition.cfg',
                 'off'   : '',
-            }[bld_partition]
-            bld_cmd += part
+            }[VLOG_partition]
+            VLOG_cmd += part
         except KeyError:
-            Log.critical("The BLD_PARTITION variable %s must be set to (auto, custom, or off)." % bld_partition)
+            Log.critical("The VLOG_PARTITION variable %s must be set to (auto, custom, or off)." % VLOG_partition)
 
-        bld_cmd += tab_files
-        bld_cmd += so_files
-        bld_cmd += arc_libs
-        bld_cmd += bld_defines
-        bld_cmd += cmpopts
-        bld_cmd += parallel
-        bld_cmd += flists
-        cmds.append(bld_cmd)
+        VLOG_cmd += tab_files
+        VLOG_cmd += so_files
+        VLOG_cmd += arc_libs
+        VLOG_cmd += VLOG_defines
+        VLOG_cmd += cmpopts
+        VLOG_cmd += parallel
+        VLOG_cmd += flists
+        cmds.append(VLOG_cmd)
 
         return cmds
 
 ########################################################################################
 def get_defines():
-    return ' +define+' + '+'.join(gvars.Vars['BLD_DEFINES'])
+    return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
 
 ########################################################################################
 def get_flists():
@@ -145,8 +145,8 @@ def get_flists():
 
 ########################################################################################
 def get_tab_files():
-    return ' -P ' + ' -P '.join(gvars.Vars['BLD_TAB_FILES'])
+    return ' -P ' + ' -P '.join(gvars.Vars['VLOG_TAB_FILES'])
 
 ########################################################################################
 def get_so_files():
-    return " -LDFLAGS '%s'" % (' '.join(gvars.Vars['BLD_SO_FILES']))
+    return " -LDFLAGS '%s'" % (' '.join(gvars.Vars['VLOG_SO_FILES']))

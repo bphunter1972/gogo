@@ -7,12 +7,12 @@ UVM_REV   = '1_1d'
 #--------------------------------------------
 # How to build with VCS
 VCS_VERSION = 'H-2013.06-SP1'
-BLD_MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]
-BLD_TOOL = 'vcs'
-BLD_VCOMP_DIR  = 'sim/.vcomp'
+VLOG_MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]
+VLOG_TOOL = 'vcs'
+VLOG_VCOMP_DIR  = 'sim/.vcomp'
 
 # .tab files
-BLD_TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
+VLOG_TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
              '../../verif/uvm_common/explicit/cn_rand.tab',
              '/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab',
              '../../verif/common/explicit/cn_bist_mon.tab',
@@ -20,7 +20,7 @@ BLD_TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
              ]
 
 # .so files
-BLD_SO_FILES = ['/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/vpi_msg.so',
+VLOG_SO_FILES = ['/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/vpi_msg.so',
             '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/cn_rand.so',
             '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/cn_gate.so',
             '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/fake_vcsTBV.so',
@@ -29,13 +29,13 @@ BLD_SO_FILES = ['/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/vpi_msg.so',
             ]
 
 # .a files
-BLD_ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
+VLOG_ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
 
-# VCS Bld Options
-BLD_OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog +libext+.v+.sv'
-BLD_OPTIONS += '  -CFLAGS -DVCS -full64 +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma'
+# VCS VLOG Options
+VLOG_OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog +libext+.v+.sv'
+VLOG_OPTIONS += '  -CFLAGS -DVCS -full64 +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma'
 
-BLD_DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
+VLOG_DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
             'UVM_NO_DEPRECATED', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
 
 #--------------------------------------------
@@ -64,8 +64,8 @@ SIM_WAVE_OPTIONS = ''
 #--------------------------------------------
 # LSF Command
 
-# Bld Licenses
-LSF_BLD_LICS = ['lic_cmp_vcs']
+# VLOG Licenses
+LSF_VLOG_LICS = ['lic_cmp_vcs']
 
 # Simulation Licenses
 LSF_SIM_LICS = ['lic_sim_vcs']

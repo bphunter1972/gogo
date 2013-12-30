@@ -3,8 +3,9 @@ import sge_tools as sge
 
 PHASES = (
     'pre_clean', 'clean', 'post_clean',
-    'pre_build', 'build', 'post_build',
-    'pre_simulate', 'simulate', 'post_simulate'
+    'pre_vlog', 'vlog', 'post_vlog',
+    'pre_simulate', 'simulate', 'post_simulate',
+    'final_cleanup'
     )
 
 # All of the gadgets that will be run

@@ -8,8 +8,6 @@ FLISTS = ['ut_swi.flist', ]
 # Testbench Top-level
 TB_TOP = 'ut_swi_tb_top'
 
-BLD_DEFINES = ['SYS_TB_PATH=ut_swi_tb_top',
-               'UT_SWI_TB',
-              ]
+VLOG_DEFINES = ['SYS_TB_PATH=ut_swi_tb_top', 'UT_SWI_TB']
 
-BLD_PARTITION = 'custom'
+VLOG_PARTITION = 'custom'

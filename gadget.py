@@ -25,6 +25,10 @@ class Gadget(sge.Job):
         # descendant classes must set this to one of the schedule phases
         self.schedule_phase = None
 
+        # Any files created by this gadget are called 'turds'.
+        # Descendant gadgets should fill in this list with abspath of those files.
+        self.turds = []
+
         self.name = self.__class__.__name__
 
     #--------------------------------------------
@@ -56,6 +60,7 @@ class Gadget(sge.Job):
         did all the work for us.
         """
 
+        import os.path
         self.commands = self.create_cmds()
         if self.commands is None or self.commands == []:
             return
@@ -77,7 +82,6 @@ class Gadget(sge.Job):
 
         file_name = ".%s" % self.name
         if self.cwd is not None:
-            import os.path
             file_name = os.path.join(self.cwd, file_name)
 
         with open(file_name, 'w') as f:
@@ -85,6 +89,7 @@ class Gadget(sge.Job):
             for command in self.commands:
                 print >>f, command
             print >>f
+            self.turds.append(os.path.abspath(file_name))
         self.cmd = "source %s" % (file_name)
 
         # Launch me!

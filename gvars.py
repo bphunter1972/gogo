@@ -17,16 +17,16 @@ Keys = {
     'TB_TOP'          : ("", (str,),    "The module name of the top-level of the testbench"),
     
     # Build-related
-    'BLD_PARTITION'   : ("", (str,),    "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
-    'BLD_PARALLEL'    : (0, (int,),     "The number of cores on which to compile in parallel (partition-compile only)"),
-    'BLD_TOOL'        : ("", (str,),    "Command needed to run a build"),
-    'BLD_MODULES'     : ([], (list,),   "Added to runmod for all builds"),
-    'BLD_OPTIONS'     : ("", (str,),    "Additional build options"),
-    'BLD_TAB_FILES'   : ([], (list,),   "PLI files that should also be added to the build command-line (-P <name>)"),
-    'BLD_SO_FILES'    : ([], (list,),   "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
-    'BLD_ARC_LIBS'    : ([], (list,),   ".a/.o archive libraries that will be added to the build command-line"),
-    'BLD_VCOMP_DIR'   : ("", (str,),    "The name of the compile directory"),
-    'BLD_DEFINES'     : ([], (list,),   "All +defines as needed"),
+    'VLOG_PARTITION'   : ("", (str,),    "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
+    'VLOG_PARALLEL'    : (0, (int,),     "The number of cores on which to compile in parallel (partition-compile only)"),
+    'VLOG_TOOL'        : ("", (str,),    "Command needed to run a build"),
+    'VLOG_MODULES'     : ([], (list,),   "Added to runmod for all builds"),
+    'VLOG_OPTIONS'     : ("", (str,),    "Additional build options"),
+    'VLOG_TAB_FILES'   : ([], (list,),   "PLI files that should also be added to the build command-line (-P <name>)"),
+    'VLOG_SO_FILES'    : ([], (list,),   "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
+    'VLOG_ARC_LIBS'    : ([], (list,),   ".a/.o archive libraries that will be added to the build command-line"),
+    'VLOG_VCOMP_DIR'   : ("", (str,),    "The name of the compile directory"),
+    'VLOG_DEFINES'     : ([], (list,),   "All +defines as needed"),
     
     # Simulation-related
     'SIM_MODULES'     : ([], (list,),   "List of modules, added to runmod for all sims"),
@@ -36,7 +36,7 @@ Keys = {
     'SIM_WAVE_OPTIONS': ("", (str,),    "Run-time options"),
     
     # LSF-related
-    'LSF_BLD_LICS'    : ([], (list,),   "Additional licenses used for building"),
+    'LSF_VLOG_LICS'    : ([], (list,),   "Additional licenses used for building"),
     'LSF_SIM_LICS'    : ([], (list,),   "Additional licences used for simulation"),
     
     # Cleaning-related
@@ -52,8 +52,8 @@ Keys = {
 Vars = {}
 
 # These keys do NOT need to be specified
-OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'BLD_OPTIONS', 'BLD_PARTITION', 'BLD_PARALLEL', 
-    'BLD_SO_FILES', 'BLD_TAB_FILES', 'BLD_ARC_LIBS', 'BLD_DEFINES', 'LSF_SIM_LICS', 'LSF_BLD_LICS')
+OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'VLOG_OPTIONS', 'VLOG_PARTITION', 'VLOG_PARALLEL', 
+    'VLOG_SO_FILES', 'VLOG_TAB_FILES', 'VLOG_ARC_LIBS', 'VLOG_DEFINES', 'LSF_SIM_LICS', 'LSF_VLOG_LICS')
 
 # All of the command-line options from parse_args
 Options = None
@@ -121,8 +121,8 @@ def setup_globals():
     #         Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
 
     # check that some dictionary items only contain correct values
-    if Vars['BLD_PARTITION'] and Vars['BLD_PARTITION'] not in ('custom', 'auto', 'off'):
-        Log.critical("BLD_PARTITION value '%s' must be one of 'custom', 'auto', or 'off'" % Vars['BLD_PARTITION'])
+    if Vars['VLOG_PARTITION'] and Vars['VLOG_PARTITION'] not in ('custom', 'auto', 'off'):
+        Log.critical("VLOG_PARTITION value '%s' must be one of 'custom', 'auto', or 'off'" % Vars['VLOG_PARTITION'])
 
     # build the Vkits and StaticVkits arrays
     from vkit import Vkit

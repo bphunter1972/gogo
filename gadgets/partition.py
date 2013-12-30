@@ -4,6 +4,7 @@ Creates a new partition file for partition-compile.
 
 import gadget
 import gvars
+import os.path
 
 Log = gvars.Log
 
@@ -14,7 +15,7 @@ class PartitionGadget(gadget.Gadget):
     def __init__(self):
         super(PartitionGadget, self).__init__()
 
-        self.schedule_phase = 'pre_build'
+        self.schedule_phase = 'pre_vlog'
         
         static_vkits = gvars.StaticVkits
         vkits = [it for it in gvars.Vkits if it not in static_vkits]
@@ -25,4 +26,5 @@ class PartitionGadget(gadget.Gadget):
                 print >>f, "partition package %s ;" % static_vkit_pkgs
             for vkit in vkits:
                 print >>f, "partition package %s ;" % vkit.get_pkg_name()
-
+    
+            self.turds.append(os.path.abspath(f.name))
