@@ -1,7 +1,14 @@
 #!/usr/bin/env python2.7
 
 """
-A lightweight compile and simulate script
+A lightweight compile and simulate script.
+
+(v)log     : Build verilog executable.
+(s)imulate : Run simulation.
+(c)lean    : Remove all generated files.
+(f)lush    : Remove turd files.
+
+
 """
 
 __version__       = '0.0.1'
@@ -47,7 +54,7 @@ def parse_args():
         version=("%(prog)s v"+__version__),
         description=__doc__)
 
-    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (b)uild, (s)imulate, (p)artition, (c)lean, or help")
+    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (v)log, (s)imulate, (c)lean, (f)lush, or help")
 
     p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
     p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
@@ -75,9 +82,10 @@ def parse_args():
                  'c'        : 'clean',
                  'cln'      : 'clean',
                  'clean'    : 'clean',
-                 'b'        : 'build',
-                 'build'    : 'build',
-                 'bld'      : 'build',
+                 'flush'    : 'flush',
+                 'f'        : 'flush',
+                 'v'        : 'vlog',
+                 'vlog'     : 'vlog',
                  's'        : 'simulate',
                  'sim'      : 'simulate',
                  'simu'     : 'simulate',
@@ -90,9 +98,9 @@ def parse_args():
         if gadget not in shortcuts.keys():
             Log.critical("Unknown gadget: %s" % gadget)
 
-    # Shortcut: just running 'gogo' will build and simulate
+    # Shortcut: just running 'gogo' will vlog and simulate
     if gadgets_to_run == []:
-        gadgets_to_run = ['bld', 'sim']
+        gadgets_to_run = ['vlog', 'sim']
 
     if gvars.Options.dbg:
         gvars.Log.setLevel(logging.DEBUG)
@@ -129,9 +137,13 @@ if __name__ == '__main__':
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
 
-        if 'build' in gadgets_to_run:
-            import gadgets.build
-            schedule.add_gadget(gadgets.build.BuildGadget())
+        if 'flush' in gadgets_to_run:
+            import gadgets.flush
+            schedule.add_gadget(gadgets.flush.FlushGadget())
+
+        if 'vlog' in gadgets_to_run:
+            import gadgets.vlog
+            schedule.add_gadget(gadgets.vlog.VlogGadget())
 
         if 'simulate' in gadgets_to_run:
             import gadgets.simulate

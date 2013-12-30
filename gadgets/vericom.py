@@ -16,7 +16,7 @@ class VericomGadget(gadget.Gadget):
         self.tb_top         = gvars.Vars['TB_TOP']
         self.interactive    = True
         self.queue          = 'build'
-        self.vcomp_dir      = gvars.Vars['BLD_VCOMP_DIR']
+        self.vcomp_dir      = gvars.Vars['VLOG_VCOMP_DIR']
         self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
         
@@ -24,16 +24,16 @@ class VericomGadget(gadget.Gadget):
     def create_cmds(self):
         """
         First, this function creates the .signal_list and the fsdb.sh executable in the simulation directory.
-        Then, it builds and returns the command-line to run vericom. It uses functions in build_gadget to do the job.
+        Then, it builds and returns the command-line to run vericom. It uses functions in vlog_gadget to do the job.
         """
 
-        import gadgets.build as builder
+        import gadgets.vlog as vlogger
 
         # get all variables
-        self.bld_defines = builder.get_defines()
-        self.flists      = builder.get_flists()
+        self.VLOG_defines = vlogger.get_defines()
+        self.flists      = vlogger.get_flists()
         self.cmp_opts    = gvars.Options.cmpopts or ''
-        self.tab_files   = builder.get_tab_files()
+        self.tab_files   = vlogger.get_tab_files()
 
         # make a file with the tb_top in it, call it .signal_list
         if not os.path.exists(self.sim_dir):
@@ -46,6 +46,7 @@ class VericomGadget(gadget.Gadget):
 
         with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
             print >>file, "0 %s" % self.tb_top
+            self.turds.append(os.path.abspath(file.name))
 
         # create an fsdb.sh executable that people can use to run Verdi
         fsdb_name = os.path.join(self.sim_dir, 'fsdb.sh')
@@ -57,7 +58,7 @@ class VericomGadget(gadget.Gadget):
 
         cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % self.__dict__
         cmd += " -smartinc -ssy -ssv -autoalias -sv +libext+.v+.sv+.vh"
-        cmd += " %(bld_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % self.__dict__
+        cmd += " %(VLOG_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % self.__dict__
 
         # make the vcomp.lib++ directory if necessary
         try:

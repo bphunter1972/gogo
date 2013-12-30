@@ -34,7 +34,7 @@ class SimulateGadget(gadget.Gadget):
         self.runmod_modules = gvars.Vars['SIM_MODULES']
         self.tb_top         = gvars.Vars['TB_TOP']
         self.sim_dir        = os.path.join('sim', self.name)
-        self.vcomp_dir      = gvars.Vars['BLD_VCOMP_DIR']
+        self.vcomp_dir      = gvars.Vars['VLOG_VCOMP_DIR']
         self.sim_exe        = os.path.join(self.vcomp_dir, 'simv')
 
         # if necessary, add Vericom to the list of gadgets, among other things
@@ -118,7 +118,8 @@ class SimulateGadget(gadget.Gadget):
             dump -file $d -type vpd
             dump -add %(tb_top)s -depth 0
             run""" % self.__dict__
-
+            self.turds.append(os.path.abspath(file.name))
+            
     #--------------------------------------------
     def handle_fsdb(self):
         self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
