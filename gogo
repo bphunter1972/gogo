@@ -6,7 +6,6 @@ A lightweight compile and simulate script.
 (v)log     : Build verilog executable.
 (s)imulate : Run simulation.
 (c)lean    : Remove all generated files.
-(f)lush    : Remove turd files.
 
 
 """
@@ -54,7 +53,7 @@ def parse_args():
         version=("%(prog)s v"+__version__),
         description=__doc__)
 
-    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (v)log, (s)imulate, (c)lean, (f)lush, or help")
+    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (v)log, (s)imulate, (c)lean, or help")
 
     p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
     p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
@@ -74,6 +73,7 @@ def parse_args():
     p.add_argument('--svfcov',       action='store_true',        default=False,   help="Run with SV Functional Coverage")
 
     p.add_argument('--dbg',          action='store_true',        default=False,   help="Used for debugging gogo.")
+    p.add_argument('--noflush',      action='store_true',        default=False,   help="Permit turd files to stay.")
 
     gvars.Options = p.parse_args()
 
@@ -82,8 +82,6 @@ def parse_args():
                  'c'        : 'clean',
                  'cln'      : 'clean',
                  'clean'    : 'clean',
-                 'flush'    : 'flush',
-                 'f'        : 'flush',
                  'v'        : 'vlog',
                  'vlog'     : 'vlog',
                  's'        : 'simulate',
@@ -137,10 +135,6 @@ if __name__ == '__main__':
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
 
-        if 'flush' in gadgets_to_run:
-            import gadgets.flush
-            schedule.add_gadget(gadgets.flush.FlushGadget())
-
         if 'vlog' in gadgets_to_run:
             import gadgets.vlog
             schedule.add_gadget(gadgets.vlog.VlogGadget())
@@ -148,6 +142,11 @@ if __name__ == '__main__':
         if 'simulate' in gadgets_to_run:
             import gadgets.simulate
             schedule.add_gadget(gadgets.simulate.SimulateGadget())
+
+        # turd files are flushed unless otherwise stated
+        if not gvars.Options.noflush:
+            import gadgets.flush
+            schedule.add_gadget(gadgets.flush.FlushGadget())
 
         schedule.set_schedule()
         schedule.run_schedule()

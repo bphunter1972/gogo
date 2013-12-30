@@ -27,6 +27,10 @@ class Vkit(object):
         else:
             self.dir_name = self.flist_name = self.pkg_name = entry
 
+        assert(self.dir_name is not None)
+        assert(self.flist_name is not None)
+        assert(self.pkg_name is not None)
+
         Log.debug("Set dir_name=%s flist_name=%s pkg_name=%s" % (self.dir_name, self.flist_name, self.pkg_name))
 
     #--------------------------------------------

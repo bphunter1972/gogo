@@ -23,4 +23,5 @@ class SimrptGadget(gadget.Gadget):
 
     #--------------------------------------------
     def create_cmds(self):
+        self.turds.append('.simrpt.stdout')
         return ['simrpt %s/logfile' % self.sim_dir]

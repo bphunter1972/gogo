@@ -24,12 +24,16 @@ class FlushGadget(gadget.Gadget):
 
         # collect all turds from scheduled gadgets
         for gadget in schedule.Gadgets:
-                all_turds.extend(gadget.turds)
+            all_turds.extend(gadget.turds)
 
         # remove all turds
         for turd in all_turds:
             Log.debug("Removing turd: '%s'" % turd)
-            os.remove(turd)
+            try:
+                os.remove(turd)
+            except OSError:
+                Log.debug("Unable to remove '%s'" % turd)
+
 
 
 
