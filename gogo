@@ -82,6 +82,9 @@ def parse_args():
                  'c'        : 'clean',
                  'cln'      : 'clean',
                  'clean'    : 'clean',
+                 'b'        : 'build',
+                 'build'    : 'build',
+                 'bld'      : 'build',
                  'v'        : 'vlog',
                  'vlog'     : 'vlog',
                  's'        : 'simulate',
@@ -98,7 +101,7 @@ def parse_args():
 
     # Shortcut: just running 'gogo' will vlog and simulate
     if gadgets_to_run == []:
-        gadgets_to_run = ['vlog', 'sim']
+        gadgets_to_run = ['build', 'vlog', 'sim']
 
     if gvars.Options.dbg:
         gvars.Log.setLevel(logging.DEBUG)
@@ -134,6 +137,10 @@ if __name__ == '__main__':
         if 'clean' in gadgets_to_run:
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
+
+        if 'build' in gadgets_to_run:
+            import gadgets.build
+            schedule.add_gadget(gadgets.build.BuildGadget())
 
         if 'vlog' in gadgets_to_run:
             import gadgets.vlog

@@ -3,6 +3,7 @@ import sge_tools as sge
 
 PHASES = (
     'pre_clean', 'clean', 'post_clean',
+    'pre_build', 'build', 'post_build',
     'pre_vlog', 'vlog', 'post_vlog',
     'pre_simulate', 'simulate', 'post_simulate',
     'final_cleanup'
@@ -58,3 +59,4 @@ def run_schedule():
             if jobs:
                 gvars.Log.debug("Running phase.%s (%d jobs to run)." % (phase, len(jobs)))
                 sge.waitForSomeJobs(jobs, pollingMode=False)
+                    
