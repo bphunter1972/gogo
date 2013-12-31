@@ -67,10 +67,9 @@ class VlogGadget(gadget.Gadget):
         # create vcomp directory if it does not already exist
         if not os.path.exists(gvars.Vars['VLOG_VCOMP_DIR']):
             try:
-                os.makedirs(gvars.Vars['VLOG_VCOMP_DIR'], 0777)
+                os.makedirs(gvars.Vars['VLOG_VCOMP_DIR'], 0o777)
             except OSError:
                 Log.critical("Unable to create directory %s" % gvars.Vars['VLOG_VCOMP_DIR'])
-                sys.exit(255)
 
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
         flists = get_flists() 
@@ -149,4 +148,6 @@ def get_tab_files():
 
 ########################################################################################
 def get_so_files():
-    return " -LDFLAGS '%s'" % (' '.join(gvars.Vars['VLOG_SO_FILES']))
+    so_files = [os.path.abspath(it) for it in gvars.Vars['VLOG_SO_FILES']]
+
+    return " -LDFLAGS '%s'" % (' '.join(so_files))

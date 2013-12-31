@@ -20,12 +20,12 @@ VLOG_TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
              ]
 
 # .so files
-VLOG_SO_FILES = ['/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/vpi_msg.so',
-            '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/cn_rand.so',
-            '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/cn_gate.so',
-            '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/fake_vcsTBV.so',
-            '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/cn_bist_mon.so',
-            '/nfs/cadv1/bhunter/t88/t88/verif/ut_swi/obj/VCS/libVkit.so',
+VLOG_SO_FILES = ['obj/VCS/vpi_msg.so',
+                 'obj/VCS/cn_rand.so',
+                 'obj/VCS/cn_gate.so',
+                 'obj/VCS/fake_vcsTBV.so',
+                 'obj/VCS/cn_bist_mon.so',
+                 'obj/VCS/libVkit.so',
             ]
 
 # .a files
