@@ -11,42 +11,42 @@ from area_utils import calcRootDir
 __DEFAULT_VAL__, __TYPES__, __COMMENT__ = range(3)
 Keys = {
     # Testbench-related variables
-    'VKITS'           : ([], (list,),   "Vkits that this testbench relies upon, in order"),
-    'STATIC_VKITS'    : ([], (list,),   "Vkits that should be considered static for the purposes of partition compilation"),
-    'FLISTS'          : ([], (list,),   "Testbench FLISTs to include"),
-    'TB_TOP'          : ("", (str,),    "The module name of the top-level of the testbench"),
+    # Name             (default, possible types)   Help
+    'VKITS'           : ([], (list,),      "Vkits that this testbench relies upon, in order"),
+    'STATIC_VKITS'    : ([], (list,),      "Vkits that should be considered static for the purposes of partition compilation"),
+    'FLISTS'          : ([], (list,),      "Testbench FLISTs to include"),
+    'TB_TOP'          : ("", (str,),       "The module name of the top-level of the testbench"),
     
     # Build-related
-    'VLOG_PARTITION'   : ("", (str,),    "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
-    'VLOG_PARALLEL'    : (0, (int,),     "The number of cores on which to compile in parallel (partition-compile only)"),
-    'VLOG_TOOL'        : ("", (str,),    "Command needed to run a build"),
-    'VLOG_MODULES'     : ([], (list,),   "Added to runmod for all builds"),
-    'VLOG_OPTIONS'     : ("", (str,),    "Additional build options"),
-    'VLOG_TAB_FILES'   : ([], (list,),   "PLI files that should also be added to the build command-line (-P <name>)"),
-    'VLOG_SO_FILES'    : ([], (list,),   "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
-    'VLOG_ARC_LIBS'    : ([], (list,),   ".a/.o archive libraries that will be added to the build command-line"),
-    'VLOG_VCOMP_DIR'   : ("", (str,),    "The name of the compile directory"),
-    'VLOG_DEFINES'     : ([], (list,),   "All +defines as needed"),
+    'VLOG_PARTITION'   : ("", (str,),      "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
+    'VLOG_PARALLEL'    : (0, (int,),       "The number of cores on which to compile in parallel (partition-compile only)"),
+    'VLOG_TOOL'        : ("", (str,),      "Command needed to run a build"),
+    'VLOG_MODULES'     : ([], (list,),     "Added to runmod for all builds"),
+    'VLOG_OPTIONS'     : ("", (str,),      "Additional build options"),
+    'VLOG_TAB_FILES'   : ([], (list,),     "PLI files that should also be added to the build command-line (-P <name>)"),
+    'VLOG_SO_FILES'    : ([], (list,),     "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
+    'VLOG_ARC_LIBS'    : ([], (list,),     ".a/.o archive libraries that will be added to the build command-line"),
+    'VLOG_VCOMP_DIR'   : ("", (str,),      "The name of the compile directory"),
+    'VLOG_DEFINES'     : ([], (list,),     "All +defines as needed"),
     
     # Simulation-related
-    'SIM_MODULES'     : ([], (list,),   "List of modules, added to runmod for all sims"),
-    'SIM_GUI'         : ("", (str,),    "Add this to simulation command-line when you want to run in GUI mode"),
-    'SIMOPTS'         : ("", (str,),    "Added to the simulation command-line (not overridden by --simopts)"),
-    'SIM_PLUSARGS'    : ([], (list,),   "Added to the simulation command-line (all preceded by +)"),
-    'SIM_WAVE_OPTIONS': ("", (str,),    "Run-time options"),
+    'SIM_MODULES'     : ([], (list,),      "List of modules, added to runmod for all sims"),
+    'SIM_GUI'         : ("", (str,),       "Add this to simulation command-line when you want to run in GUI mode"),
+    'SIMOPTS'         : ("", (str,),       "Added to the simulation command-line (not overridden by --simopts)"),
+    'SIM_PLUSARGS'    : ([], (list,),      "Added to the simulation command-line (all preceded by +)"),
+    'SIM_WAVE_OPTIONS': ("", (str,),       "Run-time options"),
     
     # LSF-related
-    'LSF_VLOG_LICS'    : ([], (list,),   "Additional licenses used for building"),
-    'LSF_SIM_LICS'    : ([], (list,),   "Additional licences used for simulation"),
+    'LSF_VLOG_LICS'    : ([], (list,),     "Additional licenses used for building"),
+    'LSF_SIM_LICS'    : ([], (list,),      "Additional licences used for simulation"),
     
     # Cleaning-related
-    'CLEAN_DIRS'      : ([], (list,),   "Names of directories to delete"),
-    'CLEAN_FILES'     : ([], (list,),   "Names of files to delete"),
+    'CLEAN_DIRS'      : ([], (list,),      "Names of directories to delete"),
+    'CLEAN_FILES'     : ([], (list,),      "Names of files to delete"),
     
     # Miscellaneous
-    'UVM_REV'         : ("1_1d", (str,), "UVM Revision to use"),
-    'VERDI_MODULE'    : ("", (str,),     "Module to load for Verdi usage."),
-
+    'UVM_REV'         : ("1_1d", (str,),   "UVM Revision to use"),
+    'VERDI_MODULE'    : ("", (str,),       "Module to load for Verdi usage."),
 }
 
 Vars = {}
@@ -164,11 +164,20 @@ def get_all_sources(source_type='verilog'):
     """
 
     global AllVerilogSources
+    import os.path
+    from pymake import glob_files
 
+    # only ever do this once
     if AllVerilogSources is None:
         AllVerilogSources = []
         for vkit in Vkits:
             AllVerilogSources.extend(vkit.get_all_sources())
+
+        for flist in Vars['FLISTS']:
+            fname = os.path.abspath(flist)
+            dirname = os.path.dirname(fname)
+            all_flist_sources = glob_files([dirname], ['*.v', '*.sv', '*.vh', '*.svh'])
+            AllVerilogSources.extend(all_flist_sources)
 
     return AllVerilogSources
 
