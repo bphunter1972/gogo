@@ -30,7 +30,7 @@ class VericomGadget(gadget.Gadget):
         import gadgets.vlog as vlogger
 
         # get all variables
-        self.VLOG_defines = vlogger.get_defines()
+        self.vlog_defines = vlogger.get_defines()
         self.flists      = vlogger.get_flists()
         self.cmp_opts    = gvars.Options.cmpopts or ''
         self.tab_files   = vlogger.get_tab_files()
@@ -58,7 +58,7 @@ class VericomGadget(gadget.Gadget):
 
         cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % self.__dict__
         cmd += " -smartinc -ssy -ssv -autoalias -sv +libext+.v+.sv+.vh"
-        cmd += " %(VLOG_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % self.__dict__
+        cmd += " %(vlog_defines)s %(tab_files)s %(cmp_opts)s %(flists)s" % self.__dict__
 
         # make the vcomp.lib++ directory if necessary
         try:

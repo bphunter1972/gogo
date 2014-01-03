@@ -82,7 +82,7 @@ class VlogGadget(gadget.Gadget):
         if gvars.Vars['VLOG_ARC_LIBS']:
             arc_libs = ' ' + ' '.join(gvars.Vars['VLOG_ARC_LIBS'])
         if gvars.Vars['VLOG_DEFINES']:
-            vlog_defines = ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
+            vlog_defines = get_defines()
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
         vlog_options = " %s" % gvars.Vars['VLOG_OPTIONS']
@@ -130,6 +130,10 @@ class VlogGadget(gadget.Gadget):
         cmds.append(vlog_cmd)
 
         return cmds
+
+########################################################################################
+def get_defines():
+    return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
 
 ########################################################################################
 def get_flists():
