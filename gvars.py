@@ -28,7 +28,8 @@ Keys = {
     'VLOG_ARC_LIBS'    : ([], (list,),     ".a/.o archive libraries that will be added to the build command-line"),
     'VLOG_VCOMP_DIR'   : ("", (str,),      "The name of the compile directory"),
     'VLOG_DEFINES'     : ([], (list,),     "All +defines as needed"),
-    
+    'VLOG_IGNORE_WARNINGS' : ([], (list,), "Warnings that should be ignored by VCS during vlog."),
+
     # Simulation-related
     'SIM_MODULES'     : ([], (list,),      "List of modules, added to runmod for all sims"),
     'SIM_GUI'         : ("", (str,),       "Add this to simulation command-line when you want to run in GUI mode"),

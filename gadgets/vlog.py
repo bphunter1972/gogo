@@ -56,13 +56,13 @@ class VlogGadget(gadget.Gadget):
 
         cmds = []
 
-        VLOG_partition = gvars.Vars['VLOG_PARTITION'] 
-        run_partition = VLOG_partition in ('auto', 'custom')
+        vlog_partition = gvars.Vars['VLOG_PARTITION'] 
+        run_partition = vlog_partition in ('auto', 'custom')
 
         # check that partition.cfg file exists, else emit a warning
-        if VLOG_partition == 'custom' and not os.path.exists('partition.cfg'):
+        if vlog_partition == 'custom' and not os.path.exists('partition.cfg'):
             Log.warning("Unable to find file 'partition.cfg'.  Setting to run in auto mode instead.")
-            VLOG_partition = 'auto'
+            vlog_partition = 'auto'
 
         # create vcomp directory if it does not already exist
         if not os.path.exists(gvars.Vars['VLOG_VCOMP_DIR']):
@@ -74,7 +74,7 @@ class VlogGadget(gadget.Gadget):
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
         flists = get_flists() 
 
-        tab_files = so_files = arc_libs = VLOG_defines = cmpopts = VLOG_options = parallel = ""
+        tab_files = so_files = arc_libs = vlog_defines = cmpopts = vlog_options = parallel = vlog_warnings = ""
         if gvars.Vars['VLOG_TAB_FILES']:
             tab_files = get_tab_files()
         if gvars.Vars['VLOG_SO_FILES']:
@@ -82,19 +82,21 @@ class VlogGadget(gadget.Gadget):
         if gvars.Vars['VLOG_ARC_LIBS']:
             arc_libs = ' ' + ' '.join(gvars.Vars['VLOG_ARC_LIBS'])
         if gvars.Vars['VLOG_DEFINES']:
-            VLOG_defines = get_defines()
+            vlog_defines = ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
-        VLOG_options = " %s" % gvars.Vars['VLOG_OPTIONS']
+        vlog_options = " %s" % gvars.Vars['VLOG_OPTIONS']
         if gvars.Vars['VLOG_PARALLEL']:
             parallel = ' -fastpartcomp=j%d' % gvars.Vars['VLOG_PARALLEL']
+        if gvars.Vars['VLOG_IGNORE_WARNINGS']:
+            vlog_warnings = "+warn+" + ','.join(['no%s' % it for it in vlog_warnings])
 
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_cmd = 'vlogan'
             vlogan_cmd += uvm_dpi
-            vlogan_cmd += VLOG_options
-            vlogan_cmd += VLOG_defines
+            vlogan_cmd += vlog_options
+            vlogan_cmd += vlog_defines
             vlogan_cmd += flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
@@ -102,35 +104,32 @@ class VlogGadget(gadget.Gadget):
 
         # create vlog command
         simv_file = os.path.join(gvars.Vars['VLOG_VCOMP_DIR'], 'simv')
-        VLOG_cmd = gvars.Vars['VLOG_TOOL']
-        VLOG_cmd += ' -o %s -Mupdate' % (simv_file)
-        VLOG_cmd += uvm_dpi
-        VLOG_cmd += VLOG_options
+        vlog_cmd = gvars.Vars['VLOG_TOOL']
+        vlog_cmd += ' -o %s -Mupdate' % (simv_file)
+        vlog_cmd += uvm_dpi
+        vlog_cmd += vlog_options
+        vlog_cmd += vlog_warnings
 
         try:
             part = {
                 'auto'  : ' -partcomp=autopartdbg',
                 'custom': ' -partcomp +optconfigfile+partition.cfg',
                 'off'   : '',
-            }[VLOG_partition]
-            VLOG_cmd += part
+            }[vlog_partition]
+            vlog_cmd += part
         except KeyError:
-            Log.critical("The VLOG_PARTITION variable %s must be set to (auto, custom, or off)." % VLOG_partition)
+            Log.critical("The VLOG_PARTITION variable %s must be set to (auto, custom, or off)." % vlog_partition)
 
-        VLOG_cmd += tab_files
-        VLOG_cmd += so_files
-        VLOG_cmd += arc_libs
-        VLOG_cmd += VLOG_defines
-        VLOG_cmd += cmpopts
-        VLOG_cmd += parallel
-        VLOG_cmd += flists
-        cmds.append(VLOG_cmd)
+        vlog_cmd += tab_files
+        vlog_cmd += so_files
+        vlog_cmd += arc_libs
+        vlog_cmd += vlog_defines
+        vlog_cmd += cmpopts
+        vlog_cmd += parallel
+        vlog_cmd += flists
+        cmds.append(vlog_cmd)
 
         return cmds
-
-########################################################################################
-def get_defines():
-    return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
 
 ########################################################################################
 def get_flists():
