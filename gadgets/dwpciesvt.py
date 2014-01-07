@@ -9,7 +9,7 @@ class DWPciesvtGadget(gadget.Gadget):
         super(DWPciesvtGadget, self).__init__()
       
         self.schedule_phase = 'pre_vlog'
-        
+
         self.name = 'DWPciesvt'
         self.queue = 'build'
         self.interactive = True

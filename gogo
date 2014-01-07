@@ -155,7 +155,7 @@ if __name__ == '__main__':
             import gadgets.flush
             schedule.add_gadget(gadgets.flush.FlushGadget())
 
-        schedule.set_schedule()
+        schedule.set_schedule(gadgets_to_run)
         schedule.run_schedule()
 
     except KeyboardInterrupt:

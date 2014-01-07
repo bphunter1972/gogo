@@ -1,13 +1,11 @@
 import gvars
 import sge_tools as sge
 
-PHASES = (
-    'pre_clean', 'clean', 'post_clean',
-    'pre_build', 'build', 'post_build',
-    'pre_vlog', 'vlog', 'post_vlog',
-    'pre_simulate', 'simulate', 'post_simulate',
-    'final_cleanup'
-    )
+MAIN_PHASES = ('clean', 'build', 'vlog', 'simulate', 'final_cleanup')
+
+PHASES = []
+for phase in MAIN_PHASES:
+    PHASES.extend(['pre_%s' % phase, phase, 'post_%s' % phase])
 
 # All of the gadgets that will be run
 Gadgets = []
@@ -28,7 +26,7 @@ def add_gadget(gadget):
     Gadgets.append(gadget)
 
 ########################################################################################
-def set_schedule():
+def set_schedule(phases_to_run):
     "Ensure that all gadgets have a correct phase. Assign each to the Schedule in the place they should go."
 
     global Schedule
@@ -40,6 +38,11 @@ def set_schedule():
             gvars.Log.critical("The gadget %s (%s) has an illegal schedule_phase of %s." % (gadget.name, str(type(gadget)), gadget.schedule_phase))
         Schedule[gadget.schedule_phase].append(gadget)
         gvars.Log.debug("Added gadget %s to %s" % (gadget.name, gadget.schedule_phase))
+
+    # clear out any added if the gadgets won't be run:
+    for my_phase in MAIN_PHASES:
+        if my_phase not in phases_to_run:
+            clear_phase(['pre_%s' % my_phase, my_phase, 'post_%s' % my_phase])
 
 ########################################################################################
 def run_schedule():
@@ -60,3 +63,22 @@ def run_schedule():
                 gvars.Log.debug("Running phase.%s (%d jobs to run)." % (phase, len(jobs)))
                 sge.waitForSomeJobs(jobs, pollingMode=False)
                     
+########################################################################################
+def clear_phase(phase):
+    """
+    Remove all gadgets from the given phase(s).
+    phase : (list of str, or str) Either a list of phases, or a phase as a string
+    """
+
+    def clear_it(my_phase):
+        try:
+            Schedule[my_phase] = []
+        except KeyError:
+            gvars.Log.critical("Unknown phase '%s'" % my_phase)
+
+    if type(phase) == list:
+        for a_phase in phase:
+            clear_it(a_phase)
+    elif type(phase) == str:
+        clear_it(phase)
+
