@@ -1,3 +1,7 @@
+"""
+A gadget that runs vericom for Verdi waveform usage.
+"""
+
 import gadget
 import gvars
 import os.path
@@ -48,12 +52,6 @@ class VericomGadget(gadget.Gadget):
             print >>file, "0 %s" % self.tb_top
             self.turds.append(os.path.abspath(file.name))
 
-        # create an fsdb.sh executable that people can use to run Verdi
-        fsdb_name = os.path.join(self.sim_dir, 'fsdb.sh')
-        with open(fsdb_name, 'w') as fsdb_file:
-            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__
-        os.chmod(fsdb_name, 0o777)
-
         # create the vericom command
 
         cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % self.__dict__
@@ -72,15 +70,8 @@ class VericomGadget(gadget.Gadget):
     #--------------------------------------------
     def check_dependencies(self):
         """
-        Returns true if vericom needs to be run.
+        Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
         """
 
-        from pymake import pymake
-
-        all_sources = gvars.get_all_sources('verilog')
         target = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
-
-        answer = pymake(targets=target, sources=all_sources, get_cause=True)
-        if answer.result:
-            Log.info("vericom does need to run: %s" % answer)
-        return answer.result
+        return not os.path.exists(target)

@@ -126,6 +126,10 @@ class SimulateGadget(gadget.Gadget):
 
         # Run vericom gadget during pre_simulate
         import gadgets.vericom
+        import gadgets.fsdb
         import schedule
         vericom = gadgets.vericom.VericomGadget(self.sim_dir)
         schedule.add_gadget(vericom)
+
+        fsdb = gadgets.fsdb.FsdbGadget(self.sim_dir)
+        schedule.add_gadget(fsdb)
