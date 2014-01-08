@@ -10,7 +10,7 @@ A lightweight compile and simulate script.
 
 """
 
-__version__       = '0.0.1'
+__version__       = '0.0.2'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 

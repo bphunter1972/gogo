@@ -75,14 +75,11 @@ class VlogGadget(gadget.Gadget):
         flists = get_flists() 
 
         tab_files = so_files = arc_libs = vlog_defines = cmpopts = vlog_options = parallel = vlog_warnings = ""
-        if gvars.Vars['VLOG_TAB_FILES']:
-            tab_files = get_tab_files()
-        if gvars.Vars['VLOG_SO_FILES']:
-            so_files = get_so_files()
+        tab_files = get_tab_files()
+        so_files = get_so_files()
+        vlog_defines = get_defines()
         if gvars.Vars['VLOG_ARC_LIBS']:
             arc_libs = ' ' + ' '.join(gvars.Vars['VLOG_ARC_LIBS'])
-        if gvars.Vars['VLOG_DEFINES']:
-            vlog_defines = get_defines()
         if gvars.Options.cmpopts:
             cmpopts += " " + gvars.Options.cmpopts
         vlog_options = " %s" % gvars.Vars['VLOG_OPTIONS']
@@ -109,6 +106,7 @@ class VlogGadget(gadget.Gadget):
         vlog_cmd += uvm_dpi
         vlog_cmd += vlog_options
         vlog_cmd += vlog_warnings
+        vlog_cmd += ' -fastcomp=1 -lca -rad'
 
         try:
             part = {
@@ -133,7 +131,10 @@ class VlogGadget(gadget.Gadget):
 
 ########################################################################################
 def get_defines():
-    return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
+    if gvars.Vars['VLOG_DEFINES']:
+        return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
+    else:
+        return ""
 
 ########################################################################################
 def get_flists():
@@ -147,10 +148,15 @@ def get_flists():
 
 ########################################################################################
 def get_tab_files():
-    return ' -P ' + ' -P '.join(gvars.Vars['VLOG_TAB_FILES'])
+    if gvars.Vars['VLOG_TAB_FILES']:
+        return ' -P ' + ' -P '.join(gvars.Vars['VLOG_TAB_FILES'])
+    else:
+        return ""
 
 ########################################################################################
 def get_so_files():
-    so_files = [os.path.abspath(it) for it in gvars.Vars['VLOG_SO_FILES']]
-
-    return " -LDFLAGS '%s'" % (' '.join(so_files))
+    if gvars.Vars['VLOG_SO_FILES']:
+        so_files = [os.path.abspath(it) for it in gvars.Vars['VLOG_SO_FILES']]
+        return " -LDFLAGS '%s'" % (' '.join(so_files))
+    else:
+        return ""
