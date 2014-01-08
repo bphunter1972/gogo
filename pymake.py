@@ -84,7 +84,7 @@ def pymake(targets, sources, get_cause=False):
     """
     Returns true (target should be made) if any of the sources are
     newer than any of the targets, or if any of the targets do not exist.
-
+    
     sources  : (list of string, or string) A list of (or one) filenames.
     targets  : (list of string, or string) A list of (or one) filenames.
     get_cause: (bool) If true, also return the cause.  If false, cause is None
@@ -103,6 +103,10 @@ def pymake(targets, sources, get_cause=False):
         (newest_source_mtime, newest_source) = get_extreme_mtime(sources, old=False, get_file=get_cause)
     except NonExistantFile as cause:
         raise NonExistantFile("Cannot find source file %s" % cause)
+    except EmptyFileList:
+        # if there are no sources, then we return True only if the target didn't exist, which happened above
+        # so return false.
+        return Answer(False, "no sources")
 
     if newest_source_mtime > oldest_target_mtime:
         return Answer(True, newest_source)
