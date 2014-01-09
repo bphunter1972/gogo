@@ -8,9 +8,13 @@ import gvars
 
 Log = gvars.Log
 
+# This is raised by a gadget if its execution was found to have failed
 class GadgetFailed(Exception): pass
 
+# This is raised by a gadget if there appears to have been a programming/configuration error
+class ProgrammingError(Exception): pass
 
+########################################################################################
 class Gadget(sge.Job):
     """The base class gadget."""
 
@@ -34,7 +38,11 @@ class Gadget(sge.Job):
     #--------------------------------------------
     def create_cmds(self):
         """
-        Returns the commands as a list of strings.
+        Returns the commands as a list of strings or as a list of 2-pair tuples.
+        When it is a list of strings, each represents a command.
+        When it is a list of 2-pair tuples, the first entry is an 'echo' to be printed before 
+        the second entry is run.
+
         Descendants which do not override this will not run on SGE.
         """
 
@@ -87,7 +95,14 @@ class Gadget(sge.Job):
         with open(file_name, 'w') as f:
             print >>f, "#!/usr/bin/csh"
             for command in self.commands:
-                print >>f, command
+                if type(command) == tuple:
+                    (echo, cmd) = command
+                    print >>f, 'echo ">>>> %s"' % echo
+                    print >>f, cmd
+                elif type(command) == str:
+                    print >>f, command
+                else:
+                    Log.critical("Command '%s' is neither a string nor a tuple." % command)
             print >>f
             self.turds.append(os.path.abspath(file_name))
         self.cmd = "source %s" % (file_name)
@@ -105,10 +120,10 @@ class Gadget(sge.Job):
         runmod_cmd = "runmod -m %s" % (modules)
 
         def prepend_it(cmd):
-            if not cmd.startswith('echo'):
-                return "%s %s" % (runmod_cmd, cmd)
+            if type(cmd) == tuple:
+                return (cmd[0], "%s %s" % (runmod_cmd, cmd[1]))
             else:
-                return cmd
+                return "%s %s" % (runmod_cmd, cmd)
 
         self.commands = [prepend_it(it) for it in self.commands]
 
@@ -121,8 +136,6 @@ class Gadget(sge.Job):
         new_commands = []
         for cmd in self.commands:
             new_commands.append(cmd)
-            if cmd.startswith('echo'):
-                continue
             new_commands.extend(["if($?) then", "exit(-1);", "endif"])
         self.commands = new_commands
 

@@ -99,7 +99,7 @@ class VlogGadget(gadget.Gadget):
             vlogan_cmd += uvm_dpi + vlog_options + vlog_defines + flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
-            cmds.append(vlogan_cmd)
+            cmds.append(('Running vlogan...',vlogan_cmd))
 
         #--------------------------------------------
         # create vlog command
@@ -112,7 +112,10 @@ class VlogGadget(gadget.Gadget):
             vlog_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
 
         vlog_cmd += tab_files + so_files + arc_libs + vlog_defines + cmpopts + parallel + flists
-        cmds.append(vlog_cmd)
+        if run_partition:
+            cmds.append(('Running vcs...', vlog_cmd))
+        else:
+            cmds.append(vlog_cmd)
 
         return cmds
 
