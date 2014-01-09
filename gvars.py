@@ -14,11 +14,12 @@ Keys = {
     # Name             (default, possible types)   Help
     'VKITS'           : ([], (list,),      "Vkits that this testbench relies upon, in order"),
     'STATIC_VKITS'    : ([], (list,),      "Vkits that should be considered static for the purposes of partition compilation"),
+    'PARTITION_CELLS' : ([], (list,),      "Cells that should be separate partitions for partition compilation"),
     'FLISTS'          : ([], (list,),      "Testbench FLISTs to include"),
     'TB_TOP'          : ("", (str,),       "The module name of the top-level of the testbench"),
     
     # Build-related
-    'VLOG_PARTITION'   : ("", (str,),      "When 'auto', compiles and creates a vcs_partition_config.file. If 'custom', runs in partition-compile mode with file named 'partition.cfg'. Otherwise, 'off'."),
+    'VLOG_PARTITION'   : ("", (str,),      "When 'auto', compiles and creates a partition.cfg file from lists of vkits, STATIC_VKITS, and PARTITION_CELLS. If 'custom', uses the partition cfg file specified on the command-line (default:'partition.cfg'). Otherwise, 'off'."),
     'VLOG_PARALLEL'    : (0, (int,),       "The number of cores on which to compile in parallel (partition-compile only)"),
     'VLOG_TOOL'        : ("", (str,),      "Command needed to run a build"),
     'VLOG_MODULES'     : ([], (list,),     "Added to runmod for all builds"),

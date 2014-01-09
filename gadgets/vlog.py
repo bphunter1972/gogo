@@ -29,8 +29,8 @@ class VlogGadget(gadget.Gadget):
         except OSError:
             pass
 
-        # create the partition file if one does not already exist
-        if gvars.Vars['VLOG_PARTITION'] == 'custom' and not os.path.exists('partition.cfg'):
+        # create the partition file in auto mode
+        if gvars.Vars['VLOG_PARTITION'] == 'auto':
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
@@ -56,21 +56,33 @@ class VlogGadget(gadget.Gadget):
 
         cmds = []
 
+        #--------------------------------------------
+        # partitioning
         vlog_partition = gvars.Vars['VLOG_PARTITION'] 
         run_partition = vlog_partition in ('auto', 'custom')
+        try:
+            partition_cfg_name = {
+                'custom': gvars.Options.part,
+                'auto': '.partition.cfg',
+                'off': ''
+            }[vlog_partition]
+        except KeyError:
+            raise gadget.GadgetFailed("VLOG_PARTITION must be one of ('auto', 'custom', or 'off'")
 
-        # check that partition.cfg file exists, else emit a warning
-        if vlog_partition == 'custom' and not os.path.exists('partition.cfg'):
-            Log.warning("Unable to find file 'partition.cfg'.  Setting to run in auto mode instead.")
-            vlog_partition = 'auto'
+        # check that partition cfg file exists, else fail
+        if run_partition and not os.path.exists(partition_cfg_name):
+            raise gadget.GadgetFailed("File %s does not exist!" % partition_cfg_name)
 
+        #--------------------------------------------
         # create vcomp directory if it does not already exist
         if not os.path.exists(gvars.Vars['VLOG_VCOMP_DIR']):
             try:
                 os.makedirs(gvars.Vars['VLOG_VCOMP_DIR'], 0o777)
             except OSError:
-                Log.critical("Unable to create directory %s" % gvars.Vars['VLOG_VCOMP_DIR'])
+                raise gadget.GadgetFailed("Unable to create directory %s" % gvars.Vars['VLOG_VCOMP_DIR'])
 
+        #--------------------------------------------
+        # get common command-line arguments
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
         flists = get_flists() 
 
@@ -88,43 +100,26 @@ class VlogGadget(gadget.Gadget):
         if gvars.Vars['VLOG_IGNORE_WARNINGS']:
             vlog_warnings = "+warn+" + ','.join(['no%s' % it for it in vlog_warnings])
 
+        #--------------------------------------------
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_cmd = 'vlogan'
-            vlogan_cmd += uvm_dpi
-            vlogan_cmd += vlog_options
-            vlogan_cmd += vlog_defines
-            vlogan_cmd += flists
+            vlogan_cmd += uvm_dpi + vlog_options + vlog_defines + flists
             for not_in in ('-DVCS', "+vpi"):
                 vlogan_cmd = vlogan_cmd.replace(not_in, '')
             cmds.append(vlogan_cmd)
 
+        #--------------------------------------------
         # create vlog command
         simv_file = os.path.join(gvars.Vars['VLOG_VCOMP_DIR'], 'simv')
         vlog_cmd = gvars.Vars['VLOG_TOOL']
         vlog_cmd += ' -o %s -Mupdate' % (simv_file)
-        vlog_cmd += uvm_dpi
-        vlog_cmd += vlog_options
-        vlog_cmd += vlog_warnings
-        vlog_cmd += ' -fastcomp=1 -lca -rad'
+        vlog_cmd += uvm_dpi + vlog_options + vlog_warnings + ' -fastcomp=1 -lca -rad'
 
-        try:
-            part = {
-                'auto'  : ' -partcomp=autopartdbg',
-                'custom': ' -partcomp +optconfigfile+partition.cfg',
-                'off'   : '',
-            }[vlog_partition]
-            vlog_cmd += part
-        except KeyError:
-            Log.critical("The VLOG_PARTITION variable %s must be set to (auto, custom, or off)." % vlog_partition)
+        if run_partition:
+            vlog_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
 
-        vlog_cmd += tab_files
-        vlog_cmd += so_files
-        vlog_cmd += arc_libs
-        vlog_cmd += vlog_defines
-        vlog_cmd += cmpopts
-        vlog_cmd += parallel
-        vlog_cmd += flists
+        vlog_cmd += tab_files + so_files + arc_libs + vlog_defines + cmpopts + parallel + flists
         cmds.append(vlog_cmd)
 
         return cmds
@@ -143,7 +138,6 @@ def get_flists():
 
     # all the flist files in total
     flists = vkits + gvars.Vars['FLISTS']
-
     return ' -f ' + ' -f '.join(flists)
 
 ########################################################################################

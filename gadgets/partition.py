@@ -18,10 +18,17 @@ class PartitionGadget(gadget.Gadget):
         
         static_vkits = gvars.StaticVkits
         vkits = [it for it in gvars.Vkits if it not in static_vkits]
+        cells = gvars.Vars['PARTITION_CELLS']
+        part_cfg_name = '.partition.cfg'
+        self.turds.append(part_cfg_name)
+        
+        Log.info("Creating %s file..." % part_cfg_name)
 
-        with open('partition.cfg', 'w') as f:
+        with open(part_cfg_name, 'w') as pfile:
             if static_vkits:
                 static_vkit_pkgs = ' '.join([it.get_pkg_name() for it in static_vkits])
-                print >>f, "partition package %s ;" % static_vkit_pkgs
+                print >>pfile, "partition package %s ;" % static_vkit_pkgs
+            for cell in cells:
+                print >>pfile, "partition cell %s ;" % cell
             for vkit in vkits:
-                print >>f, "partition package %s ;" % vkit.get_pkg_name()
+                print >>pfile, "partition package %s ;" % vkit.get_pkg_name()
