@@ -44,9 +44,7 @@ class VericomGadget(gadget.Gadget):
             try:
                 os.makedirs(self.sim_dir)
             except OSError:
-                import sys
-                Log.critical("Unable to create %s" % self.sim_dir)
-                sys.exit(254)
+                raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
         with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
             print >>file, "0 %s" % self.tb_top

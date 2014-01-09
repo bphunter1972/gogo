@@ -53,7 +53,7 @@ class SimulateGadget(gadget.Gadget):
 
         # ensure that executable has been built
         if os.path.exists(self.sim_exe) == False:
-            Log.critical("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
+            raise gadget.GadgetFailed("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
 
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
@@ -68,9 +68,7 @@ class SimulateGadget(gadget.Gadget):
             try:
                 os.makedirs(self.sim_dir)
             except OSError:
-                import sys
-                Log.critical("Unable to create %s" % self.sim_dir)
-                sys.exit(254)
+                raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
