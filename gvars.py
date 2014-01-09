@@ -19,7 +19,6 @@ Keys = {
     'TB_TOP'          : ("", (str,),       "The module name of the top-level of the testbench"),
     
     # Build-related
-    'VLOG_PARTITION'   : ("", (str,),      "When 'auto', compiles and creates a partition.cfg file from lists of vkits, STATIC_VKITS, and PARTITION_CELLS. If 'custom', uses the partition cfg file specified on the command-line (default:'partition.cfg'). Otherwise, 'off'."),
     'VLOG_PARALLEL'    : (0, (int,),       "The number of cores on which to compile in parallel (partition-compile only)"),
     'VLOG_TOOL'        : ("", (str,),      "Command needed to run a build"),
     'VLOG_MODULES'     : ([], (list,),     "Added to runmod for all builds"),
@@ -54,7 +53,7 @@ Keys = {
 Vars = {}
 
 # These keys do NOT need to be specified
-OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'VLOG_OPTIONS', 'VLOG_PARTITION', 'VLOG_PARALLEL', 
+OptionalKeys = ('STATIC_VKITS', 'SIMOPTS', 'SIM_PLUSARGS', 'VLOG_OPTIONS', 'VLOG_PARALLEL', 
     'VLOG_SO_FILES', 'VLOG_TAB_FILES', 'VLOG_ARC_LIBS', 'VLOG_DEFINES', 'LSF_SIM_LICS', 'LSF_VLOG_LICS')
 
 # All of the command-line options from parse_args
@@ -121,10 +120,6 @@ def setup_globals():
     # for key in Vars:
     #     if Vars[key] is None and key not in OptionalKeys:
     #         Log.error("%s is not defined in any of %s." % (key, ','.join(["%s.py" % it for it in libraries])))
-
-    # check that some dictionary items only contain correct values
-    if Vars['VLOG_PARTITION'] and Vars['VLOG_PARTITION'] not in ('custom', 'auto', 'off'):
-        Log.critical("VLOG_PARTITION value '%s' must be one of 'custom', 'auto', or 'off'" % Vars['VLOG_PARTITION'])
 
     # build the Vkits and StaticVkits arrays
     from vkit import Vkit

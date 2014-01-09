@@ -10,7 +10,7 @@ A lightweight compile and simulate script.
 
 """
 
-__version__       = '0.0.2'
+__version__       = '0.0.3'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -21,6 +21,7 @@ import logging
 import cn_logging
 import gvars
 import sge_tools as sge
+import os.path
 
 ########################################################################################
 # Globals
@@ -59,7 +60,7 @@ def parse_args():
     p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
     p.add_argument('--verb', '-V',   action='store',             default=0,       help="Specify UVM Verbosity.")
     p.add_argument('--tb',           action='store',             default='tb',    help="Specify a different tb.py configuration file.")
-    p.add_argument('--part', '-p',   action='store',             default='partition.cfg', help="Specify a partition.cfg file to use.")
+    p.add_argument('--part', '-p',   action='store',             default='auto',  help="When 'auto', gogo generates the partition configuration from settings; when 'off', compile without partitions; else specify your own configuration file.")
     p.add_argument('--interactive',  action='store_true',        default=False,   help="Run the simulation interactively.")
 
     p.add_argument('--simopts',      action='store',             default=None,    help="Add simulation opts as a string to simulator command-line.")
@@ -106,6 +107,9 @@ def parse_args():
 
     if gvars.Options.dbg:
         gvars.Log.setLevel(logging.DEBUG)
+
+    if gvars.Options.part not in ('auto', 'off') and not os.path.exists(gvars.Options.part):
+        Log.critical("Partition configuration file '%s' does not exist." % gvars.Options.part)
 
     return [shortcuts[gadget] for gadget in gadgets_to_run]
 

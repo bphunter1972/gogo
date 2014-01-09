@@ -29,8 +29,8 @@ class VlogGadget(gadget.Gadget):
         except OSError:
             pass
 
-        # create the partition file in auto mode
-        if gvars.Vars['VLOG_PARTITION'] == 'auto':
+        # create the partition configuration file in auto mode
+        if gvars.Options.part == 'auto':
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
@@ -58,20 +58,12 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # partitioning
-        vlog_partition = gvars.Vars['VLOG_PARTITION'] 
-        run_partition = vlog_partition in ('auto', 'custom')
-        try:
-            partition_cfg_name = {
-                'custom': gvars.Options.part,
-                'auto': '.partition.cfg',
-                'off': ''
-            }[vlog_partition]
-        except KeyError:
-            raise gadget.GadgetFailed("VLOG_PARTITION must be one of ('auto', 'custom', or 'off'")
-
-        # check that partition cfg file exists, else fail
-        if run_partition and not os.path.exists(partition_cfg_name):
-            raise gadget.GadgetFailed("File %s does not exist!" % partition_cfg_name)
+        vlog_partition = gvars.Options.part
+        run_partition = vlog_partition != 'off'
+        if run_partition:
+            partition_cfg_name = '.partition.cfg' if vlog_partition == 'auto' else vlog_partition
+            if not os.path.exists(partition_cfg_name):
+                raise gadget.GadgetFailed("File %s does not exist!" % partition_cfg_name)
 
         #--------------------------------------------
         # create vcomp directory if it does not already exist
