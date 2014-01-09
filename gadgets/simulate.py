@@ -45,6 +45,12 @@ class SimulateGadget(gadget.Gadget):
         simrpt = SimrptGadget(self.sim_dir)
         schedule.add_gadget(simrpt)
 
+        if not os.path.exists(self.sim_dir):
+            try:
+                os.makedirs(self.sim_dir)
+            except OSError:
+                raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
+
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -63,12 +69,6 @@ class SimulateGadget(gadget.Gadget):
             import random
             gvars.Options.seed = random.getrandbits(32)
         sim_cmd += " +seed=%d" % gvars.Options.seed
-
-        if not os.path.exists(self.sim_dir):
-            try:
-                os.makedirs(self.sim_dir)
-            except OSError:
-                raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
