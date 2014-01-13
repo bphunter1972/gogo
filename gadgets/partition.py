@@ -22,8 +22,6 @@ class PartitionGadget(gadget.Gadget):
         part_cfg_name = '.partition.cfg'
         self.turds.append(part_cfg_name)
         
-        Log.info("Creating %s file..." % part_cfg_name)
-
         with open(part_cfg_name, 'w') as pfile:
             if static_vkits:
                 static_vkit_pkgs = ' '.join([it.get_pkg_name() for it in static_vkits])

@@ -5,6 +5,7 @@ An Gadget class representing the verilog-compile gadget.
 import gadget
 import gvars
 import os
+import schedule
 
 Log = gvars.Log
 
@@ -29,12 +30,15 @@ class VlogGadget(gadget.Gadget):
         except OSError:
             pass
 
+        # create the flist file for the testbench
+        import flist
+        schedule.add_gadget(flist.FlistGadget())
+
         # create the partition configuration file in auto mode
         if gvars.Options.part == 'auto':
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
-            import schedule
             schedule.add_gadget(partition.PartitionGadget())
 
     #--------------------------------------------     
@@ -132,7 +136,7 @@ def get_flists():
     vkits = [it.flist_file() for it in gvars.Vkits]
 
     # all the flist files in total
-    flists = vkits + gvars.Vars['FLISTS']
+    flists = vkits + gvars.Vars['FLISTS'] + ['.flist']
     return ' -f ' + ' -f '.join(flists)
 
 ########################################################################################

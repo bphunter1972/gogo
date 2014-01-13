@@ -12,42 +12,44 @@ __DEFAULT_VAL__, __TYPES__, __COMMENT__ = range(3)
 Keys = {
     # Testbench-related variables
     # Name             (default, possible types)   Help
-    'VKITS'           : ([], (list,),      "Vkits that this testbench relies upon, in order"),
-    'STATIC_VKITS'    : ([], (list,),      "Vkits that should be considered static for the purposes of partition compilation"),
-    'PARTITION_CELLS' : ([], (list,),      "Cells that should be separate partitions for partition compilation"),
-    'FLISTS'          : ([], (list,),      "Testbench FLISTs to include"),
-    'TB_TOP'          : ("", (str,),       "The module name of the top-level of the testbench"),
-    
-    # Build-related
-    'VLOG_PARALLEL'    : (0, (int,),       "The number of cores on which to compile in parallel (partition-compile only)"),
-    'VLOG_TOOL'        : ("", (str,),      "Command needed to run a build"),
-    'VLOG_MODULES'     : ([], (list,),     "Added to runmod for all builds"),
-    'VLOG_OPTIONS'     : ("", (str,),      "Additional build options"),
-    'VLOG_TAB_FILES'   : ([], (list,),     "PLI files that should also be added to the build command-line (-P <name>)"),
-    'VLOG_SO_FILES'    : ([], (list,),     "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
-    'VLOG_ARC_LIBS'    : ([], (list,),     ".a/.o archive libraries that will be added to the build command-line"),
-    'VLOG_VCOMP_DIR'   : ("", (str,),      "The name of the compile directory"),
-    'VLOG_DEFINES'     : ([], (list,),     "All +defines as needed"),
-    'VLOG_IGNORE_WARNINGS' : ([], (list,), "Warnings that should be ignored by VCS during vlog."),
+    'VKITS'            : ([], (list,),      "Vkits that this testbench relies upon, in order"),
+    'STATIC_VKITS'     : ([], (list,),      "Vkits that should be considered static for the purposes of partition compilation"),
+    'PARTITION_CELLS'  : ([], (list,),      "Cells that should be separate partitions for partition compilation"),
+    'FLISTS'           : ([], (list,),      "Testbench FLISTs to include"),
+    'TB_TOP'           : ("", (str,),       "The module name of the top-level of the testbench"),
+    'TB_INCDIRS'       : ([], (list,),      "The list of +incdirs to create for this testbench"),
+    'TB_LIBRARIES'     : ([], (list,),      "The list of library directories to create for this testbench"),
 
+    # Build-related
+    'VLOG_PARALLEL'    : (0, (int,),        "The number of cores on which to compile in parallel (partition-compile only)"),
+    'VLOG_TOOL'        : ("", (str,),       "Command needed to run a build"),
+    'VLOG_MODULES'     : ([], (list,),      "Added to runmod for all builds"),
+    'VLOG_OPTIONS'     : ("", (str,),       "Additional build options"),
+    'VLOG_TAB_FILES'   : ([], (list,),      "PLI files that should also be added to the build command-line (-P <name>)"),
+    'VLOG_SO_FILES'    : ([], (list,),      "Shared Objects that will be added to the build command-line (-LDFLAGS '<all>')"),
+    'VLOG_ARC_LIBS'    : ([], (list,),      ".a/.o archive libraries that will be added to the build command-line"),
+    'VLOG_VCOMP_DIR'   : ("", (str,),       "The name of the compile directory"),
+    'VLOG_DEFINES'     : ([], (list,),      "All +defines as needed"),
+    'VLOG_IGNORE_WARNINGS' : ([], (list,),  "Warnings that should be ignored by VCS during vlog."),
+    
     # Simulation-related
-    'SIM_MODULES'     : ([], (list,),      "List of modules, added to runmod for all sims"),
-    'SIM_GUI'         : ("", (str,),       "Add this to simulation command-line when you want to run in GUI mode"),
-    'SIMOPTS'         : ("", (str,),       "Added to the simulation command-line (not overridden by --simopts)"),
-    'SIM_PLUSARGS'    : ([], (list,),      "Added to the simulation command-line (all preceded by +)"),
-    'SIM_WAVE_OPTIONS': ("", (str,),       "Run-time options"),
+    'SIM_MODULES'      : ([], (list,),      "List of modules, added to runmod for all sims"),
+    'SIM_GUI'          : ("", (str,),       "Add this to simulation command-line when you want to run in GUI mode"),
+    'SIMOPTS'          : ("", (str,),       "Added to the simulation command-line (not overridden by --simopts)"),
+    'SIM_PLUSARGS'     : ([], (list,),      "Added to the simulation command-line (all preceded by +)"),
+    'SIM_WAVE_OPTIONS' : ("", (str,),       "Run-time options"),
     
     # LSF-related
-    'LSF_VLOG_LICS'    : ([], (list,),     "Additional licenses used for building"),
-    'LSF_SIM_LICS'    : ([], (list,),      "Additional licences used for simulation"),
+    'LSF_VLOG_LICS'    : ([], (list,),      "Additional licenses used for building"),
+    'LSF_SIM_LICS'     : ([], (list,),      "Additional licences used for simulation"),
     
     # Cleaning-related
-    'CLEAN_DIRS'      : ([], (list,),      "Names of directories to delete"),
-    'CLEAN_FILES'     : ([], (list,),      "Names of files to delete"),
+    'CLEAN_DIRS'       : ([], (list,),      "Names of directories to delete"),
+    'CLEAN_FILES'      : ([], (list,),      "Names of files to delete"),
     
     # Miscellaneous
-    'UVM_REV'         : ("1_1d", (str,),   "UVM Revision to use"),
-    'VERDI_MODULE'    : ("", (str,),       "Module to load for Verdi usage."),
+    'UVM_REV'          : ("1_1d", (str,),   "UVM Revision to use"),
+    'VERDI_MODULE'     : ("", (str,),       "Module to load for Verdi usage."),
 }
 
 Vars = {}
