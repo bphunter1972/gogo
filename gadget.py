@@ -3,6 +3,7 @@ Defines the base class Gadget.
 Commands returned by create_cmds will be concatenated with semicolons and run as a single sge Job.
 """
 
+from __future__ import print_function
 import sge_tools as sge
 import gvars
 
@@ -93,17 +94,17 @@ class Gadget(sge.Job):
             file_name = os.path.join(self.cwd, file_name)
 
         with open(file_name, 'w') as f:
-            print >>f, "#!/usr/bin/csh"
+            print("#!/usr/bin/csh", file=f)
             for command in self.commands:
                 if type(command) == tuple:
                     (echo, cmd) = command
-                    print >>f, 'echo ">>>> %s"' % echo
-                    print >>f, cmd
+                    print('echo ">>>> %s"' % echo, file=f)
+                    print(cmd, file=f)
                 elif type(command) == str:
-                    print >>f, command
+                    print(command, file=f)
                 else:
                     Log.critical("Command '%s' is neither a string nor a tuple." % command)
-            print >>f
+            print(file=f)
             self.turds.append(os.path.abspath(file_name))
         self.cmd = "source %s" % (file_name)
 
@@ -147,3 +148,16 @@ class Gadget(sge.Job):
         """
 
         return True
+
+    #--------------------------------------------
+    def check_files_exist(self, files):
+        """
+        Raises gadget.GadgetFailed if any of the files do not exist.
+
+        files : (list of str) The list of filenames
+        """
+
+        from os.path import exists
+        missing_files = [it for it in files if exists(it) == False]
+        if missing_files:
+            raise GadgetFailed("File(s) are missing: %s" % missing_files)

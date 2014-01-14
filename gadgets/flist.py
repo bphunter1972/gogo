@@ -25,24 +25,23 @@ class FlistGadget(gadget.Gadget):
         tb_dir = 'project/verif/%(tb_name)s' % locals()
         root_dir = gvars.RootDir
 
-        with open('.flist', 'w') as f:
+        with open('.flist', 'w') as ffile:
             # print +incdirs
-            print("+incdir+%(tb_dir)s" % locals(), file=f)
+            print("+incdir+%(tb_dir)s" % locals(), file=ffile)
             for incdir in gvars.Vars['TB_INCDIRS']:
-                print("+incdir+%(incdir)s" % locals(), file=f)
+                print("+incdir+%(incdir)s" % locals(), file=ffile)
 
             # print testbench sv files
-            # print("project/verif/%s.sv" % gvars.Vars['TB_TOP'], file=f)
             for svfile in glob.glob('*.sv'):
-                print("project/verif/%(tb_name)s/%(svfile)s" % locals(), file=f)
+                print("project/verif/%(tb_name)s/%(svfile)s" % locals(), file=ffile)
 
             # print tests
             for test in glob.glob('tests/*.sv'):
-                print("project/verif/%(tb_name)s/%(test)s" % locals(), file=f)
+                print("project/verif/%(tb_name)s/%(test)s" % locals(), file=ffile)
 
             # print -y libraries
             for libdir in gvars.Vars['TB_LIBRARIES']:
-                print("-y %(libdir)s" % locals(), file=f)
+                print("-y %(libdir)s" % locals(), file=ffile)
 
         self.turds.append('.flist')
         

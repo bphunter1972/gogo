@@ -2,6 +2,8 @@
 An gadget class that executes the simulation
 """
 
+from __future__ import print_function
+
 import gadget
 import gvars
 import os
@@ -58,8 +60,7 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        if os.path.exists(self.sim_exe) == False:
-            raise gadget.GadgetFailed("Simulation executable (%(sim_exe)s) has not been built yet." % self.__dict__)
+        self.check_files_exist(self.sim_exe)
 
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.Options.test
@@ -111,12 +112,12 @@ class SimulateGadget(gadget.Gadget):
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):
         "Create the .wave_script file that VCS will do."
-        with open(wave_script_name, 'w') as file:
-            print >>file, """set d [string map {logfile waves.vpd} [senv logFilename] ]
+        with open(wave_script_name, 'w') as wfile:
+            print("""set d [string map {logfile waves.vpd} [senv logFilename] ]
             dump -file $d -type vpd
             dump -add %(tb_top)s -depth 0
-            run""" % self.__dict__
-            self.turds.append(os.path.abspath(file.name))
+            run""" % self.__dict__, file=wfile)
+            self.turds.append(os.path.abspath(wfile.name))
             
     #--------------------------------------------
     def handle_fsdb(self):

@@ -2,6 +2,8 @@
 Creates a new partition file for partition-compile.
 """
 
+from __future__ import print_function
+
 import gadget
 import gvars
 
@@ -25,8 +27,8 @@ class PartitionGadget(gadget.Gadget):
         with open(part_cfg_name, 'w') as pfile:
             if static_vkits:
                 static_vkit_pkgs = ' '.join([it.get_pkg_name() for it in static_vkits])
-                print >>pfile, "partition package %s ;" % static_vkit_pkgs
+                print("partition package %s ;" % static_vkit_pkgs, file=pfile)
             for cell in cells:
-                print >>pfile, "partition cell %s ;" % cell
+                print("partition cell %s ;" % cell, file=pfile)
             for vkit in vkits:
-                print >>pfile, "partition package %s ;" % vkit.get_pkg_name()
+                print("partition package %s ;" % vkit.get_pkg_name(), file=pfile)

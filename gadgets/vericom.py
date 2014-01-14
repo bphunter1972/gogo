@@ -2,6 +2,8 @@
 A gadget that runs vericom for Verdi waveform usage.
 """
 
+from __future__ import print_function
+
 import gadget
 import gvars
 import os.path
@@ -46,9 +48,9 @@ class VericomGadget(gadget.Gadget):
             except OSError:
                 raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
-        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as file:
-            print >>file, "0 %s" % self.tb_top
-            self.turds.append(os.path.abspath(file.name))
+        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as sfile:
+            print("0 %s" % self.tb_top, file=sfile)
+            self.turds.append(os.path.abspath(sfile.name))
 
         # create the vericom command
 

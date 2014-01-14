@@ -66,8 +66,7 @@ class VlogGadget(gadget.Gadget):
         run_partition = vlog_partition != 'off'
         if run_partition:
             partition_cfg_name = '.partition.cfg' if vlog_partition == 'auto' else vlog_partition
-            if not os.path.exists(partition_cfg_name):
-                raise gadget.GadgetFailed("File %s does not exist!" % partition_cfg_name)
+            self.check_files_exist([partition_cfg_name])
 
         #--------------------------------------------
         # create vcomp directory if it does not already exist
@@ -80,12 +79,12 @@ class VlogGadget(gadget.Gadget):
         #--------------------------------------------
         # get common command-line arguments
         uvm_dpi = " %s/src/dpi/uvm_dpi.cc" % gvars.Vars['UVM_DIR']
-        flists = get_flists() 
+        flists = self.get_flists() 
 
         tab_files = so_files = arc_libs = vlog_defines = cmpopts = vlog_options = parallel = vlog_warnings = ""
-        tab_files = get_tab_files()
-        so_files = get_so_files()
-        vlog_defines = get_defines()
+        tab_files = self.get_tab_files()
+        so_files = self.get_so_files()
+        vlog_defines = self.get_defines()
         if gvars.Vars['VLOG_ARC_LIBS']:
             arc_libs = ' ' + ' '.join(gvars.Vars['VLOG_ARC_LIBS'])
         if gvars.Options.cmpopts:
@@ -123,33 +122,36 @@ class VlogGadget(gadget.Gadget):
 
         return cmds
 
-########################################################################################
-def get_defines():
-    if gvars.Vars['VLOG_DEFINES']:
-        return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
-    else:
-        return ""
+    ########################################################################################
+    def get_defines(self):
+        if gvars.Vars['VLOG_DEFINES']:
+            return ' +define+' + '+'.join(gvars.Vars['VLOG_DEFINES'])
+        else:
+            return ""
 
-########################################################################################
-def get_flists():
-    # determine all of the vkits and flists
-    vkits = [it.flist_file() for it in gvars.Vkits]
+    ########################################################################################
+    def get_flists(self):
+        # determine all of the vkits and flists
+        vkits = [it.flist_file() for it in gvars.Vkits]
 
-    # all the flist files in total
-    flists = vkits + gvars.Vars['FLISTS'] + ['.flist']
-    return ' -f ' + ' -f '.join(flists)
+        # all the flist files in total
+        flists = vkits + gvars.Vars['FLISTS'] + ['.flist']
+        return ' -f ' + ' -f '.join(flists)
 
-########################################################################################
-def get_tab_files():
-    if gvars.Vars['VLOG_TAB_FILES']:
-        return ' -P ' + ' -P '.join(gvars.Vars['VLOG_TAB_FILES'])
-    else:
-        return ""
+    ########################################################################################
+    def get_tab_files(self):
+        if gvars.Vars['VLOG_TAB_FILES']:
+            self.check_files_exist(gvars.Vars['VLOG_TAB_FILES'])
+            return ' -P ' + ' -P '.join(gvars.Vars['VLOG_TAB_FILES'])
+        else:
+            return ""
 
-########################################################################################
-def get_so_files():
-    if gvars.Vars['VLOG_SO_FILES']:
-        so_files = [os.path.abspath(it) for it in gvars.Vars['VLOG_SO_FILES']]
-        return " -LDFLAGS '%s'" % (' '.join(so_files))
-    else:
-        return ""
+    ########################################################################################
+    def get_so_files(self):
+        if gvars.Vars['VLOG_SO_FILES']:
+            # check first that they exist
+            self.check_files_exist(gvars.Vars['VLOG_SO_FILES'])
+            so_files = [os.path.abspath(it) for it in gvars.Vars['VLOG_SO_FILES']]
+            return " -LDFLAGS '%s'" % (' '.join(so_files))
+        else:
+            return ""

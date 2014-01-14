@@ -2,6 +2,8 @@
 A gadget that creates the fsdb.sh file.
 """
 
+from __future__ import print_function
+
 import gadget
 import gvars
 import os
@@ -26,7 +28,7 @@ class FsdbGadget(gadget.Gadget):
         self.turds.append(self.fsdb_name)
 
         with open(self.fsdb_name, 'w') as fsdb_file:
-            print >>fsdb_file, "runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__
+            print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
         os.chmod(self.fsdb_name, 0o777)
 
     #--------------------------------------------
