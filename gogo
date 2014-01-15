@@ -114,29 +114,67 @@ def parse_args():
     return [shortcuts[gadget] for gadget in gadgets_to_run]
 
 ########################################################################################
+def setup_globals():
+    """
+    Set up the variables in gvars with imported information from project and the local tb.py
+    """
+
+    import var_type
+    from area_utils import calcRootDir
+    global gvars
+
+    var_type.Log = gvars.Log
+    gvars.RootDir = calcRootDir()
+    # The names of all the library files that will be imported
+    libraries = ('project', gvars.Options.tb)
+
+    def import_lib(mod_name):
+        try:
+            __import__(mod_name)
+        except ImportError:
+            import sys
+            path_str = 'PYTHONPATH = '
+            for p in sys.path:
+                path_str += '\n\t%s' % p
+            Log.warning("'%s.py' file not found! Modify your PYTHONPATH?\n%s" % (mod_name, path_str))
+            raise
+
+    map(import_lib, libraries)
+
+    from vkit import Vkit
+    gvars.Vkits = [Vkit(it) for it in gvars.TB.VKITS]
+    uvm_vkit = Vkit('uvm')
+    gvars.Vkits.insert(0, uvm_vkit)
+
+    try:
+        gvars.StaticVkits = [it for it in gvars.Vkits if it.name in gvars.TB.STATIC_VKITS]
+    except AttributeError:
+        Log.critical("A Vkit below has no name:\n%s" % gvars.Vkits)
+
+########################################################################################
 if __name__ == '__main__':
     import schedule
 
     gadgets_to_run = parse_args()
-    gvars.setup_globals()
+    setup_globals()
 
     from gadget import GadgetFailed # note: this import must come after setup_globals
 
     Log.info("Welcome to gogo v%s" % __version__)
 
-    if 'help' in gadgets_to_run:
-        import sys
-        gvars.print_keys()
-        sys.exit(0)
+    # if 'help' in gadgets_to_run:
+    #     import sys
+    #     gvars.print_keys()
+    #     sys.exit(0)
 
-    # Test Code to print dependencies
-    if 'print_deps' in gadgets_to_run:
-        import sys, pymake
-        srcs = gvars.get_all_sources() 
-        # print(srcs)
-        answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
-        print("Latest=%s" % answer[1])
-        sys.exit(1)
+    # # Test Code to print dependencies
+    # if 'print_deps' in gadgets_to_run:
+    #     import sys, pymake
+    #     srcs = gvars.get_all_sources() 
+    #     # print(srcs)
+    #     answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
+    #     print("Latest=%s" % answer[1])
+    #     sys.exit(1)
 
     try:
         if 'clean' in gadgets_to_run:

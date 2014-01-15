@@ -28,7 +28,7 @@ class FlistGadget(gadget.Gadget):
         with open('.flist', 'w') as ffile:
             # print +incdirs
             print("+incdir+%(tb_dir)s" % locals(), file=ffile)
-            for incdir in gvars.Vars['TB_INCDIRS']:
+            for incdir in gvars.TB.INCDIRS:
                 print("+incdir+%(incdir)s" % locals(), file=ffile)
 
             # print testbench sv files
@@ -40,7 +40,7 @@ class FlistGadget(gadget.Gadget):
                 print("project/verif/%(tb_name)s/%(test)s" % locals(), file=ffile)
 
             # print -y libraries
-            for libdir in gvars.Vars['TB_LIBRARIES']:
+            for libdir in gvars.TB.LIBRARIES:
                 print("-y %(libdir)s" % locals(), file=ffile)
 
         self.turds.append('.flist')

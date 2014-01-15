@@ -19,12 +19,12 @@ class VericomGadget(gadget.Gadget):
         self.schedule_phase = 'pre_simulate'
         self.name           = 'vericom'
         self.sim_dir        = sim_dir
-        self.tb_top         = gvars.Vars['TB_TOP']
+        self.tb_top         = gvars.TB.TOP
         self.interactive    = True
         self.queue          = 'build'
-        self.vcomp_dir      = gvars.Vars['VLOG_VCOMP_DIR']
+        self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
         self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
-        self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
+        self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
         
     #--------------------------------------------
     def create_cmds(self):

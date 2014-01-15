@@ -15,7 +15,7 @@ class Vkit(object):
     entry: The name of the vkits directory in which to find a vcfg.py file
     """
     def __init__(self, entry):
-        self.vkits_dir = gvars.Vars['VKITS_DIR']
+        self.vkits_dir = gvars.PROJ.VKITS_DIR
 
         if type(entry) == dict:
             config = entry

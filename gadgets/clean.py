@@ -19,14 +19,14 @@ class CleanGadget(gadget.Gadget):
         self.schedule_phase = 'clean'
         
         gvars.Log.info("Cleaning...")
-        for dname in gvars.Vars['CLEAN_DIRS']:
+        for dname in gvars.PROJ.CLEAN_DIRS:
             try:
                 rmtree(dname)
                 Log.info("Removed dir %s" % dname)
             except:
                 pass
 
-        for fname in gvars.Vars['CLEAN_FILES']:
+        for fname in gvars.PROJ.CLEAN_FILES:
             try:
                 os.remove(fname)
                 Log.info("Removed file %s" % fname)

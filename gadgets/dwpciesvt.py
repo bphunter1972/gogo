@@ -20,7 +20,7 @@ class DWPciesvtGadget(gadget.Gadget):
         "Prepend the commands with a call to dw_vip_setup, if necessary."
 
         # make the obj/unit directory if it doesn't already exist
-        self.dw_dir = os.path.join(gvars.Vars['VKITS_DIR'], "designware")
+        self.dw_dir = os.path.join(gvars.PROJ.VKITS_DIR, "designware")
         self.unit_dir = os.path.join(self.dw_dir, "obj/unit")
         try:
             os.makedirs(self.unit_dir)

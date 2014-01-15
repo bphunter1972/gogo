@@ -20,7 +20,7 @@ class PartitionGadget(gadget.Gadget):
         
         static_vkits = gvars.StaticVkits
         vkits = [it for it in gvars.Vkits if it not in static_vkits]
-        cells = gvars.Vars['PARTITION_CELLS']
+        cells = gvars.TB.PARTITION_CELLS
         part_cfg_name = '.partition.cfg'
         self.turds.append(part_cfg_name)
         

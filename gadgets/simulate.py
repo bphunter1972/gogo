@@ -24,7 +24,7 @@ class SimulateGadget(gadget.Gadget):
         self.schedule_phase = 'simulate'
 
         self.name      = gvars.Options.dir if gvars.Options.dir else gvars.Options.test
-        self.resources = gvars.Vars['LSF_SIM_LICS']
+        self.resources = gvars.PROJ.LSF_SIM_LICS
         self.queue     = 'verilog'
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
@@ -33,10 +33,10 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.runmod_modules = gvars.Vars['SIM_MODULES']
-        self.tb_top         = gvars.Vars['TB_TOP']
+        self.runmod_modules = gvars.SIM.MODULES
+        self.tb_top         = gvars.TB.TOP
         self.sim_dir        = os.path.join('sim', self.name)
-        self.vcomp_dir      = gvars.Vars['VLOG_VCOMP_DIR']
+        self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
         self.sim_exe        = os.path.join(self.vcomp_dir, 'simv')
 
         # if necessary, add Vericom to the list of gadgets, among other things
@@ -81,7 +81,7 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " +wdog=%d" % gvars.Options.wdog
 
         if gvars.Options.gui:
-            sim_cmd += gvars.Vars['SIM_GUI']
+            sim_cmd += gvars.SIM.GUI
 
         if gvars.Options.wave == 'vpd':
             wave_script_name = os.path.join(self.sim_dir, '.wave_script')
@@ -96,13 +96,13 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " +svfcov"
 
         # add simulation command-line options
-        if gvars.Vars['SIMOPTS']:
-            sim_cmd += " " + gvars.Vars['SIMOPTS']
+        if gvars.SIM.OPTS:
+            sim_cmd += " " + gvars.SIM.OPTS
         if gvars.Options.simopts:
             sim_cmd += " " + gvars.Options.simopts
 
-        if gvars.Vars['SIM_PLUSARGS']:
-            sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.Vars['SIM_PLUSARGS']])
+        if gvars.SIM.PLUSARGS:
+            sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.SIM.PLUSARGS])
 
         # simrpt_cmd = 'simrpt %s/logfile' % self.sim_dir
         # return [sim_cmd, simrpt_cmd]
@@ -121,7 +121,7 @@ class SimulateGadget(gadget.Gadget):
             
     #--------------------------------------------
     def handle_fsdb(self):
-        self.runmod_modules.append(gvars.Vars['VERDI_MODULE'])
+        self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
 
         # Run vericom gadget during pre_simulate
         import gadgets.vericom

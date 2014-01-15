@@ -20,8 +20,8 @@ class FsdbGadget(gadget.Gadget):
         self.name           = 'fsdb'
         self.runLocally     = True
         self.fsdb_name      = os.path.join(self.sim_dir, 'fsdb.sh')
-        self.tb_top         = gvars.Vars['TB_TOP']
-        self.vcomp_dir      = gvars.Vars['VLOG_VCOMP_DIR']
+        self.tb_top         = gvars.TB.TOP
+        self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
 
     #--------------------------------------------
     def create_cmds(self):
