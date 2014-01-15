@@ -14,12 +14,15 @@ This probably should just be replaced with something like scons or waf.
 TODO: Generate dependencies for different languages?
 """
 
-__version__ = '0.0.0'
+__version__ = '0.0.1'
 __author__  = 'Brian Hunter'
 __email__   = 'brian.hunter@cavium.com'
 
 ########################################################################################
-# Constants
+# Globals
+
+# A cache of modified filenames and their respective mtimes
+Mtimes = {}
 
 ########################################################################################
 # Exceptions
@@ -48,36 +51,45 @@ def get_extreme_mtime(files, old, get_file=False):
     =>      : (int, string) A modification time and a filename (or None if not get_file)
     """
 
-    import os
 
     if not files:
         raise EmptyFileList(files)
 
     func = {True:min, False:max}[old]
 
-    # if only one file is present
     if type(files) == str:
-        try:
-            return os.stat(files).st_mtime, files
-        except:
-            raise NonExistantFile(files)
-    elif get_file:
-        # if we have to also return the cause
-        try:
-            mtimes = [(os.stat(file).st_mtime, file) for file in files]
-        except OSError:
-            raise NonExistantFile(file)
-        else:
-            extreme_mtime = func([it[0] for it in mtimes])
-            return [it for it in mtimes if it[0] == extreme_mtime][0]
-    else:
-        # else, this one is faster
-        try:
-            mtimes = [os.stat(file).st_mtime for file in files]
-        except:
-            raise NonExistantFile(file)
-        else:
-            return (func(mtimes), None)
+        files = [files,]
+
+    # fill in the cached version of Mtimes and get it as a list
+    mtimes = calc_mtimes(files)
+    result = func(mtimes)
+
+    cause = None
+    if get_file:
+        for key in Mtimes:
+            if Mtimes[key] == result:
+                cause = key
+                break
+    return (result, cause)
+
+########################################################################################
+def calc_mtimes(filenames):
+    import os
+    global Mtimes
+
+    mtimes = []
+    try:
+        for fname in filenames:
+            fname = os.path.abspath(fname)
+            try:
+                mtimes.append(Mtimes[fname])
+            except KeyError:
+                an_mtime = Mtimes[fname] = os.stat(fname).st_mtime
+                mtimes.append(an_mtime)
+    except:
+        raise NonExistantFile(fname)
+
+    return mtimes
 
 ########################################################################################
 def pymake(targets, sources, get_cause=False):
@@ -151,7 +163,7 @@ def glob_files(dirs, patterns, recursive=False):
 if __name__ == '__main__':
     # treat argv[0] as target and rest as sources
     import sys
-    print("Checking", sys.argv[1], "against", sys.argv[2:])
+    print("Checking %s against %s" % (sys.argv[1], sys.argv[2:]))
 
     try:
         print(pymake(sys.argv[1], sys.argv[2:], get_cause=True))
