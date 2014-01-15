@@ -157,6 +157,10 @@ class Gadget(sge.Job):
         files : (list of str) The list of filenames
         """
 
+        # in the case of being passed only 1 string, just put that string in a list
+        if type(files) == str:
+            files = [files,]
+
         from os.path import exists
         missing_files = [it for it in files if exists(it) == False]
         if missing_files:

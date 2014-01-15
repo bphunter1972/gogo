@@ -132,7 +132,7 @@ class VlogGadget(gadget.Gadget):
     ########################################################################################
     def get_flists(self):
         # determine all of the vkits and flists
-        vkits = [it.flist_file() for it in gvars.Vkits]
+        vkits = [it.flist_name for it in gvars.Vkits]
 
         # all the flist files in total
         flists = vkits + gvars.Vars['FLISTS'] + ['.flist']

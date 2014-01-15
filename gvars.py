@@ -126,12 +126,13 @@ def setup_globals():
     # build the Vkits and StaticVkits arrays
     from vkit import Vkit
     Vkits = [Vkit(it) for it in Vars['VKITS']]
-    uvm_flist = os.path.join(Vars['UVM_DIR'], 'uvm.flist')
-    uvm_vkit = Vkit(uvm_flist)
+    uvm_vkit = Vkit('uvm')
     Vkits.insert(0, uvm_vkit)
-    StaticVkits = [Vkit(it) for it in Vars['STATIC_VKITS']]
-    StaticVkits.insert(0, uvm_vkit)
 
+    try:
+        StaticVkits = [it for it in Vkits if it.name in Vars['STATIC_VKITS']]
+    except AttributeError:
+        Log.critical("A Vkit below has no name:\n%s" % Vkits)
     RootDir = calcRootDir()
 
 ########################################################################################
