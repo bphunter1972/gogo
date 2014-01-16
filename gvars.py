@@ -11,6 +11,7 @@ import var_type
 __DEFAULT_VAL__, __TYPES__, __COMMENT__ = range(3)
 
 VTYPES = {
+    # How to compile and run with VCS
     'VLOG' : {
         # Name             (default, possible types)   Help
         'PARALLEL'       : [0, (int,),        "The number of cores on which to compile in parallel (partition-compile only)"],
@@ -25,16 +26,17 @@ VTYPES = {
         'VCOMP_DIR'      : ["", (str,),       "The name of the compile directory"],
         'DEFINES'        : [[], (list,),      "All +defines as needed"],
         'IGNORE_WARNINGS': [[], (list,),      "Warnings that should be ignored by VCS during vlog."],
+        'GUI'            : ["", (str,),       "Add this to simulation command-line when you want to run in GUI mode"],
     },
 
+    # Simulation Options
     'SIM' : {
-        'MODULES'        : [[], (list,),      "List of modules, added to runmod for all sims"],
-        'GUI'            : ["", (str,),       "Add this to simulation command-line when you want to run in GUI mode"],
         'OPTS'           : ["", (str,),       "Added to the simulation command-line (not overridden by --simopts)"],
         'PLUSARGS'       : [[], (list,),      "Added to the simulation command-line (all preceded by +)"],
-        'WAVE_OPTIONS'   : ["", (str,),       "Run-time options"],
+        'TEST'           : ("basic", (str,),  "The name of the test to be run.")
     },
 
+    # Testbench Options
     'TB' : {
         'VKITS'          : [[], (list,),      "Vkits that this testbench relies upon, in order"],
         'STATIC_VKITS'   : [[], (list,),      "Vkits that should be considered static for the purposes of partition compilation"],
@@ -45,17 +47,20 @@ VTYPES = {
         'LIBRARIES'      : [[], (list,),      "The list of library directories to create for this testbench"],
     },
 
+    # Miscellaneous Project settings
     'PROJ' : {
+        'RUNMOD_MODULES'   : [[], (list,),      "List of modules, added to runmod for all sims"],
         'LSF_VLOG_LICS'    : [[], (list,),      "Additional licenses used for building"],
         'LSF_SIM_LICS'     : [[], (list,),      "Additional licences used for simulation"],
         'CLEAN_DIRS'       : [[], (list,),      "Names of directories to delete"],
         'CLEAN_FILES'      : [[], (list,),      "Names of files to delete"],
         'UVM_REV'          : ["1_1d", (str,),   "UVM Revision to use"],
         'VERDI_MODULE'     : ["", (str,),       "Module to load for Verdi usage."],
-        'VKITS_DIR'        : ["", (str,),       "The location of all vkits"],
+        'VKITS_DIR'        : ["", (str,),       "The location of all vkits directories"],
     }
 }
 
+# This code creates the variables PROJ, VLOG, SIM, etc.
 for key in VTYPES.keys():
     setattr(sys.modules[__name__], key, var_type.VarType(VTYPES[key], key))
 
