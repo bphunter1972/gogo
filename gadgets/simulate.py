@@ -69,7 +69,7 @@ class SimulateGadget(gadget.Gadget):
         if gvars.Options.seed == 0:
             import random
             gvars.Options.seed = random.getrandbits(32)
-        sim_cmd += " +seed=%d" % gvars.Options.seed
+        sim_cmd += " +seed=%d +ntb_random_seed=%d" % (gvars.Options.seed, gvars.Options.seed)
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
