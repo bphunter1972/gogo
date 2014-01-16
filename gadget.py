@@ -5,9 +5,8 @@ Commands returned by create_cmds will be concatenated with semicolons and run as
 
 from __future__ import print_function
 import sge_tools as sge
-import gvars
 
-Log = gvars.Log
+Log = None
 
 # This is raised by a gadget if its execution was found to have failed
 class GadgetFailed(Exception): pass

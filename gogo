@@ -22,6 +22,8 @@ import cn_logging
 import gvars
 import sge_tools as sge
 import os.path
+import sys
+import gadget
 
 ########################################################################################
 # Globals
@@ -94,12 +96,12 @@ def parse_args():
                  'simu'     : 'simulate',
                  'simulate' : 'simulate',
                  'help'     : 'help',
-                 'print_deps' : 'print_deps',
+                 'latest'   : 'latest',
                  }
 
-    for gadget in gadgets_to_run:
-        if gadget not in shortcuts.keys():
-            Log.critical("Unknown gadget: %s" % gadget)
+    for gdt in gadgets_to_run:
+        if gdt not in shortcuts.keys():
+            Log.critical("Unknown gadget: %s" % gdt)
 
     # Shortcut: just running 'gogo' will vlog and simulate
     if gadgets_to_run == []:
@@ -111,12 +113,12 @@ def parse_args():
     if gvars.Options.part not in ('auto', 'off') and not os.path.exists(gvars.Options.part):
         Log.critical("Partition configuration file '%s' does not exist." % gvars.Options.part)
 
-    return [shortcuts[gadget] for gadget in gadgets_to_run]
+    return [shortcuts[gdt] for gdt in gadgets_to_run]
 
 ########################################################################################
 def setup_globals():
     """
-    Set up the variables in gvars with imported information from project and the local tb.py
+    Set up the variables in gvars by importing all of the import files for this testbench
     """
 
     import var_type
@@ -124,24 +126,28 @@ def setup_globals():
     global gvars
 
     var_type.Log = gvars.Log
+    gadget.Log = gvars.Log
     gvars.RootDir = calcRootDir()
+
     # The names of all the library files that will be imported
     libraries = ('project', gvars.Options.tb)
 
+    #--------------------------------------------
     def import_lib(mod_name):
         try:
             __import__(mod_name)
         except ImportError:
-            import sys
-            path_str = 'PYTHONPATH = '
-            for p in sys.path:
-                path_str += '\n\t%s' % p
-            Log.warning("'%s.py' file not found! Modify your PYTHONPATH?\n%s" % (mod_name, path_str))
-            raise
+            Log.critical("'%s.py' file not found. Make sure you are in a testbench directory and that your PYTHONPATH is set correctly." % mod_name)
 
+    # import each of the libraries
     map(import_lib, libraries)
 
+########################################################################################
+def setup_vkits():
+    "Set up the vkits in gvars"
+
     from vkit import Vkit
+
     gvars.Vkits = [Vkit(it) for it in gvars.TB.VKITS]
     uvm_vkit = Vkit('uvm')
     gvars.Vkits.insert(0, uvm_vkit)
@@ -152,29 +158,58 @@ def setup_globals():
         Log.critical("A Vkit below has no name:\n%s" % gvars.Vkits)
 
 ########################################################################################
+def print_help():
+    from textwrap import wrap
+    print("""
+Assign variables with the following names in either project.py or tb.py.
+
+project.py : There should be one of these per-project.
+tb.py      : There should be one (or more) of these per-testbench.
+
+If more than one tb.py is available, select which to use with the --tb command-
+line option.
+""")
+
+    for vtype in sorted(gvars.VTYPES.keys()):
+        print("%s : " % vtype)
+        for var in gvars.VTYPES[vtype]:
+            txt = wrap(gvars.get_vtype(vtype).help(var), 80)
+            print("   %-18s%s" % (var, txt[0]))
+            for line in txt[1:]:
+                print("   %-18s%s" % (' ', line))
+        print("")
+
+########################################################################################
+def print_latest():
+    """
+    Print the latest source file found in the given testbench.
+    """
+
+    import pymake, utils
+    srcs = utils.get_all_sources() 
+    # print(srcs)
+    answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
+    print("Latest source is %s" % answer[1])
+    
+########################################################################################
 if __name__ == '__main__':
     import schedule
 
     gadgets_to_run = parse_args()
-    setup_globals()
-
-    from gadget import GadgetFailed # note: this import must come after setup_globals
-
     Log.info("Welcome to gogo v%s" % __version__)
 
-    # if 'help' in gadgets_to_run:
-    #     import sys
-    #     gvars.print_keys()
-    #     sys.exit(0)
+    # do this above setup_globals so that it can be run anywhere, even when there is no tb.py
+    if 'help' in gadgets_to_run:
+        print_help()
+        sys.exit(0)
 
-    # # Test Code to print dependencies
-    # if 'print_deps' in gadgets_to_run:
-    #     import sys, pymake
-    #     srcs = gvars.get_all_sources() 
-    #     # print(srcs)
-    #     answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
-    #     print("Latest=%s" % answer[1])
-    #     sys.exit(1)
+    setup_globals()
+    setup_vkits()
+
+    # Prints out the latest of all source files
+    if 'latest' in gadgets_to_run:
+        print_latest()
+        sys.exit(0)
 
     try:
         if 'clean' in gadgets_to_run:
@@ -205,7 +240,7 @@ if __name__ == '__main__':
         sge.killAll()
         Log.critical("Exiting due to Ctrl-C.")
 
-    except GadgetFailed as inst:
+    except gadget.GadgetFailed as inst:
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     # if we get here, we must have passed

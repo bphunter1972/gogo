@@ -71,51 +71,7 @@ Vkits = StaticVkits = None
 # The root directory of the project
 RootDir = None
 
-# A list of all the verilog sources (fore dependency checking)
-AllVerilogSources = None
-
-# # ########################################################################################
-# # def print_keys():
-# #     from textwrap import wrap
-# #     print("""
-# # Assign variables with the following names in either project.py or tb.py.
-
-# # project.py : There should be one of these per-project.
-# # tb.py      : There should be one (or more) of these per-testbench.
-
-# # If more than 1 tb.py are created, select which tb.py to use with the --tb 
-# # command-line option.
-# # """)
-
-# #     for key in sorted(Keys.keys()):
-# #         txt = wrap(Keys[key][__COMMENT__], 60)
-# #         print("%-18s%s" % (key, txt[0]))
-
-# #         for line in txt[1:]:
-# #             print("%-18s%s" % (' ', line))
-
 ########################################################################################
-def get_all_sources(source_type='verilog'):
-    """
-    Returns a list of all of the sources of the given type.
-    source_type : (str) Currently only 'verilog' is supported
-    =>          : (list of str) The list of all of the source files.
-    """
+def get_vtype(vtype):
+    return getattr(sys.modules[__name__], vtype)
 
-    global AllVerilogSources
-    import os.path
-    from pymake import glob_files
-
-    # only ever do this once
-    if AllVerilogSources is None:
-        AllVerilogSources = []
-        for vkit in Vkits:
-            AllVerilogSources.extend(vkit.get_all_sources())
-
-        for flist in TB.FLISTS:
-            fname = os.path.abspath(flist)
-            dirname = os.path.dirname(fname)
-            all_flist_sources = glob_files([dirname], ['*.v', '*.sv', '*.vh', '*.svh'])
-            AllVerilogSources.extend(all_flist_sources)
-
-    return AllVerilogSources
