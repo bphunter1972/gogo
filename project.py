@@ -45,6 +45,7 @@ VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
                  'obj/VCS/cn_bist_mon.so',
                  'obj/VCS/libVkit.so',
             ]
+VLOG.GUI = ' -gui'
 
 # .a files
 VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
@@ -57,8 +58,7 @@ VLOG.DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAV
 
 #--------------------------------------------
 # Various Simulation Flags
-SIM.GUI = ' -gui'
-SIM.MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
+PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
 SIM.PLUSARGS = ['bug_file=../../verif/bugs.bdf',
                 'verrtime=0',
                 'projmode=uvm',
@@ -76,7 +76,6 @@ SIM.PLUSARGS = ['bug_file=../../verif/bugs.bdf',
 
 #--------------------------------------------
 # Simulation options
-SIM.WAVE_OPTIONS = ''
 
 #--------------------------------------------
 # LSF Command
