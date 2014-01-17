@@ -87,6 +87,10 @@ class Vkit(object):
         return result
 
     #--------------------------------------------
+    def __repr__(self):
+        return self.get_pkg_name()
+    
+    #--------------------------------------------
     def get_pkg_name(self):
         return "DEFAULT.%s" % self.pkg_name
 
