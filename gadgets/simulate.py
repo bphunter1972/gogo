@@ -33,7 +33,7 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.runmod_modules = gvars.SIM.MODULES
+        self.runmod_modules = gvars.PROJ.RUNMOD_MODULES
         self.tb_top         = gvars.TB.TOP
         self.sim_dir        = os.path.join('sim', self.name)
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
@@ -69,7 +69,7 @@ class SimulateGadget(gadget.Gadget):
         if gvars.Options.seed == 0:
             import random
             gvars.Options.seed = random.getrandbits(32)
-        sim_cmd += " +seed=%d" % gvars.Options.seed
+        sim_cmd += " +seed=%d +ntb_random_seed=%d" % (gvars.Options.seed, gvars.Options.seed)
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.Options.verb
