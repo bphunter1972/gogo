@@ -8,8 +8,6 @@ import var_type
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
 # Setup files do not assign to Vars directly, rather, they assign to variables with the same name as the keys of Vars.
-__DEFAULT_VAL__, __TYPES__, __COMMENT__ = range(3)
-
 VTYPES = {
     # How to compile and run with VCS
     'VLOG' : {
@@ -31,9 +29,19 @@ VTYPES = {
 
     # Simulation Options
     'SIM' : {
-        'OPTS'           : ["", (str,),       "Added to the simulation command-line (not overridden by --simopts)"],
+        'OPTS'           : ["", (str,),       "Added to the simulation command-line"],
         'PLUSARGS'       : [[], (list,),      "Added to the simulation command-line (all preceded by +)"],
-        'TEST'           : ("basic", (str,),  "The name of the test to be run.")
+        'TEST'           : ["basic", (str,),  "The name of the test to be run."],
+        'SEED'           : [1, (int,),        "The seed to use for the simulation, or 0 for random (TODO)"],
+        'DBG'            : [0, (int,str),     "Debug level of simulation"],
+        'INTERACTIVE'    : [0, (int,bool),    "Turn interactive on (1) or off (0)"],
+        'WDOG'           : [0, (int,),        "Time (in ns) at which the testbench will watchdog timeout (or zero for no watchdog)."], 
+        'GUI'            : [0, (int,bool),    "Run VCS in GUI mode with DVE"],
+        'DIR'            : ['', (str,),       "Specify alternate directory for results."],
+        'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
+        'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
+        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."]
+
     },
 
     # Testbench Options
@@ -80,3 +88,15 @@ RootDir = None
 def get_vtype(vtype):
     return getattr(sys.modules[__name__], vtype)
 
+########################################################################################
+def command_line_assignment(vars):
+    for var in vars:
+        if '+=' in var:
+            (vname, value) = var.split('+=')
+        elif '=' in var:
+            (vname, value) = var.split('=')
+
+        (vtype_name, var_name) = vname.split('.')
+        vtype = get_vtype(vtype_name)
+        func = vtype.incr_value if '+=' in var else vtype.set_value
+        func(var_name, value)
