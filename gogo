@@ -52,36 +52,24 @@ def parse_args():
     p = argparse.ArgumentParser(
         prog='gogo',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="%(prog)s [gadgets] [options]",
+        usage="%(prog)s [options] [variables] [gadgets]",
         version=("%(prog)s v"+__version__),
         description=__doc__)
 
-    p.add_argument('gadgets',        action='store', nargs='*',  help="Any one of (v)log, (s)imulate, (c)lean, or help")
+    p.add_argument('var_gadgets',    action='store', nargs='*',  help="The name of a gadget to be run, or the name of a variable to change.")
 
-    p.add_argument('--test', '-t',   action='store',             default='basic', help="Specify UVM test name [default:basic]")
-    p.add_argument('--dir',  '-d',   action='store',             default=None,    help="Specify alternate directory for results.")
-    p.add_argument('--verb', '-V',   action='store',             default=0,       help="Specify UVM Verbosity.")
     p.add_argument('--tb',           action='store',             default='tb',    help="Specify a different tb.py configuration file.")
     p.add_argument('--part', '-p',   action='store',             default='auto',  help="When 'auto', gogo generates the partition configuration from settings; when 'off', compile without partitions; else specify your own configuration file.")
-    p.add_argument('--interactive',  action='store_true',        default=False,   help="Run the simulation interactively.")
-
-    p.add_argument('--simopts',      action='store',             default=None,    help="Add simulation opts as a string to simulator command-line.")
-    p.add_argument('--cmpopts',      action='store',             default=None,    help="Add compilation opts as a string to compiler command-line.")
-    p.add_argument('--seed', '-s',   action='store', type=int,   default=1,       help="Run with the given seed (0 for a random seed).")
-
-    p.add_argument('--topo',         action='store', type=int,   default=None,    help="Print UVM topology at this depth.")
-    p.add_argument('--wdog',         action='store', type=int,   default=None,    help="Time (in ns) at which the testbench will watchdog timeout.")
-    p.add_argument('--gui',  '-g',   action='store_true',        default=False,   help="Run DVE in GUI mode.")
-    p.add_argument('--wave', '-w',   action='store', type=str,   default=False,   help="Dump waves to VPD file.",
-        choices=('vpd', 'fsdb'))
-    p.add_argument('--svfcov',       action='store_true',        default=False,   help="Run with SV Functional Coverage")
 
     p.add_argument('--dbg',          action='store_true',        default=False,   help="Used for debugging gogo.")
     p.add_argument('--noflush',      action='store_true',        default=False,   help="Permit turd files to stay.")
 
     gvars.Options = p.parse_args()
 
-    gadgets_to_run = gvars.Options.gadgets
+    # if it's all uppercase, then it's a variable
+    variables = [it for it in gvars.Options.var_gadgets if '=' in it]
+    gvars.command_line_assignment(variables)
+    gadgets_to_run = [it for it in gvars.Options.var_gadgets if it not in variables]
     shortcuts = {
                  'c'        : 'clean',
                  'cln'      : 'clean',

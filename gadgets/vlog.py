@@ -83,7 +83,6 @@ class VlogGadget(gadget.Gadget):
         so_files     = self.get_so_files()
         vlog_defines = self.get_defines()
         arc_libs     = ' '.join(gvars.VLOG.ARC_LIBS)
-        cmpopts      = gvars.Options.cmpopts if gvars.Options.cmpopts else ""
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
         if gvars.VLOG.IGNORE_WARNINGS:
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
@@ -104,8 +103,8 @@ class VlogGadget(gadget.Gadget):
         vcs_cmd += ' -o %s -Mupdate' % (simv_file)
         if run_partition:
             vcs_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
-        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, 
-            so_files, arc_libs, vlog_defines, cmpopts, parallel, flists]
+        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, 
+            vlog_defines, parallel, flists]
         vcs_cmd += ' ' + ' '.join(vcs_args)
 
         if run_partition:

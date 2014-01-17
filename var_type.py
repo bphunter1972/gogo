@@ -33,5 +33,35 @@ class VarType(object):
          return d.__repr__()
 
     #--------------------------------------------
+    def set_value(self, name, value):
+        # value will be a string
+        # cast for correct type if necessary
+        my_value = self.cast_for_types(name, value)
+        self.__setattr__(name, my_value)
+
+    #--------------------------------------------
+    def incr_value(self, name, value):
+        my_value = self.cast_for_types(name, value)
+        curr_val = self.__getattr__(name)
+        self.__setattr__(name, (curr_val + my_value))
+
+    #--------------------------------------------
     def help(self, name):
         return self.myvars[name][__HELP__]
+
+    def cast_for_types(self, name, value):
+        my_value = value if isinstance(value, self.myvars[name][__TYPES__]) else None
+        if not my_value:
+            # try casting to each of the possible types until one is found
+            for my_type in self.myvars[name][__TYPES__]:
+                try:
+                    t = my_type(value)
+                except TypeError:
+                    continue
+                else:
+                    my_value = t
+
+            if my_value is None:
+                Log.critical("%s cannot go into %s.%s" % (value, self.v_type, name))
+
+        return my_value
