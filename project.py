@@ -22,11 +22,11 @@ PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_au
 PROJ.VERDI_MODULE = 'synopsys-verdi'
 
 # Runmod module for VCS
+VCS_VERSION = 'H-2013.06-SP1'
 PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
 
 #--------------------------------------------
-# Verilog Varialbes
-VCS_VERSION = 'H-2013.06-SP1'
+# Verilog Variables
 VLOG.MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]
 VLOG.TOOL = 'vcs'
 VLOG.VCOMP_DIR  = 'sim/.vcomp'
