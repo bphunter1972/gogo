@@ -38,7 +38,6 @@ class VericomGadget(gadget.Gadget):
         # get all variables
         self.vlog_defines = vlogger.get_defines()
         self.flists      = vlogger.get_flists()
-        self.cmp_opts    = gvars.VLOG.OPTIONS or ''
         self.tab_files   = vlogger.get_tab_files()
 
         # make a file with the tb_top in it, call it .signal_list
@@ -56,7 +55,7 @@ class VericomGadget(gadget.Gadget):
 
         cmd = "vericom -quiet -lib %(vcomp_dir)s -logdir %(lib_dir)s/vericomLog " % self.__dict__
         cmd += " -smartinc -ssy -ssv -autoalias -sv +libext+.v+.sv+.vh"
-        cmd += ' ' + ' '.join([self.vlog_defines, self.tab_files, self.cmp_opts, self.flists])
+        cmd += ' ' + ' '.join([self.vlog_defines, self.tab_files, self.flists])
 
         # make the vcomp.lib++ directory if necessary
         try:

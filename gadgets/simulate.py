@@ -8,6 +8,7 @@ import gadget
 import gvars
 import os
 import schedule
+from utils import check_files_exist
 
 Log = gvars.Log
 
@@ -60,7 +61,8 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        self.check_files_exist(self.sim_exe)
+        if check_files_exist(self.sim_exe) == 0:
+            raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.sim_exe)
 
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST

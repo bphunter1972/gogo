@@ -147,20 +147,3 @@ class Gadget(sge.Job):
         """
 
         return True
-
-    #--------------------------------------------
-    def check_files_exist(self, files):
-        """
-        Raises gadget.GadgetFailed if any of the files do not exist.
-
-        files : (list of str) The list of filenames
-        """
-
-        # in the case of being passed only 1 string, just put that string in a list
-        if type(files) == str:
-            files = [files,]
-
-        from os.path import exists
-        missing_files = [it for it in files if exists(it) == False]
-        if missing_files:
-            raise GadgetFailed("File(s) are missing: %s" % missing_files)
