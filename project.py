@@ -21,6 +21,8 @@ PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_au
 # Miscellaneous
 PROJ.VERDI_MODULE = 'synopsys-verdi'
 
+# Runmod module for VCS
+PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
 
 #--------------------------------------------
 # Verilog Varialbes
@@ -58,7 +60,6 @@ VLOG.DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAV
 
 #--------------------------------------------
 # Various Simulation Flags
-PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
 SIM.PLUSARGS = ['bug_file=../../verif/bugs.bdf',
                 'verrtime=0',
                 'projmode=uvm',
@@ -73,10 +74,3 @@ SIM.PLUSARGS = ['bug_file=../../verif/bugs.bdf',
                 'err=10',
                 'UVM_MAX_QUIT_COUNT=10,0'
                 ]
-
-#--------------------------------------------
-# Simulation options
-
-#--------------------------------------------
-# LSF Command
-
