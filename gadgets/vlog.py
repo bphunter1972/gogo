@@ -83,7 +83,7 @@ class VlogGadget(gadget.Gadget):
         so_files     = self.get_so_files()
         vlog_defines = self.get_defines()
         arc_libs     = ' '.join(gvars.VLOG.ARC_LIBS)
-        cmpopts      = gvars.Options.cmpopts if gvars.Options.cmpopts else ""
+        cmpopts      = gvars.VLOG.OPTIONS if gvars.VLOG.OPTIONS else ""
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
         if gvars.VLOG.IGNORE_WARNINGS:
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
