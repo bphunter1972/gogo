@@ -11,7 +11,7 @@ A lightweight compile and simulate script.
 
 """
 
-__version__       = '0.0.4'
+__version__       = '0.0.5'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -145,7 +145,7 @@ def setup_vkits():
     from vkit import Vkit
 
     gvars.Vkits = [Vkit(it) for it in gvars.TB.VKITS]
-    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[]})
+    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
     gvars.Vkits.insert(0, uvm_vkit)
 
     try:
@@ -170,6 +170,9 @@ to override or '+=' to append.
 
 Example:
    % gogo SIM.TEST=exer SIM.DBG=200 SIM.WDOG+=2000 vlog sim
+
+For SIM assignments, you may skip specifying SIM:
+   % gogo TEST=exer DBG=200 WDOG+=2000 vlog sim
 
 """)
 

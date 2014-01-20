@@ -18,10 +18,24 @@ class Vkit(object):
     def __init__(self, entry):
         self.vkits_dir = gvars.PROJ.VKITS_DIR
 
+        # The vkit is either a dictionary, or a vcfg.py file located in the specified path from vkits_dir, 
+        # or it's simply a name that can be applied to a default dictionary
+        config = {}
         if type(entry) == dict:
             config = entry
-        else:
-            config = self.load_vcfg(entry)
+        elif type(entry) == str:
+            vcfg_path = os.path.join(self.vkits_dir, entry)
+            if os.path.exists(os.path.join('vcfg.py')):
+                config = self.load_vcfg(entry)
+            else:
+                # create a default vkit
+                config['NAME'] = entry
+                if entry == 'cn':
+                    config['DEPENDENCIES'] = ['uvm']
+                elif entry == 'global':
+                    config['DEPENDENCIES'] = ['cn']
+                else:
+                    config['DEPENDENCIES'] = ['cn', 'global']
 
         try:
             self.name = config['NAME']
@@ -43,13 +57,10 @@ class Vkit(object):
             self.flist_name = config['FLIST']
         except KeyError:
             self.flist_name = os.path.join(self.dir_name, "%s.flist" % self.name)
-        # Log.info("1. flist=%s" % self.flist_name)
         if not self.flist_name.startswith(self.dir_name):
             self.flist_name = os.path.join(self.dir_name, self.flist_name)
-            # Log.info("2. flist=%s" % self.flist_name)
         if not self.flist_name.endswith(".flist"):
             self.flist_name += '.flist'
-            # Log.info("3. flist=%s" % self.flist_name)
 
         try:
             self.pkg_name = config['PKG_NAME']
@@ -64,14 +75,14 @@ class Vkit(object):
             self.dependencies = []
 
     #--------------------------------------------
-    def load_vcfg(self, entry):
+    def load_vcfg(self, vcfg_path, entry):
         """
         From the path vkits/'entry', import the file 'vcfg.py' and use its 
         dictionary to get values for this vkit
         """
 
-        vcfg_path = os.path.join(self.vkits_dir, entry)
         old_sys_path, sys.path = sys.path, [vcfg_path]
+
 
         # import, then reload, to ensure that we got the correct one.
         # if we've already imported one vcfg file, then importing it again won't do anything

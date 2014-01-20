@@ -28,6 +28,11 @@ class SimulateGadget(gadget.Gadget):
         self.resources = gvars.PROJ.LSF_SIM_LICS
         self.queue     = 'verilog'
 
+        # ensure that the SIM.TEST exists!
+        test_file = os.path.join('tests', (gvars.SIM.TEST + '.sv'))
+        if check_files_exist(test_file) == 0:
+            raise gadget.GadgetFailed("%s is not a legal test." % test_file)
+
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
         if gvars.SIM.DBG == 0 or gvars.SIM.INTERACTIVE:
             self.interactive = True

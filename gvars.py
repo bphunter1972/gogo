@@ -96,7 +96,16 @@ def command_line_assignment(vars):
         elif '=' in var:
             (vname, value) = var.split('=')
 
-        (vtype_name, var_name) = vname.split('.')
+        try:
+            (vtype_name, var_name) = vname.split('.')
+        except ValueError:
+            (vtype_name, var_name) = ('SIM', vname)
+
+        # check that vtype_name is legal
+        if vtype_name not in VTYPES.keys():
+            Log.critical("Illegal vtype name: '%s'" % vtype_name)
         vtype = get_vtype(vtype_name)
+
+        # either append to or set the value
         func = vtype.incr_value if '+=' in var else vtype.set_value
         func(var_name, value)
