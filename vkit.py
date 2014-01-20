@@ -43,13 +43,10 @@ class Vkit(object):
             self.flist_name = config['FLIST']
         except KeyError:
             self.flist_name = os.path.join(self.dir_name, "%s.flist" % self.name)
-        # Log.info("1. flist=%s" % self.flist_name)
         if not self.flist_name.startswith(self.dir_name):
             self.flist_name = os.path.join(self.dir_name, self.flist_name)
-            # Log.info("2. flist=%s" % self.flist_name)
         if not self.flist_name.endswith(".flist"):
             self.flist_name += '.flist'
-            # Log.info("3. flist=%s" % self.flist_name)
 
         try:
             self.pkg_name = config['PKG_NAME']
