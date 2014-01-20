@@ -145,7 +145,7 @@ def setup_vkits():
     from vkit import Vkit
 
     gvars.Vkits = [Vkit(it) for it in gvars.TB.VKITS]
-    uvm_vkit = Vkit('uvm')
+    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[]})
     gvars.Vkits.insert(0, uvm_vkit)
 
     try:
