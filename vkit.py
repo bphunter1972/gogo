@@ -12,7 +12,8 @@ class Vkit(object):
     """
     Represents a vkit
 
-    entry: The name of the vkits directory in which to find a vcfg.py file
+    entry: (string) The name of the vkits directory in which to find a vcfg.py file
+           (dict)   A dictionary containing the vkit parameters found in a vcfg.py file
     """
     def __init__(self, entry):
         self.vkits_dir = gvars.PROJ.VKITS_DIR
@@ -30,6 +31,8 @@ class Vkit(object):
 
         try:
             self.dir_name = config['DIR']
+            if not isinstance(self.dir_name, str):
+                Log.critical("Directory specified for %s is not a string." % entry)
             if not self.dir_name.startswith(os.path.join(self.vkits_dir)):
                 self.dir_name = os.path.join(self.vkits_dir, self.dir_name)
         except KeyError:
@@ -89,7 +92,7 @@ class Vkit(object):
     #--------------------------------------------
     def __repr__(self):
         return self.get_pkg_name()
-    
+
     #--------------------------------------------
     def get_pkg_name(self):
         return "DEFAULT.%s" % self.pkg_name
