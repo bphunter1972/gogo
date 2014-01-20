@@ -6,6 +6,7 @@ import gadget
 import gvars
 import os
 import schedule
+from utils import check_files_exist
 
 Log = gvars.Log
 
@@ -66,7 +67,8 @@ class VlogGadget(gadget.Gadget):
         run_partition = vlog_partition != 'off'
         if run_partition:
             partition_cfg_name = '.partition.cfg' if vlog_partition == 'auto' else vlog_partition
-            self.check_files_exist([partition_cfg_name])
+            if check_files_exist(partition_cfg_name) == 0:
+                raise gadget.GadgetFailed("%s does not exist." % partition_cfg_name)
 
         #--------------------------------------------
         # create vcomp directory if it does not already exist
@@ -78,12 +80,11 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # get common command-line arguments
-        flists       = self.get_flists() 
-        tab_files    = self.get_tab_files()
-        so_files     = self.get_so_files()
-        vlog_defines = self.get_defines()
+        flists       = get_flists() 
+        tab_files    = get_tab_files()
+        so_files     = get_so_files()
+        vlog_defines = get_defines()
         arc_libs     = ' '.join(gvars.VLOG.ARC_LIBS)
-        cmpopts      = gvars.Options.cmpopts if gvars.Options.cmpopts else ""
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
         if gvars.VLOG.IGNORE_WARNINGS:
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
@@ -104,8 +105,8 @@ class VlogGadget(gadget.Gadget):
         vcs_cmd += ' -o %s -Mupdate' % (simv_file)
         if run_partition:
             vcs_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
-        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, 
-            so_files, arc_libs, vlog_defines, cmpopts, parallel, flists]
+        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, 
+            vlog_defines, parallel, flists]
         vcs_cmd += ' ' + ' '.join(vcs_args)
 
         if run_partition:
@@ -115,36 +116,42 @@ class VlogGadget(gadget.Gadget):
 
         return cmds
 
-    ########################################################################################
-    def get_defines(self):
-        if gvars.VLOG.DEFINES:
-            return '+define+' + '+'.join(gvars.VLOG.DEFINES)
-        else:
-            return ""
+########################################################################################
+# Externally Available Functions
+########################################################################################
 
-    ########################################################################################
-    def get_flists(self):
-        # determine all of the vkits and flists
-        vkits = [it.flist_name for it in gvars.Vkits]
+########################################################################################
+def get_defines():
+    if gvars.VLOG.DEFINES:
+        return '+define+' + '+'.join(gvars.VLOG.DEFINES)
+    else:
+        return ""
 
-        # all the flist files in total
-        flists = vkits + gvars.TB.FLISTS + ['.flist']
-        return '-f ' + ' -f '.join(flists)
+########################################################################################
+def get_flists():
+    # determine all of the vkits and flists
+    vkits = [it.flist_name for it in gvars.Vkits]
 
-    ########################################################################################
-    def get_tab_files(self):
-        if gvars.VLOG.TAB_FILES:
-            self.check_files_exist(gvars.VLOG.TAB_FILES)
-            return '-P ' + ' -P '.join(gvars.VLOG.TAB_FILES)
-        else:
-            return ""
+    # all the flist files in total
+    flists = vkits + gvars.TB.FLISTS + ['.flist']
+    return '-f ' + ' -f '.join(flists)
 
-    ########################################################################################
-    def get_so_files(self):
-        if gvars.VLOG.SO_FILES:
-            # check first that they exist
-            self.check_files_exist(gvars.VLOG.SO_FILES)
-            so_files = [os.path.abspath(it) for it in gvars.VLOG.SO_FILES]
-            return " -LDFLAGS '%s'" % (' '.join(so_files))
-        else:
-            return ""
+########################################################################################
+def get_tab_files():
+    if gvars.VLOG.TAB_FILES:
+        if check_files_exist(gvars.VLOG.TAB_FILES) == 0:
+            raise gadget.GadgetFailed("%s does not exist." % gvars.VLOG.TAB_FILES)
+        return '-P ' + ' -P '.join(gvars.VLOG.TAB_FILES)
+    else:
+        return ""
+
+########################################################################################
+def get_so_files():
+    if gvars.VLOG.SO_FILES:
+        # check first that they exist
+        if check_files_exist(gvars.VLOG.SO_FILES) == 0:
+            raise gadget.GadgetFailed("%s does not exist." % gvars.VLOG.SO_FILES)
+        so_files = [os.path.abspath(it) for it in gvars.VLOG.SO_FILES]
+        return " -LDFLAGS '%s'" % (' '.join(so_files))
+    else:
+        return ""
