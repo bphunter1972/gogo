@@ -107,7 +107,9 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
 
         if gvars.SIM.SVFCOV:
-            sim_cmd += " +svfcov"
+            import utils
+            cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
+            sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (gvars.SIM.SVFCOV, cm_name)
 
         # add simulation command-line options
         if gvars.SIM.OPTS:

@@ -51,3 +51,15 @@ def check_files_exist(files):
         return 0
     else:
         return 1
+
+########################################################################################
+def get_time_int():
+    """
+    Returns the number of seconds since the epoch--performs this calculation only 
+    once per run so that it is consistent with any other uses
+    """
+    import time
+    
+    if CURR_TIME == 0:
+        CURR_TIME = int(time.time())
+    return CURR_TIME
