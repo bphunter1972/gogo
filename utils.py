@@ -6,6 +6,8 @@ import gvars
 
 AllVerilogSources = None
 
+CURR_TIME = 0
+
 ########################################################################################
 def get_all_sources(source_type='verilog'):
     """
@@ -59,6 +61,7 @@ def get_time_int():
     once per run so that it is consistent with any other uses
     """
     import time
+    global CURR_TIME
     
     if CURR_TIME == 0:
         CURR_TIME = int(time.time())
