@@ -69,6 +69,7 @@ VTYPES = {
 }
 
 # This code creates the variables PROJ, VLOG, SIM, etc.
+SIM = TB = None # this just gets rid of any lint errors
 for key in VTYPES.keys():
     setattr(sys.modules[__name__], key, var_type.VarType(VTYPES[key], key))
 
@@ -139,3 +140,47 @@ def command_line_assignment(vars):
     # perform all other assignements
     for work in cl_work:
         work[2](work[0], work[1])
+
+########################################################################################
+def setup_globals():
+    """
+    Set up the variables in gvars by importing all of the import files for this testbench
+    """
+
+    import var_type
+    import gadget
+    from area_utils import calcRootDir
+    global RootDir
+
+    var_type.Log = Log
+    gadget.Log = Log
+    RootDir = calcRootDir()
+
+    # The names of all the library files that will be imported
+    libraries = ('project', Options.tb)
+
+    #--------------------------------------------
+    def import_lib(mod_name):
+        try:
+            __import__(mod_name)
+        except ImportError:
+            Log.critical("'%s.py' file not found. Make sure you are in a testbench directory and that your PYTHONPATH is set correctly." % mod_name)
+
+    # import each of the libraries
+    map(import_lib, libraries)
+
+########################################################################################
+def setup_vkits():
+    "Set up the vkits in gvars"
+
+    global Vkits, StaticVkits    
+    from vkit import Vkit
+
+    Vkits = [Vkit(it) for it in TB.VKITS]
+    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
+    Vkits.insert(0, uvm_vkit)
+
+    try:
+        StaticVkits = [it for it in Vkits if it.name in TB.STATIC_VKITS]
+    except AttributeError:
+        Log.critical("A Vkit below has no name:\n%s" % Vkits)
