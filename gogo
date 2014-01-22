@@ -76,7 +76,8 @@ def parse_args():
             raise
         Log.critical("Unable to parse command-line: %s" % ex)
 
-    gadgets_to_run = [it for it in gvars.Options.varg if it not in variables]
+    gadgets_to_run = [it for it in gvars.Options.varg if it not in variables and not it.startswith('no')]
+    gadgets_not_to_run = [it[2:] for it in gvars.Options.varg if it not in variables and it.startswith('no')]
     shortcuts = {
                  'c'        : 'clean',
                  'cln'      : 'clean',
@@ -115,6 +116,8 @@ def parse_args():
     if gvars.Options.part not in ('auto', 'off') and not os.path.exists(gvars.Options.part):
         Log.critical("Partition configuration file '%s' does not exist." % gvars.Options.part)
 
+    # remove any gadgets that shouldn't be run
+    gadgets_to_run = [it for it in gadgets_to_run if it not in gadgets_not_to_run]
     return [shortcuts[gdt] for gdt in gadgets_to_run]
 
 ########################################################################################
