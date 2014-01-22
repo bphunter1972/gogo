@@ -25,19 +25,23 @@ class FlistGadget(gadget.Gadget):
         tb_dir = 'project/verif/%(tb_name)s' % locals()
         root_dir = gvars.RootDir
 
+        def get_sv_path(tb_name, fname):
+            return "project/verif/%(tb_name)s/%(fname)s" % locals()
+
         with open('.flist', 'w') as ffile:
             # print +incdirs
             print("+incdir+%(tb_dir)s" % locals(), file=ffile)
             for incdir in gvars.TB.INCDIRS:
                 print("+incdir+%(incdir)s" % locals(), file=ffile)
 
-            # print testbench sv files
-            for svfile in glob.glob('*.sv'):
-                print("project/verif/%(tb_name)s/%(svfile)s" % locals(), file=ffile)
+            # TB_TOP file must go first, because it is the one that imports uvm_pkg
+            print(get_sv_path(tb_name, tb_name + '_tb_top.sv'), file=ffile)
 
-            # print tests
-            for test in glob.glob('tests/*.sv'):
-                print("project/verif/%(tb_name)s/%(test)s" % locals(), file=ffile)
+            # print testbench sv files
+            all_files = glob.glob('*.sv') + glob.glob('tests/*.sv')
+            all_files = [it for it in all_files if not it.endswith('_tb_top.sv')]
+            for svfile in all_files:
+                print(get_sv_path(tb_name, svfile), file=ffile)
 
             # print -y libraries
             for libdir in gvars.TB.LIBRARIES:
@@ -46,4 +50,3 @@ class FlistGadget(gadget.Gadget):
         self.turds.append('.flist')
         
         return []
-
