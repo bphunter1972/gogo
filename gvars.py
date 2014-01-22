@@ -90,11 +90,22 @@ def get_vtype(vtype):
 
 ########################################################################################
 def command_line_assignment(vars):
-    for var in vars:
+    "Assign variables based on the command-line arguments that look like assignments"
+
+    var_type.Log = Log
+
+    # perform work on any SIM.TEST first, then check rest of command-line work to be done
+    test_work = None
+    cl_work = []
+
+    #--------------------------------------------
+    def parse_var(var):
         if '+=' in var:
-            (vname, value) = var.split('+=')
+            (vname, value) = var.split('+=', 1)
+            use_incr = True
         elif '=' in var:
-            (vname, value) = var.split('=')
+            (vname, value) = var.split('=', 1)
+            use_incr = False
 
         try:
             (vtype_name, var_name) = vname.split('.')
@@ -107,5 +118,24 @@ def command_line_assignment(vars):
         vtype = get_vtype(vtype_name)
 
         # either append to or set the value
-        func = vtype.incr_value if '+=' in var else vtype.set_value
-        func(var_name, value)
+        func = vtype.incr_value if use_incr else vtype.set_value
+        return (var_name, value, func)
+
+    #--------------------------------------------
+    for var in vars:
+        var_name, value, func = parse_var(var)
+        if var_name == 'TEST':
+            test_work = [var_name, value, func]
+        else:
+            cl_work.append([var_name, value, func])
+
+    # assign test-name first
+    if test_work:
+        test_work[2](test_work[0], test_work[1])
+
+    # assign test-name to directory
+    SIM.DIR = SIM.TEST
+
+    # perform all other assignements
+    for work in cl_work:
+        work[2](work[0], work[1])

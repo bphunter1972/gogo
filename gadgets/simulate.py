@@ -24,7 +24,7 @@ class SimulateGadget(gadget.Gadget):
 
         self.schedule_phase = 'simulate'
 
-        self.name      = gvars.SIM.DIR if gvars.SIM.DIR else gvars.SIM.TEST
+        self.name      = gvars.SIM.DIR
         self.resources = gvars.PROJ.LSF_SIM_LICS
         self.queue     = 'verilog'
 
@@ -49,6 +49,17 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.WAVE == 'fsdb':
             self.handle_fsdb()
 
+        # set the simulation's seed
+        if gvars.SIM.SEED == 0:
+            import random
+            gvars.SIM.SEED = random.getrandbits(32)
+
+        # create rerun/qrun scripts when we're done
+        from gadgets.rerun import RerunGadget
+        rerun = RerunGadget(self.sim_dir)
+        schedule.add_gadget(rerun)
+
+        # run simrpt when we're done
         from gadgets.simrpt import SimrptGadget
         simrpt = SimrptGadget(self.sim_dir)
         schedule.add_gadget(simrpt)
@@ -72,10 +83,6 @@ class SimulateGadget(gadget.Gadget):
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST
         sim_cmd += " -l %s/logfile" % self.sim_dir
-
-        if gvars.SIM.SEED == 0:
-            import random
-            gvars.SIM.SEED = random.getrandbits(32)
         sim_cmd += " +seed=%d" % gvars.SIM.SEED
 
         # options

@@ -11,7 +11,7 @@ A lightweight compile and simulate script.
 
 """
 
-__version__       = '0.0.5'
+__version__       = '0.0.7'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -69,7 +69,13 @@ def parse_args():
 
     # if it's all uppercase, then it's a variable
     variables = [it for it in gvars.Options.varg if '=' in it]
-    gvars.command_line_assignment(variables)
+    try:
+        gvars.command_line_assignment(variables)
+    except Exception as ex:
+        if gvars.Options.dbg:
+            raise
+        Log.critical("Unable to parse command-line: %s" % ex)
+
     gadgets_to_run = [it for it in gvars.Options.varg if it not in variables]
     shortcuts = {
                  'c'        : 'clean',
