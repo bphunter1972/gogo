@@ -9,6 +9,22 @@ from sys import exit
 
 Log = None
 
+SHORTCUTS = {
+             'c'        : 'clean',
+             'cln'      : 'clean',
+             'clean'    : 'clean',
+             'b'        : 'build',
+             'build'    : 'build',
+             'bld'      : 'build',
+             'v'        : 'vlog',
+             'vlog'     : 'vlog',
+             's'        : 'simulate',
+             'sim'      : 'simulate',
+             'simu'     : 'simulate',
+             'simulate' : 'simulate',
+             'latest'   : 'latest',
+             }
+
 ########################################################################################
 def parse_args(version, doc):
     """
@@ -77,21 +93,6 @@ def handle_gadgets(vargs):
     """
 
     gadgets_to_run = [it for it in vargs if not '=' in it]
-    shortcuts = {
-                 'c'        : 'clean',
-                 'cln'      : 'clean',
-                 'clean'    : 'clean',
-                 'b'        : 'build',
-                 'build'    : 'build',
-                 'bld'      : 'build',
-                 'v'        : 'vlog',
-                 'vlog'     : 'vlog',
-                 's'        : 'simulate',
-                 'sim'      : 'simulate',
-                 'simu'     : 'simulate',
-                 'simulate' : 'simulate',
-                 'latest'   : 'latest',
-                 }
 
     # do this above setup_globals so that it can be run anywhere, even when there is no tb.py
     send_help(gadgets_to_run)
@@ -108,59 +109,24 @@ def handle_gadgets(vargs):
         else:
             gadgets.append(gdt)
 
-    # ensure that all gadgets are legal as far as shortcuts go
+    # ensure that all gadgets are legal as far as SHORTCUTS go
     for gdt in gadgets:
-        if gdt not in shortcuts.keys():
+        if gdt not in SHORTCUTS.keys():
             Log.critical("Unknown gadget: %s" % gdt)
 
-    return [shortcuts[gdt] for gdt in gadgets]
+    return [SHORTCUTS[gdt] for gdt in gadgets]
 
 ########################################################################################
 def send_help(gadgets):
     if 'help_vars' in gadgets:
-        print_help_vars()
+        import help_text
+        help_text.print_help_vars()
         exit(0)
+
     if 'help_gadgets' in gadgets:
-        print_help_gadgets()
+        import help_text
+        help_text.print_help_gadgets()
         exit(0)
-
-########################################################################################
-def print_help_vars():
-    from textwrap import wrap
-    print("""
-Assign variables with the following names in either project.py or tb.py.
-
-project.py : There should be one of these per-project.
-tb.py      : There should be one (or more) of these per-testbench.
-
-If more than one tb.py is available, select which to use with the --tb command-
-line option.
-
-You may also make variable assignments from the command-line, with '=' 
-to override or '+=' to append.
-
-Example:
-   % gogo SIM.TEST=exer SIM.DBG=200 SIM.WDOG+=2000 vlog sim
-
-For SIM assignments, you may skip specifying SIM:
-   % gogo TEST=exer DBG=200 WDOG+=2000 vlog sim
-
-""")
-
-    for vtype in sorted(gvars.VTYPES.keys()):
-        print("%s : " % vtype)
-        for var in gvars.VTYPES[vtype]:
-            txt = wrap(gvars.get_vtype(vtype).help(var), 80)
-            print("   %-18s%s" % (var, txt[0]))
-            for line in txt[1:]:
-                print("   %-18s%s" % (' ', line))
-        print("")
-
-########################################################################################
-def print_help_gadgets():
-    print("""
-This section is TODO.
-""")
 
 ########################################################################################
 def print_latest():
@@ -174,4 +140,3 @@ def print_latest():
     answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
     print("Latest source is %s" % answer[1])
     exit(0)
-    

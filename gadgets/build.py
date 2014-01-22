@@ -1,7 +1,7 @@
 """
-A gadget that calls build.pl.
+Calls build.pl. 
 Currently, this is over-simplistic and needs to actually take over what build.pl does.
-Also, it's not working yet.
+Also, it's not working yet, so don't run this gadget.
 """
 
 import gadget

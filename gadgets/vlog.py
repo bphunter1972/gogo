@@ -1,5 +1,5 @@
 """
-An Gadget class representing the verilog-compile gadget.
+Compiles the verilog for a testbench.
 """
 
 import gadget

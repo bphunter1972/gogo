@@ -1,5 +1,5 @@
 """
-An gadget class that executes the simulation
+Runs the simulation.
 """
 
 from __future__ import print_function

@@ -40,10 +40,11 @@ if __name__ == '__main__':
     gvars.setup_vkits()
 
     # Prints out the latest of all source files
-    if 'latest' in gadgets_to_run:
-        command_line.print_latest()
-
     try:
+        if 'latest' in gadgets_to_run:
+            import gadgets.latest
+            schedule.add_gadget(gadgets.latest.LatestGadget())
+
         if 'clean' in gadgets_to_run:
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
