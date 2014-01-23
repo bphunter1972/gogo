@@ -88,6 +88,8 @@ class Gadget(sge.Job):
         if len(self.commands) > 1:
             self.add_check_exit_status()
 
+        if self.name == '' or self.name is None:
+            Log.critical("Gadget has no name!:\n%s" % self)
         file_name = ".%s" % self.name
         if self.cwd is not None:
             file_name = os.path.join(self.cwd, file_name)

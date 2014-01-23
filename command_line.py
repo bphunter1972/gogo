@@ -64,22 +64,12 @@ def parse_args(version, doc):
         gvars.Log.setLevel(logging.DEBUG)
 
     # filter variables from gadgets on the command-line
-    handle_variables(gvars.Options.varg)
+    gvars.CommandLineVariables = [it for it in gvars.Options.varg if '=' in it]
 
     # get the gadgets to run
     gadgets = handle_gadgets(gvars.Options.varg)
 
     return gadgets
-
-########################################################################################
-def handle_variables(vargs):
-    variables = [it for it in vargs if '=' in it]
-    try:
-        gvars.command_line_assignment(variables)
-    except Exception as ex:
-        if gvars.Options.dbg:
-            raise
-        Log.critical("Unable to parse command-line: %s" % ex)
 
 ########################################################################################
 def handle_gadgets(vargs):

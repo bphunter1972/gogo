@@ -86,6 +86,9 @@ Vkits = StaticVkits = None
 # The root directory of the project
 RootDir = None
 
+# Variables that were Culled from the Command Line
+CommandLineVariables = None
+
 ########################################################################################
 def get_vtype(vtype):
     return getattr(sys.modules[__name__], vtype)
@@ -169,6 +172,14 @@ def setup_globals():
 
     # import each of the libraries
     map(import_lib, libraries)
+
+    # now, handle the variables that were on the command-line
+    try:
+        command_line_assignment(CommandLineVariables)
+    except Exception as ex:
+        if Options.dbg:
+            raise
+        Log.critical("Unable to parse command-line: %s" % ex)
 
     # check that all global variables are ok
     check_vars()
