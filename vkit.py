@@ -24,18 +24,11 @@ class Vkit(object):
         if type(entry) == dict:
             config = entry
         elif type(entry) == str:
-            vcfg_path = os.path.join(self.vkits_dir, entry)
-            if os.path.exists(os.path.join('vcfg.py')):
+            if entry.endswith('.py') and os.path.exists(entry):
                 config = self.load_vcfg(entry)
             else:
-                # create a default vkit
-                config['NAME'] = entry
-                if entry == 'cn':
-                    config['DEPENDENCIES'] = ['uvm']
-                elif entry == 'global':
-                    config['DEPENDENCIES'] = ['cn']
-                else:
-                    config['DEPENDENCIES'] = ['cn', 'global']
+                # create a simple default vkit
+                config = {'NAME':entry, 'DIR':entry, 'FLIST':entry}
 
         try:
             self.name = config['NAME']
@@ -75,29 +68,24 @@ class Vkit(object):
             self.dependencies = []
 
     #--------------------------------------------
-    def load_vcfg(self, vcfg_path, entry):
+    def load_vcfg(self, entry):
         """
-        From the path vkits/'entry', import the file 'vcfg.py' and use its 
-        dictionary to get values for this vkit
+        The entry represents a vcfg.py file. Import it and use its dictionary to get 
+        values for this vkit.
         """
 
-        old_sys_path, sys.path = sys.path, [vcfg_path]
-
-
-        # import, then reload, to ensure that we got the correct one.
-        # if we've already imported one vcfg file, then importing it again won't do anything
-        # if we just try to reload, then it will fail the first time
+        import imp
+        mod_name,ext = os.path.splitext(os.path.basename(entry))
         try:
-            import vcfg
-            reload(vcfg)
+            mod = imp.load_source(mod_name , entry)
         except ImportError:
-            Log.critical("Unable to import vcfg.py from %s" % sys.path)
+            if gvars.Options.dbg:
+                raise
+            else:
+                Log.critical("Unable to import %s from %s" % (mod_name))
 
-        # remove vcfg_path from system import path
-        sys.path = old_sys_path
-
-        result = vcfg.__dict__.copy()
-        del sys.modules['vcfg']
+        result = mod.__dict__.copy()
+        del sys.modules[mod_name]
         return result
 
     #--------------------------------------------
