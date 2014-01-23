@@ -12,6 +12,8 @@ VTYPES = {
     # How to compile and run with VCS
     'VLOG' : {
         # Name             (default, possible types)   Help
+        'COMPTYPE'       : ['p', (str,),      "The compile type for this testbench: (p)artition, (g)enip, (n)ormal 2-step."],
+        'PART_CFG'       : ['.partition.cfg', (str,), "The name of the partition compile configuration file, when COMPTYPE is 'p'"],
         'PARALLEL'       : [0, (int,),        "The number of cores on which to compile in parallel (partition-compile only)"],
         'TOOL'           : ["", (str,),       "Command needed to run a build"],
         'MODULES'        : [[], (list,),      "Added to runmod for all builds"],
@@ -41,7 +43,6 @@ VTYPES = {
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
         'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
         'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."]
-
     },
 
     # Testbench Options
@@ -69,7 +70,7 @@ VTYPES = {
 }
 
 # This code creates the variables PROJ, VLOG, SIM, etc.
-SIM = TB = None # this just gets rid of any lint errors
+SIM = TB = VLOG = PROJ = None # these just get rid of any lint errors
 for key in VTYPES.keys():
     setattr(sys.modules[__name__], key, var_type.VarType(VTYPES[key], key))
 
@@ -168,6 +169,22 @@ def setup_globals():
 
     # import each of the libraries
     map(import_lib, libraries)
+
+    # check that all global variables are ok
+    check_vars()
+
+########################################################################################
+def check_vars():
+    if VLOG.COMPTYPE.lower() in ('p', 'part', 'partition'):
+        VLOG.COMPTYPE = 'partition'
+    elif VLOG.COMPTYPE.lower() in ('g', 'gen', 'genip'):
+        VLOG.COMPTYPE = 'genip'
+    elif VLOG.COMPTYPE.lower() in ('n', 'norm', 'normal'):
+        VLOG.COMPTYPE = 'normal'
+    else:
+        Log.critical("VLOG.COMPTYPE value of %s is not recognized." % VLOG.COMPTYPE)
+
+    Log.info("Running with VLOG.COMPTYPE value of %s" % VLOG.COMPTYPE)
 
 ########################################################################################
 def setup_vkits():

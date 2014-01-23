@@ -36,7 +36,7 @@ class VlogGadget(gadget.Gadget):
         schedule.add_gadget(flist.FlistGadget())
 
         # create the partition configuration file in auto mode
-        if gvars.Options.part == 'auto':
+        if gvars.VLOG.COMPTYPE == 'partition':
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
@@ -63,10 +63,9 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # partitioning
-        vlog_partition = gvars.Options.part
-        run_partition = vlog_partition != 'off'
+        run_partition = gvars.VLOG.COMPTYPE == 'partition' 
         if run_partition:
-            partition_cfg_name = '.partition.cfg' if vlog_partition == 'auto' else vlog_partition
+            partition_cfg_name = gvars.VLOG.PART_CFG
             if check_files_exist(partition_cfg_name) == 0:
                 raise gadget.GadgetFailed("%s does not exist." % partition_cfg_name)
 
