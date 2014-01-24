@@ -4,7 +4,6 @@ A class that represents a Vkit, with common faculties
 
 import os.path
 import gvars
-import sys
 
 Log = gvars.Log
 
@@ -12,11 +11,12 @@ class Vkit(object):
     """
     Represents a vkit
 
-    entry: (string) The name of the vkits directory in which to find a vcfg.py file
+    entry: (string) Either the relative path to a vkit configuration file; or
+                    the name of a regular vkits directory. Such a vkit cannot be used for genip.
            (dict)   A dictionary containing the vkit parameters found in a vcfg.py file
     """
     def __init__(self, entry):
-        self.vkits_dir = gvars.PROJ.VKITS_DIR
+        vkits_dir = gvars.PROJ.VKITS_DIR
 
         # The vkit is either a dictionary, or a vcfg.py file located in the specified path from vkits_dir, 
         # or it's simply a name that can be applied to a default dictionary
@@ -34,16 +34,16 @@ class Vkit(object):
             self.name = config['NAME']
             Log.debug("Loaded config for %s" % self.name)
         except KeyError:
-            Log.critical("config for %s has no attribute NAME." % entry)
+            Log.critical("config for %s has no NAME attribute." % entry)
 
         try:
             self.dir_name = config['DIR']
             if not isinstance(self.dir_name, str):
                 Log.critical("Directory specified for %s is not a string." % entry)
-            if not self.dir_name.startswith(os.path.join(self.vkits_dir)):
-                self.dir_name = os.path.join(self.vkits_dir, self.dir_name)
+            if not self.dir_name.startswith(vkits_dir):
+                self.dir_name = os.path.join(vkits_dir, self.dir_name)
         except KeyError:
-            self.dir_name = os.path.join(self.vkits_dir, self.name)
+            self.dir_name = os.path.join(vkits_dir, self.name)
         self.dir_name = os.path.abspath(self.dir_name)
 
         try:
@@ -75,6 +75,8 @@ class Vkit(object):
         """
 
         import imp
+        import sys
+
         mod_name,ext = os.path.splitext(os.path.basename(entry))
         try:
             mod = imp.load_source(mod_name , entry)

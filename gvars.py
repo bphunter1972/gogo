@@ -26,7 +26,6 @@ VTYPES = {
         'VCOMP_DIR'      : ["", (str,),       "The name of the compile directory"],
         'DEFINES'        : [[], (list,),      "All +defines as needed"],
         'IGNORE_WARNINGS': [[], (list,),      "Warnings that should be ignored by VCS during vlog."],
-        'GUI'            : ["", (str,),       "Add this to simulation command-line when you want to run in GUI mode"],
     },
 
     # Simulation Options
@@ -194,8 +193,6 @@ def check_vars():
         VLOG.COMPTYPE = 'normal'
     else:
         Log.critical("VLOG.COMPTYPE value of %s is not recognized." % VLOG.COMPTYPE)
-
-    Log.info("Running with VLOG.COMPTYPE value of %s" % VLOG.COMPTYPE)
 
 ########################################################################################
 def setup_vkits():

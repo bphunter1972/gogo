@@ -33,11 +33,11 @@ VLOG.VCOMP_DIR  = 'sim/.vcomp'
 
 # .tab files
 VLOG.TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
-             '../../verif/uvm_common/explicit/cn_rand.tab',
-             '/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab',
-             '../../verif/common/explicit/cn_bist_mon.tab',
-             '../../verif/uvm_common/explicit/fake_vcsTBV.tab',
-             ]
+                 '../../verif/uvm_common/explicit/cn_rand.tab',
+                 '/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab',
+                 '../../verif/common/explicit/cn_bist_mon.tab',
+                 '../../verif/uvm_common/explicit/fake_vcsTBV.tab',
+                 ]
 
 # .so files
 VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
@@ -46,8 +46,7 @@ VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
                  'obj/VCS/fake_vcsTBV.so',
                  'obj/VCS/cn_bist_mon.so',
                  'obj/VCS/libVkit.so',
-            ]
-VLOG.GUI = ' -gui'
+                ]
 
 # .a files
 VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
@@ -55,8 +54,10 @@ VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pl
 # VCS/VLOGAN Options
 VLOG.OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog +libext+.v+.sv -fastcomp=1 -full64 -sv_pragma %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
 VLOG.VCS_OPTIONS = '-CFLAGS -DVCS -lca -rad'
-VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 'PC_SKIP_FULLDR']
-VLOG.DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 'UVM_NO_DEPRECATED', 'UVM_NO_RELNOTES', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
+VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 
+                        'PC_SKIP_FULLDR', 'UII-L']
+VLOG.DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
+                'UVM_NO_DEPRECATED', 'UVM_NO_RELNOTES', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
 
 #--------------------------------------------
 # Various Simulation Flags
