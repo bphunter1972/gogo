@@ -16,7 +16,6 @@ class Vkit(object):
            (dict)   A dictionary containing the vkit parameters found in a vcfg.py file
     """
     def __init__(self, entry):
-        vkits_dir = gvars.PROJ.VKITS_DIR
 
         # The vkit is either a dictionary, or a vcfg.py file located in the specified path from vkits_dir, 
         # or it's simply a name that can be applied to a default dictionary
@@ -29,6 +28,15 @@ class Vkit(object):
             else:
                 # create a simple default vkit
                 config = {'NAME':entry, 'DIR':entry, 'FLIST':entry}
+
+        self.make_assignments(config, entry)
+
+    #--------------------------------------------
+    def make_assignments(self, config, entry):
+        """
+        Assigns to local variables based on configurations supplied
+        """
+        vkits_dir = gvars.PROJ.VKITS_DIR
 
         try:
             self.name = config['NAME']
@@ -66,6 +74,12 @@ class Vkit(object):
             self.dependencies = config['DEPENDENCIES']
         except KeyError:
             self.dependencies = []
+
+        if 'VLOG' in config:
+            self.VLOG = config['VLOG']
+        else:
+            from vkit_config import Vlog
+            self.VLOG = Vlog()
 
     #--------------------------------------------
     def load_vcfg(self, entry):
