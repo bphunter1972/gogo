@@ -1,5 +1,9 @@
 """
 A class that holds a global variable type
+This is essentially a dictionary that can have its fields accessed like this:
+    gvars.VLOG.FIELD_NAME
+Here, VLOG is the instance of VarType in the gvars module, and FIELD_NAME is the entry in this 
+class's dictionary.
 """
 
 __VALUE__, __TYPES__, __HELP__ = range(3)
