@@ -59,7 +59,6 @@ class VkitGadget(gadget.Gadget):
                 self.dir_name = os.path.join(vkits_dir, self.dir_name)
         except KeyError:
             self.dir_name = os.path.join(vkits_dir, self.name)
-            Log.info("Set self.dir_name=%s" % self.dir_name)
         self.dir_name = os.path.abspath(self.dir_name)
 
         try:

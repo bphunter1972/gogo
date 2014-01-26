@@ -15,7 +15,6 @@ class GenipGadget(gadget.Gadget):
         self.schedule_phase = 'genip'
 
         for vkit in gvars.Vkits:
-            Log.info("genip adding %s" % vkit.name)
             schedule.add_gadget(vkit)
             
     #--------------------------------------------

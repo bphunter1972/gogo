@@ -48,7 +48,6 @@ class SsimGadget(gadget.Gadget):
             setup_file_name = os.path.join(self.vkit.dir_name, 'synopsys_sim.setup')
         else:
             setup_file_name = 'synopsys_sim.setup'
-        Log.info("Creating %s" % setup_file_name)
 
         with open(setup_file_name, 'w') as sfile:
             if self.vkit:
