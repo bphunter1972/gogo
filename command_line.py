@@ -4,7 +4,6 @@ import gvars
 import cn_logging, logging
 import sge_tools as sge
 import argparse
-import os.path
 from sys import exit
 
 Log = None
@@ -16,6 +15,8 @@ SHORTCUTS = {
              'b'        : 'build',
              'build'    : 'build',
              'bld'      : 'build',
+             'g'        : 'genip',
+             'genip'    : 'genip',
              'v'        : 'vlog',
              'vlog'     : 'vlog',
              's'        : 'simulate',
@@ -99,7 +100,13 @@ def handle_gadgets(vargs):
         if gdt not in SHORTCUTS.keys():
             Log.critical("Unknown gadget: %s" % gdt)
 
-    return [SHORTCUTS[gdt] for gdt in gadgets]
+    # convert all to full-names
+    gadgets = [SHORTCUTS[gdt] for gdt in gadgets]
+
+    if 'vlog' in gadgets and gvars.VLOG.COMPTYPE == 'genip':
+        gadgets.append('genip')
+
+    return gadgets
 
 ########################################################################################
 def send_help(gadgets):

@@ -32,11 +32,11 @@ VLOG.TOOL = 'vcs'
 VLOG.VCOMP_DIR  = 'sim/.vcomp'
 
 # .tab files
-VLOG.TAB_FILES = ['../../verif/uvm_common/explicit/vpi_msg.tab',
-                 '../../verif/uvm_common/explicit/cn_rand.tab',
+VLOG.TAB_FILES = ['project/verif/uvm_common/explicit/vpi_msg.tab',
+                 'project/verif/uvm_common/explicit/cn_rand.tab',
                  '/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab',
-                 '../../verif/common/explicit/cn_bist_mon.tab',
-                 '../../verif/uvm_common/explicit/fake_vcsTBV.tab',
+                 'project/verif/common/explicit/cn_bist_mon.tab',
+                 'project/verif/uvm_common/explicit/fake_vcsTBV.tab',
                  ]
 
 # .so files

@@ -199,13 +199,21 @@ def setup_vkits():
     "Set up the vkits in gvars"
 
     global Vkits, StaticVkits    
-    from vkit import Vkit
+    from gadgets.vkit import VkitGadget
 
-    Vkits = [Vkit(it) for it in TB.VKITS]
-    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
+    Log.debug("Running setup_vkits() with %s" % TB.VKITS)
+    Vkits = [VkitGadget(it) for it in TB.VKITS]
+    uvm_vkit = VkitGadget({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
     Vkits.insert(0, uvm_vkit)
 
     try:
         StaticVkits = [it for it in Vkits if it.name in TB.STATIC_VKITS]
     except AttributeError:
         Log.critical("A Vkit below has no name:\n%s" % Vkits)
+
+########################################################################################
+def get_vkits(vkit_names):
+    "Returns the Vkits as named in vkit_names"
+
+    return [it for it in Vkits if it.name in vkit_names]
+

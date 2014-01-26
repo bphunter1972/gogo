@@ -79,16 +79,13 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # get common command-line arguments
-        flists       = get_flists() 
-        tab_files    = get_tab_files()
-        so_files     = get_so_files()
-        vlog_defines = get_defines()
-        arc_libs     = ' '.join(gvars.VLOG.ARC_LIBS)
+        flists       = get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + ['.flist'])
+        tab_files    = get_tab_files(gvars.VLOG.TAB_FILES)
+        so_files     = get_so_files(gvars.VLOG.TAB_FILES)
+        vlog_defines = get_defines(gvars.VLOG.DEFINES)
+        arc_libs     = get_arc_libs(gvars.VLOG.ARC_LIBS)
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
-        if gvars.VLOG.IGNORE_WARNINGS:
-            vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
-        else:
-            vlog_warnings = ""
+        vlog_warnings = get_warnings(gvars.VLOG.IGNORE_WARNINGS)
 
         #--------------------------------------------
         # create vlogan command if running partition compile
@@ -119,38 +116,51 @@ class VlogGadget(gadget.Gadget):
 # Externally Available Functions
 ########################################################################################
 
+# TODO: Make it so all of these take in lists rather than look directly at gvars, so that Vkit can call them, too.
+# TODO: Put this in a vcs_utils file?
+
 ########################################################################################
-def get_defines():
-    if gvars.VLOG.DEFINES:
-        return '+define+' + '+'.join(gvars.VLOG.DEFINES)
+def get_warnings(warnings):
+    if warnings:
+        return "+warn=" + ','.join(['no%s' % it for it in warnings])
     else:
         return ""
 
 ########################################################################################
-def get_flists():
-    # determine all of the vkits and flists
-    vkits = [it.flist_name for it in gvars.Vkits]
+def get_defines(defs):
+    if defs:
+        return '+define+' + '+'.join(defs)
+    else:
+        return ""
 
-    # all the flist files in total
-    flists = vkits + gvars.TB.FLISTS + ['.flist']
+########################################################################################
+def get_flists(flists):
     return '-f ' + ' -f '.join(flists)
 
 ########################################################################################
-def get_tab_files():
-    if gvars.VLOG.TAB_FILES:
-        if check_files_exist(gvars.VLOG.TAB_FILES) == 0:
-            raise gadget.GadgetFailed("%s does not exist." % gvars.VLOG.TAB_FILES)
-        return '-P ' + ' -P '.join(gvars.VLOG.TAB_FILES)
+def get_tab_files(tab_files):
+    if tab_files:
+        if check_files_exist(tab_files) == 0:
+            raise gadget.GadgetFailed("%s does not exist." % tab_files)
+        return '-P ' + ' -P '.join(tab_files)
     else:
         return ""
 
 ########################################################################################
-def get_so_files():
-    if gvars.VLOG.SO_FILES:
+def get_so_files(so_files):
+    if so_files:
         # check first that they exist
-        if check_files_exist(gvars.VLOG.SO_FILES) == 0:
-            raise gadget.GadgetFailed("%s does not exist." % gvars.VLOG.SO_FILES)
-        so_files = [os.path.abspath(it) for it in gvars.VLOG.SO_FILES]
+        if check_files_exist(so_files) == 0:
+            raise gadget.GadgetFailed("%s does not exist." % so_files)
+        so_files = [os.path.abspath(it) for it in so_files]
         return " -LDFLAGS '%s'" % (' '.join(so_files))
     else:
         return ""
+
+########################################################################################
+def get_arc_libs(arcs):
+    return ' '.join(arcs)
+
+########################################################################################
+def get_parallel():
+    return '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""

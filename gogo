@@ -53,6 +53,10 @@ if __name__ == '__main__':
             import gadgets.build
             schedule.add_gadget(gadgets.build.BuildGadget())
 
+        if 'genip' in gadgets_to_run:
+            import gadgets.genip
+            schedule.add_gadget(gadgets.genip.GenipGadget())
+            
         if 'vlog' in gadgets_to_run:
             import gadgets.vlog
             schedule.add_gadget(gadgets.vlog.VlogGadget())

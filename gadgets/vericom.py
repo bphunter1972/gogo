@@ -36,9 +36,9 @@ class VericomGadget(gadget.Gadget):
         import gadgets.vlog as vlogger
 
         # get all variables
-        self.vlog_defines = vlogger.get_defines()
-        self.flists      = vlogger.get_flists()
-        self.tab_files   = vlogger.get_tab_files()
+        self.vlog_defines = vlogger.get_defines(gvars.VLOG.DEFINES)
+        self.flists      = vlogger.get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + ['.flist'])
+        self.tab_files   = vlogger.get_tab_files(gvars.VLOG.TAB_FILES)
 
         # make a file with the tb_top in it, call it .signal_list
         if not os.path.exists(self.sim_dir):

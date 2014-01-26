@@ -1,7 +1,7 @@
 import gvars
 import sge_tools as sge
 
-MAIN_PHASES = ('clean', 'build', 'vlog', 'simulate', 'final_cleanup')
+MAIN_PHASES = ('clean', 'build', 'genip', 'vlog', 'simulate', 'final_cleanup')
 
 PHASES = []
 for phase in MAIN_PHASES:
