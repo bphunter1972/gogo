@@ -11,7 +11,7 @@ from utils import check_files_exist
 Log = gvars.Log
 
 class VlogGadget(gadget.Gadget):
-    """Builds the simulation executable"""
+    """Builds the simulation executable for a testbench."""
 
     #--------------------------------------------
     def __init__(self):
@@ -35,13 +35,19 @@ class VlogGadget(gadget.Gadget):
         import flist
         schedule.add_gadget(flist.FlistGadget())
 
+        self.run_partition = gvars.VLOG.COMPTYPE == 'partition'
+        self.run_genip = gvars.VLOG.COMPTYPE == 'genip'
+
         # create the partition configuration file in auto mode
-        if gvars.VLOG.COMPTYPE == 'partition':
+        if self.run_partition:
             # note that this does not actually go to the schedule yet (everything runs in init(), 
             # we still will add it to the schedule in case that changes someday)
             import partition
             schedule.add_gadget(partition.PartitionGadget())
-
+        elif self.run_genip:
+            import ssim
+            schedule.add_gadget(ssim.SsimGadget())
+            
     #--------------------------------------------     
     def genCmdLine(self):
         """
@@ -63,8 +69,7 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # partitioning
-        run_partition = gvars.VLOG.COMPTYPE == 'partition' 
-        if run_partition:
+        if self.run_partition:
             partition_cfg_name = gvars.VLOG.PART_CFG
             if check_files_exist(partition_cfg_name) == 0:
                 raise gadget.GadgetFailed("%s does not exist." % partition_cfg_name)
@@ -81,7 +86,7 @@ class VlogGadget(gadget.Gadget):
         # get common command-line arguments
         flists       = get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + ['.flist'])
         tab_files    = get_tab_files(gvars.VLOG.TAB_FILES)
-        so_files     = get_so_files(gvars.VLOG.TAB_FILES)
+        so_files     = get_so_files(gvars.VLOG.SO_FILES)
         vlog_defines = get_defines(gvars.VLOG.DEFINES)
         arc_libs     = get_arc_libs(gvars.VLOG.ARC_LIBS)
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
@@ -89,23 +94,30 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # create vlogan command if running partition compile
-        if run_partition:
+        if self.run_partition or self.run_genip:
             vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VLOGAN_OPTIONS, vlog_defines, flists]
             vlogan_cmd = 'vlogan ' + ' '.join(vlogan_args)
             cmds.append(('Running vlogan...',vlogan_cmd))
 
         #--------------------------------------------
-        # create vlog command
+        # create vcs command
         simv_file = os.path.join(gvars.VLOG.VCOMP_DIR, 'simv')
         vcs_cmd = gvars.VLOG.TOOL
         vcs_cmd += ' -o %s -Mupdate' % (simv_file)
-        if run_partition:
+        if self.run_partition:
             vcs_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
-        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, 
-            vlog_defines, parallel, flists]
+        if self.run_genip:
+            integ = ' -integ work.%s' % gvars.TB.TOP
+            # annoyingly, VCS doesn't support these here
+            gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('+libext+.v+.sv','')
+            gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('-sv_pragma','')
+
+            vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, integ]
+        else:
+            vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, vlog_defines, flists]
         vcs_cmd += ' ' + ' '.join(vcs_args)
 
-        if run_partition:
+        if self.run_partition or self.run_genip:
             cmds.append(('Running vcs...', vcs_cmd))
         else:
             cmds.append(vcs_cmd)
