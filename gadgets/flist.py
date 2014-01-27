@@ -38,7 +38,13 @@ class FlistGadget(gadget.Gadget):
             print(get_sv_path(tb_name, tb_name + '_tb_top.sv'), file=ffile)
 
             # print testbench sv files
-            all_files = glob.glob('*.sv') + glob.glob('tests/*.sv')
+            all_files = glob.glob('*.sv')
+
+            # TODO: I don't know why this should not be there, but it results
+            # in tests being declared twice in the factory.
+            if not gvars.VLOG.COMPTYPE == 'genip':
+                all_files.extend(glob.glob('tests/*.sv'))
+
             all_files = [it for it in all_files if not it.endswith('_tb_top.sv')]
             for svfile in all_files:
                 print(get_sv_path(tb_name, svfile), file=ffile)
