@@ -19,7 +19,6 @@ class VkitGadget(gadget.Gadget):
     def __init__(self, entry):
         super(VkitGadget, self).__init__()
 
-        Log.debug("Creating vkit %s" % entry)
         # The vkit is either a dictionary, or a vcfg.py file located in the specified path from vkits_dir, 
         # or it's simply a name that can be applied to a default dictionary
         config = {}
@@ -109,6 +108,7 @@ class VkitGadget(gadget.Gadget):
 
         result = mod.__dict__.copy()
         del sys.modules[mod_name]
+
         return result
 
     #--------------------------------------------
@@ -169,7 +169,7 @@ class VkitGadget(gadget.Gadget):
 
         import vlog
         vlog_warnings = vlog.get_warnings(self.VLOG.IGNORE_WARNINGS)
-        vlog_defines = vlog.get_defines(self.VLOG.DEFINES)
+        vlog_defines = vlog.get_defines(self.VLOG.DEFINES + gvars.VLOG.DEFINES)
         flists = vlog.get_flists([self.flist_name])
         tab_files = vlog.get_tab_files(gvars.VLOG.TAB_FILES + self.VLOG.TAB_FILES)
         so_files = vlog.get_so_files(self.VLOG.SO_FILES)
