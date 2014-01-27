@@ -16,7 +16,7 @@ PROJ.LSF_SIM_LICS = ['lic_sim_vcs']
 
 # How to Clean Up
 PROJ.CLEAN_DIRS = ['sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib']
-PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project']
+PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt']
 
 # Miscellaneous
 PROJ.VERDI_MODULE = 'synopsys-verdi'
@@ -56,7 +56,7 @@ VLOG.OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog +libext+.
 VLOG.VCS_OPTIONS = '-CFLAGS -DVCS -lca -rad'
 VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 
                         'PC_SKIP_FULLDR', 'UII-L']
-VLOG.DEFINES = ['VCS', 'HAVE_VERDI_WAVE_PLI', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 
+VLOG.DEFINES = ['VCS', 'PROJ_INCLUDES_UVM', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS',  #'HAVE_VERDI_WAVE_PLI', 
                 'UVM_NO_DEPRECATED', 'UVM_NO_RELNOTES', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
 
 #--------------------------------------------

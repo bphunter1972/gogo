@@ -4,6 +4,7 @@ Contains all of the global variables.
 
 import sys
 import var_type
+import os
 
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
@@ -159,6 +160,12 @@ def setup_globals():
     gadget.Log = Log
     RootDir = calcRootDir()
 
+    # create a symbolic link called 'project' to the Root directory, if one does not ealready exist
+    try:
+        os.symlink(RootDir, 'project')
+    except OSError:
+        pass
+
     # The names of all the library files that will be imported
     libraries = ('project', Options.tb)
 
@@ -203,8 +210,6 @@ def setup_vkits():
 
     Log.debug("Running setup_vkits() with %s" % TB.VKITS)
     Vkits = [VkitGadget(it) for it in TB.VKITS]
-    uvm_vkit = VkitGadget({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
-    Vkits.insert(0, uvm_vkit)
 
     try:
         StaticVkits = [it for it in Vkits if it.name in TB.STATIC_VKITS]
