@@ -78,6 +78,8 @@ if __name__ == '__main__':
         Log.critical("Exiting due to Ctrl-C.")
 
     except GadgetFailed as inst:
+        if gvars.Options.dbg:
+            raise
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     # if we get here, we must have passed
