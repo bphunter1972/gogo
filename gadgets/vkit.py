@@ -212,18 +212,31 @@ class VkitGadget(gadget.Gadget):
         except OSError:
             pass
 
-        if self.dependencies:
-            Log.info("%s waiting for %s" % (self.name, self.dependencies))
-            sge.waitForSomeJobs(self.libs, pollingMode=False)
+        dependent_libs = [it for it in self.libs if not it.doNotLaunch]
+        if dependent_libs:
+            Log.info("%s waiting for %s" % (self.name, dependent_libs))
+            sge.waitForSomeJobs(dependent_libs, pollingMode=False)
             Log.info("%s Launching!" % self.name)
 
-    #--------------------------------------------     
-    # def genCmdLine(self):
-    #     """
-    #     Parallel partition compiles on a multi-core machine 
-    #     """
+    #--------------------------------------------
+    def check_dependencies(self):
+        import pymake
+        targets = os.path.join(self.dir_name, self.pkg_name, 'AN.DB')
+        sources = self.get_all_sources()
+        answer = pymake.pymake(targets, sources, get_cause=True)
+        Log.debug("dependencies of %s say %s because %s" % (self.name, answer.result, answer.cause))
+        result = answer.result
 
-    #     cmdLine = super(VkitGadget, self).genCmdLine()
-    #     if gvars.VLOG.PARALLEL:
-    #         cmdLine += ' -pe smp_pe %d' % int(    #     return cmdLine
+        # also check any of our dependency libraries
+        if not result:
+            self.libs = gvars.get_vkits(self.dependencies)
+            for lib in self.libs:
+                if lib.check_dependencies():
+                    result = True
+                    Log.debug("%s will be built because of %s" % (self.name, lib.name))
+                    break
+
+        # this ensures that any job that calls waitForSomeJobs() will not try to launch this
+        self.doNotLaunch = not result
+        return answer.result
 
