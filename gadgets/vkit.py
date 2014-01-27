@@ -136,6 +136,11 @@ class VkitGadget(gadget.Gadget):
         from pymake import glob_files
         patterns = ['*%s' % it for it in patterns]
         srcs = glob_files([self.dir_name], patterns, recursive=True)
+
+        # remove any sv files that VCS creates during genip 
+        pkg_dir = os.path.abspath(os.path.join(self.dir_name, self.pkg_name))
+        srcs = [it for it in srcs if not it.startswith(pkg_dir)]
+
         return srcs
 
     #--------------------------------------------
