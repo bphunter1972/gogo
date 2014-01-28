@@ -9,6 +9,8 @@ Small Enhancements:
 
 Major Enhancements:
  ☐ genip
-   
-
+     ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
+     ☐ Handle 'clean' of vkit libraries
+     ☐ Re-name to a libs directory instead of (vkit_pkg)
+     ☐ Make .flists for vkits
 
