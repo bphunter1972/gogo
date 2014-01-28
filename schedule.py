@@ -61,8 +61,13 @@ def run_schedule():
             jobs = [it for it in jobs if it.cmd and not it.doNotLaunch]
             if jobs:
                 gvars.Log.debug("Running phase.%s (%d jobs to run)." % (phase, len(jobs)))
-                sge.waitForSomeJobs(jobs, pollingMode=False)
-                    
+                # if there are no interactive jobs, then run with managePool. It will run
+                # them all simultaneously.
+                if len([it for it in jobs if it.interactive]) == 0:
+                    sge.managePool(jobs)
+                else:
+                    sge.waitForSomeJobs(jobs, pollingMode=False)
+
 ########################################################################################
 def clear_phase(phase):
     """
