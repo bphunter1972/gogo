@@ -2,6 +2,8 @@
 A class that represents a Vkit, with common faculties
 """
 
+from __future__ import print_function
+
 import os.path
 import gvars
 import gadget
@@ -128,7 +130,7 @@ class VkitGadget(gadget.Gadget):
         return not self.__eq__(other)
 
     #--------------------------------------------
-    def get_all_sources(self, patterns=['.sv', '.v']):
+    def get_all_sources(self, patterns=['.sv', '.v', '.svh']):
         """
         Returns a list of ALL files in the vkit directory.
         """
@@ -152,7 +154,9 @@ class VkitGadget(gadget.Gadget):
         self.runmod_modules = gvars.VLOG.MODULES
         self.cwd = self.dir_name
         self.lib_name = '%s_LIB' % self.name.upper()
-
+        self.stdoutPath = os.path.join(self.dir_name, '.genip_stdout')
+        self.mergeStderr = True
+        self.genip_done_file = os.path.join(self.dir_name, self.pkg_name, '.genip_done')
         import schedule
         import gadgets.ssim
         schedule.add_gadget(gadgets.ssim.SsimGadget(self))
@@ -195,8 +199,7 @@ class VkitGadget(gadget.Gadget):
         # create VCS command
         vcs_cmd = gvars.VLOG.TOOL
         vcs_cmd += ' -genip %s.%s +vpi -lca' % (self.lib_name, self.pkg_name) 
-        vcs_args = [vlog_warnings, self.VLOG.OPTIONS, self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, 
-            vlog_defines, parallel]
+        vcs_args = [vlog_warnings, self.VLOG.OPTIONS, self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel]
         vcs_cmd += ' ' + ' '.join(vcs_args)
         cmds.append(('Running vcs...', vcs_cmd))
 
@@ -219,9 +222,19 @@ class VkitGadget(gadget.Gadget):
             Log.info("%s Launching!" % self.name)
 
     #--------------------------------------------
+    def completedCallback(self):
+        if self.getExitStatus():
+            if os.path.exists(self.genip_done_file):
+                os.remove(self.genip_done_file)
+            raise gadget.GadgetFailed("genip of %s failed. See %s" % (self.name, self.stdoutPath))
+        else:
+            with open(self.genip_done_file, 'w') as gfile:
+                print("1", file=gfile)
+
+    #--------------------------------------------
     def check_dependencies(self):
         import pymake
-        targets = os.path.join(self.dir_name, self.pkg_name, 'AN.DB')
+        targets = self.genip_done_file
         sources = self.get_all_sources()
         answer = pymake.pymake(targets, sources, get_cause=True)
         Log.debug("dependencies of %s say %s because %s" % (self.name, answer.result, answer.cause))
