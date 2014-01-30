@@ -35,9 +35,24 @@ class VkitGadget(gadget.Gadget):
 
         self.make_assignments(config, entry)
 
-        # in genip mode, run as a gadget
+        # these variables are necessary when running in genip mode
+        self.schedule_phase = 'genip'
+        self.resources = gvars.PROJ.LSF_VLOG_LICS
+        self.queue = 'build'
+        self.interactive = False
+        self.runmod_modules = gvars.VLOG.MODULES
+        self.cwd = self.dir_name
+        self.lib_name = '%s_LIB' % self.name.upper()
+        self.stdoutPath = os.path.join(self.dir_name, '.genip_stdout')
+        self.mergeStderr = True
+        self.genip_done_file = os.path.join(self.dir_name, self.pkg_name, '.genip_done')
+
+        # in genip mode, run as a gadget, add the ssim gadget to
+        # ensure that the synopsys_sim.setup file is created.
         if gvars.VLOG.COMPTYPE == 'genip':
-            self.handle_genip()
+            import schedule
+            import gadgets.ssim
+            schedule.add_gadget(gadgets.ssim.SsimGadget(self))
 
     #--------------------------------------------
     def make_assignments(self, config, entry):
@@ -146,22 +161,6 @@ class VkitGadget(gadget.Gadget):
         return srcs
 
     #--------------------------------------------
-    def handle_genip(self):
-        self.schedule_phase = 'genip'
-        self.resources = gvars.PROJ.LSF_VLOG_LICS
-        self.queue = 'build'
-        self.interactive = False
-        self.runmod_modules = gvars.VLOG.MODULES
-        self.cwd = self.dir_name
-        self.lib_name = '%s_LIB' % self.name.upper()
-        self.stdoutPath = os.path.join(self.dir_name, '.genip_stdout')
-        self.mergeStderr = True
-        self.genip_done_file = os.path.join(self.dir_name, self.pkg_name, '.genip_done')
-        import schedule
-        import gadgets.ssim
-        schedule.add_gadget(gadgets.ssim.SsimGadget(self))
-
-    #--------------------------------------------
     def create_cmds(self):
         """
         echo "Running vlogan"
@@ -253,3 +252,19 @@ class VkitGadget(gadget.Gadget):
         self.doNotLaunch = not result
         return answer.result
 
+    #--------------------------------------------
+    def cleanup(self):
+        "Report back any directories or files that should be cleaned up from this vkit."
+
+        files = [self.genip_done_file, 
+                 self.stdoutPath, 
+                 # things that VCS creates automatically
+                 os.path.join(self.dir_name, '.vlogansetup.args'),
+                 os.path.join(self.dir_name, '.vcs_lib_lock'),
+                ] 
+
+        dirs = [os.path.join(self.dir_name, self.pkg_name),
+                os.path.join(self.dir_name, 'partitionlib'),
+                ]
+
+        return (dirs, files)
