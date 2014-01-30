@@ -33,3 +33,6 @@ class CleanGadget(gadget.Gadget):
             except:
                 pass
 
+        for vkit in gvars.Vkits:
+            vkit.cleanup()
+
