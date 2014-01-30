@@ -17,19 +17,29 @@ class CleanGadget(gadget.Gadget):
         super(CleanGadget, self).__init__()
 
         self.schedule_phase = 'clean'
-        
+
+        clean_files = gvars.PROJ.CLEAN_FILES
+        clean_dirs = gvars.PROJ.CLEAN_DIRS
+
+        for vkit in gvars.Vkits:
+            dirs,files = vkit.cleanup()
+            clean_dirs += dirs
+            clean_files += files
+
         gvars.Log.info("Cleaning...")
-        for dname in gvars.PROJ.CLEAN_DIRS:
+        for dname in clean_dirs:
             try:
                 rmtree(dname)
                 Log.info("Removed dir %s" % dname)
             except:
                 pass
 
-        for fname in gvars.PROJ.CLEAN_FILES:
+
+        for fname in clean_files:
             try:
                 os.remove(fname)
                 Log.info("Removed file %s" % fname)
             except:
                 pass
+
 
