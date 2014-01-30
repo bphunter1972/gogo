@@ -68,6 +68,7 @@ if __name__ == '__main__':
         # turd files are flushed unless otherwise stated
         if not gvars.Options.noflush:
             import gadgets.flush
+            gadgets_to_run.append('final_cleanup')
             schedule.add_gadget(gadgets.flush.FlushGadget())
 
         schedule.set_schedule(gadgets_to_run)

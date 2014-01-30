@@ -44,10 +44,14 @@ class VlogGadget(gadget.Gadget):
             # we still will add it to the schedule in case that changes someday)
             import partition
             schedule.add_gadget(partition.PartitionGadget())
+            Log.info("Running in partition mode.")
         elif self.run_genip:
             import ssim
             schedule.add_gadget(ssim.SsimGadget())
-            
+            self.turds.append('csrc')
+            self.turds.append('work')
+            Log.info("Running in genip mode.")
+
     #--------------------------------------------     
     def genCmdLine(self):
         """
