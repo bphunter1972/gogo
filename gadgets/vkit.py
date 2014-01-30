@@ -7,7 +7,7 @@ from __future__ import print_function
 import os.path
 import gvars
 import gadget
-
+from sync_nfs import sync_open
 Log = gvars.Log
 
 class VkitGadget(gadget.Gadget):
@@ -46,6 +46,7 @@ class VkitGadget(gadget.Gadget):
         self.stdoutPath = os.path.join(self.dir_name, '.genip_stdout')
         self.mergeStderr = True
         self.genip_done_file = os.path.join(self.dir_name, self.pkg_name, '.genip_done')
+        self.genip_completed = False
 
         # in genip mode, run as a gadget, add the ssim gadget to
         # ensure that the synopsys_sim.setup file is created.
@@ -214,7 +215,8 @@ class VkitGadget(gadget.Gadget):
         except OSError:
             pass
 
-        dependent_libs = [it for it in self.libs if not it.doNotLaunch]
+        # If there are any libraries that this vkit depends on, then wait until they have completed
+        dependent_libs = [it for it in self.libs if not (it.doNotLaunch or it.genip_completed)]
         if dependent_libs:
             Log.info("%s waiting for %s" % (self.name, dependent_libs))
             sge.waitForSomeJobs(dependent_libs, pollingMode=False)
@@ -222,13 +224,27 @@ class VkitGadget(gadget.Gadget):
 
     #--------------------------------------------
     def completedCallback(self):
-        if self.getExitStatus():
+        # ensure that this does not get launched again by waitForSomeJobs call in another vkit's preLaunchCallback
+        self.genip_completed = True;
+
+        # if this job did not actually launch, then don't call getExitStatus
+        if self.doNotLaunch:
+            return
+
+        Log.info("%s genip completed!" % self.name)
+        exit_status = self.getExitStatus()
+        if exit_status != 0:
+            Log.info("%s We are going down because of me! exit_status=%0d" % (self.name, exit_status))
+            with open('.genip_stdout') as f:
+                lines = f.readlines()
+            print("%s" % '\n'.join(lines))
             if os.path.exists(self.genip_done_file):
                 os.remove(self.genip_done_file)
-            raise gadget.GadgetFailed("genip of %s failed. See %s" % (self.name, self.stdoutPath))
+            raise gadget.GadgetFailed("genip of %s failed with exit status %0d. See %s" % (self.name, exit_status, self.stdoutPath))
         else:
             with open(self.genip_done_file, 'w') as gfile:
                 print("1", file=gfile)
+            sync_open(self.genip_done_file, unopened=True)
 
     #--------------------------------------------
     def check_dependencies(self):
@@ -249,8 +265,9 @@ class VkitGadget(gadget.Gadget):
                     break
 
         # this ensures that any job that calls waitForSomeJobs() will not try to launch this
-        self.doNotLaunch = not result
-        return answer.result
+        if result == False:
+            self.doNotLaunch = True
+        return result
 
     #--------------------------------------------
     def cleanup(self):
