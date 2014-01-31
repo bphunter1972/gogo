@@ -8,6 +8,9 @@ import os.path
 import gvars
 import gadget
 from sync_nfs import sync_open
+# from utils import touch
+from os_utils import touch
+
 Log = gvars.Log
 
 class VkitGadget(gadget.Gadget):
@@ -242,9 +245,11 @@ class VkitGadget(gadget.Gadget):
                 os.remove(self.genip_done_file)
             raise gadget.GadgetFailed("genip of %s failed with exit status %0d. See %s" % (self.name, exit_status, self.stdoutPath))
         else:
-            with open(self.genip_done_file, 'w') as gfile:
-                print("1", file=gfile)
-            sync_open(self.genip_done_file, unopened=True)
+            try:
+                touch(self.genip_done_file)
+            except IOError:
+                Log.critical("Unable to touch file %s" % self.genip_done_file)
+            # sync_open(self.genip_done_file, unopened=True)
 
     #--------------------------------------------
     def check_dependencies(self):
