@@ -42,8 +42,8 @@ class FlistGadget(gadget.Gadget):
 
             # TODO: I don't know why this should not be there, but it results
             # in tests being declared twice in the factory.
-            if not gvars.VLOG.COMPTYPE == 'genip':
-                all_files.extend(glob.glob('tests/*.sv'))
+            # if not gvars.VLOG.COMPTYPE == 'genip':
+            all_files.extend(glob.glob('tests/*.sv'))
 
             all_files = [it for it in all_files if not it.endswith('_tb_top.sv')]
             for svfile in all_files:
