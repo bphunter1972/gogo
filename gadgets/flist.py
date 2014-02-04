@@ -7,7 +7,7 @@ from __future__ import print_function
 import gadget
 import gvars
 import glob
-
+import utils
 
 class FlistGadget(gadget.Gadget):
     """Creates the .flist file for a testbench"""
@@ -28,7 +28,7 @@ class FlistGadget(gadget.Gadget):
         def get_sv_path(tb_name, fname):
             return "project/verif/%(tb_name)s/%(fname)s" % locals()
 
-        with open('.flist', 'w') as ffile:
+        with utils.open('.flist', 'w') as ffile:
             # print +incdirs
             print("+incdir+%(tb_dir)s" % locals(), file=ffile)
             for incdir in gvars.TB.INCDIRS:

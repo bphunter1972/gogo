@@ -11,12 +11,15 @@ A lightweight compile and simulate script.
 
 """
 
+from __future__ import print_function
+
 __version__       = '0.0.7'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
 #######################################################################################
 # Imports
+
 import command_line
 import logging
 import gvars

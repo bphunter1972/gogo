@@ -8,7 +8,7 @@ import gadget
 import gvars
 import os
 import schedule
-from utils import check_files_exist
+import utils
 
 Log = gvars.Log
 
@@ -30,7 +30,7 @@ class SimulateGadget(gadget.Gadget):
 
         # ensure that the SIM.TEST exists!
         test_file = os.path.join('tests', (gvars.SIM.TEST + '.sv'))
-        if check_files_exist(test_file) == 0:
+        if utils.check_files_exist(test_file) == 0:
             raise gadget.GadgetFailed("%s is not a legal test." % test_file)
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
@@ -77,7 +77,7 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        if check_files_exist(self.sim_exe) == 0:
+        if utils.check_files_exist(self.sim_exe) == 0:
             raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.sim_exe)
 
         sim_cmd = self.sim_exe
@@ -123,7 +123,7 @@ class SimulateGadget(gadget.Gadget):
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):
         "Create the .wave_script file that VCS will do."
-        with open(wave_script_name, 'w') as wfile:
+        with utils.open(wave_script_name, 'w') as wfile:
             print("""set d [string map {logfile waves.vpd} [senv logFilename] ]
             dump -file $d -type vpd
             dump -add %(tb_top)s -depth 0

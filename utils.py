@@ -3,6 +3,7 @@ Common utilities module.
 """
 
 import gvars
+import os
 
 AllVerilogSources = None
 
@@ -66,3 +67,44 @@ def get_time_int():
     if CURR_TIME == 0:
         CURR_TIME = int(time.time())
     return CURR_TIME
+
+########################################################################################
+def open(filename, mode='w'):
+    """
+    Returns a file handle to the translated filename using get_filename.
+    """
+
+    filename = get_filename(filename)
+    afile = open(filename, mode)
+
+    return afile
+
+########################################################################################
+def get_filename(filename):
+    """
+    Returns the name of a file in the .gogo directory that corresponds to a real path in
+    the project directory.
+
+    filename : (str) A file of the form /nfs/.../t88/verif/vkits/cn/vlog would be translated
+                     to /nfs/.../t88/.gogo/verif_vkits_cn/vlog
+    =>       : (str) The translated name
+    """
+
+    gogo_dir = os.path.join(gvars.RootDir, '.gogo')
+    if not os.path.exists(gogo_dir):
+        os.mkdir(gogo_dir)
+
+    # calculate the directory name underneat the gogo_dir in which the file will be
+    filename = os.path.abspath(filename)
+    if not filename.startswith(gvars.RootDir):
+        raise IOError("Cannot create a file in %s" % filename)
+    dirname, filename = os.path.split(filename)
+
+    dirname = dirname.replace(gvars.RootDir, '')
+    dirname = dirname.replace('/', '_')[1:]
+    dirname = os.path.join(gogo_dir, dirname)
+
+    if not os.path.exists(dirname):
+        os.mkdir(dirname)
+    filename = os.path.join(dirname, filename)
+    return filename
