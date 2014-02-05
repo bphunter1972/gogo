@@ -5,6 +5,7 @@ Commands returned by create_cmds will be concatenated with semicolons and run as
 
 from __future__ import print_function
 import sge_tools as sge
+import utils
 
 Log = None
 
@@ -88,11 +89,13 @@ class Gadget(sge.Job):
         if len(self.commands) > 1:
             self.add_check_exit_status()
 
+        if self.name == '' or self.name is None:
+            Log.critical("Gadget has no name!:\n%s" % self)
         file_name = ".%s" % self.name
         if self.cwd is not None:
             file_name = os.path.join(self.cwd, file_name)
 
-        with open(file_name, 'w') as f:
+        with utils.open(file_name, 'w') as f:
             print("#!/usr/bin/csh", file=f)
             for command in self.commands:
                 if type(command) == tuple:
@@ -104,7 +107,8 @@ class Gadget(sge.Job):
                 else:
                     Log.critical("Command '%s' is neither a string nor a tuple." % command)
             print(file=f)
-            self.turds.append(os.path.abspath(file_name))
+            # self.turds.append(os.path.abspath(file_name))
+        file_name = utils.get_filename(file_name)
         self.cmd = "source %s" % (file_name)
 
         # Launch me!

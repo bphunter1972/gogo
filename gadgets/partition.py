@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import gadget
 import gvars
+import utils
 
 Log = gvars.Log
 
@@ -24,7 +25,7 @@ class PartitionGadget(gadget.Gadget):
         part_cfg_name = '.partition.cfg'
         self.turds.append(part_cfg_name)
         
-        with open(part_cfg_name, 'w') as pfile:
+        with utils.open(part_cfg_name, 'w') as pfile:
             if static_vkits:
                 static_vkit_pkgs = ' '.join([it.get_pkg_name() for it in static_vkits])
                 print("partition package %s ;" % static_vkit_pkgs, file=pfile)

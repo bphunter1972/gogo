@@ -11,20 +11,20 @@ A lightweight compile and simulate script.
 
 """
 
-__version__       = '0.0.6'
+from __future__ import print_function
+
+__version__       = '0.0.7'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
 #######################################################################################
 # Imports
-import argparse
+
+import command_line
 import logging
-import cn_logging
 import gvars
 import sge_tools as sge
-import os.path
-import sys
-import gadget
+from gadget import GadgetFailed
 
 ########################################################################################
 # Globals
@@ -32,193 +32,22 @@ import gadget
 Log = None
 
 ########################################################################################
-def parse_args():
-    """
-    Parse Command-Line and return the gadgets to be run as a list of strings.
-    """
-
-    global Log
-
-    gvars.Log = cn_logging.getLogger('gogo.log')
-    gvars.Log.setLevel(logging.INFO)
-
-    # create the handler
-    console = logging.StreamHandler()
-    console.setFormatter(cn_logging.formatter)
-    gvars.Log.addHandler(console)
-
-    Log = gvars.Log
-    sge.Log = gvars.Log
-
-    p = argparse.ArgumentParser(
-        prog='gogo',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="%(prog)s [options] [variables] [gadgets]",
-        version=("%(prog)s v"+__version__),
-        description=__doc__)
-
-    p.add_argument('varg',           action='store', nargs='*',  help="Variable assignments or gadgets to run.")
-
-    p.add_argument('--tb',           action='store',             default='tb',    help="Specify a different tb.py configuration file.")
-    p.add_argument('--part', '-p',   action='store',             default='auto',  help="When 'auto', gogo generates the partition configuration from settings; when 'off', compile without partitions; else specify your own configuration file.")
-
-    p.add_argument('--dbg',          action='store_true',        default=False,   help="Used for debugging gogo.")
-    p.add_argument('--noflush',      action='store_true',        default=False,   help="Permit turd files to stay.")
-
-    gvars.Options = p.parse_args()
-
-    # if it's all uppercase, then it's a variable
-    variables = [it for it in gvars.Options.varg if '=' in it]
-    gvars.command_line_assignment(variables)
-    gadgets_to_run = [it for it in gvars.Options.varg if it not in variables]
-    shortcuts = {
-                 'c'        : 'clean',
-                 'cln'      : 'clean',
-                 'clean'    : 'clean',
-                 'b'        : 'build',
-                 'build'    : 'build',
-                 'bld'      : 'build',
-                 'v'        : 'vlog',
-                 'vlog'     : 'vlog',
-                 's'        : 'simulate',
-                 'sim'      : 'simulate',
-                 'simu'     : 'simulate',
-                 'simulate' : 'simulate',
-                 'latest'   : 'latest',
-                 }
-
-    # do this above setup_globals so that it can be run anywhere, even when there is no tb.py
-    if 'help_vars' in gadgets_to_run:
-        print_help_vars()
-    elif 'help_gadgets' in gadgets_to_run:
-        print_help_gadgets()
-    if 'help_vars' in gadgets_to_run or 'help_gadgets' in gadgets_to_run:
-        sys.exit(0)
-
-    for gdt in gadgets_to_run:
-        if gdt not in shortcuts.keys():
-            Log.critical("Unknown gadget: %s" % gdt)
-
-    # Shortcut: just running 'gogo' will vlog and simulate
-    if gadgets_to_run == []:
-        gadgets_to_run = ['build', 'vlog', 'sim']
-
-    if gvars.Options.dbg:
-        gvars.Log.setLevel(logging.DEBUG)
-
-    if gvars.Options.part not in ('auto', 'off') and not os.path.exists(gvars.Options.part):
-        Log.critical("Partition configuration file '%s' does not exist." % gvars.Options.part)
-
-    return [shortcuts[gdt] for gdt in gadgets_to_run]
-
-########################################################################################
-def setup_globals():
-    """
-    Set up the variables in gvars by importing all of the import files for this testbench
-    """
-
-    import var_type
-    from area_utils import calcRootDir
-    global gvars
-
-    var_type.Log = gvars.Log
-    gadget.Log = gvars.Log
-    gvars.RootDir = calcRootDir()
-
-    # The names of all the library files that will be imported
-    libraries = ('project', gvars.Options.tb)
-
-    #--------------------------------------------
-    def import_lib(mod_name):
-        try:
-            __import__(mod_name)
-        except ImportError:
-            Log.critical("'%s.py' file not found. Make sure you are in a testbench directory and that your PYTHONPATH is set correctly." % mod_name)
-
-    # import each of the libraries
-    map(import_lib, libraries)
-
-########################################################################################
-def setup_vkits():
-    "Set up the vkits in gvars"
-
-    from vkit import Vkit
-
-    gvars.Vkits = [Vkit(it) for it in gvars.TB.VKITS]
-    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
-    gvars.Vkits.insert(0, uvm_vkit)
-
-    try:
-        gvars.StaticVkits = [it for it in gvars.Vkits if it.name in gvars.TB.STATIC_VKITS]
-    except AttributeError:
-        Log.critical("A Vkit below has no name:\n%s" % gvars.Vkits)
-
-########################################################################################
-def print_help_vars():
-    from textwrap import wrap
-    print("""
-Assign variables with the following names in either project.py or tb.py.
-
-project.py : There should be one of these per-project.
-tb.py      : There should be one (or more) of these per-testbench.
-
-If more than one tb.py is available, select which to use with the --tb command-
-line option.
-
-You may also make variable assignments from the command-line, with '=' 
-to override or '+=' to append.
-
-Example:
-   % gogo SIM.TEST=exer SIM.DBG=200 SIM.WDOG+=2000 vlog sim
-
-For SIM assignments, you may skip specifying SIM:
-   % gogo TEST=exer DBG=200 WDOG+=2000 vlog sim
-
-""")
-
-    for vtype in sorted(gvars.VTYPES.keys()):
-        print("%s : " % vtype)
-        for var in gvars.VTYPES[vtype]:
-            txt = wrap(gvars.get_vtype(vtype).help(var), 80)
-            print("   %-18s%s" % (var, txt[0]))
-            for line in txt[1:]:
-                print("   %-18s%s" % (' ', line))
-        print("")
-
-########################################################################################
-def print_help_gadgets():
-    print("""
-This section is TODO.
-""")
-
-########################################################################################
-def print_latest():
-    """
-    Print the latest source file found in the given testbench.
-    """
-
-    import pymake, utils
-    srcs = utils.get_all_sources() 
-    # print(srcs)
-    answer = pymake.get_extreme_mtime(srcs, old=False, get_file=True)
-    print("Latest source is %s" % answer[1])
-    
-########################################################################################
 if __name__ == '__main__':
     import schedule
 
-    gadgets_to_run = parse_args()
+    gadgets_to_run = command_line.parse_args(__version__, __doc__)
+    Log = gvars.Log
     Log.info("Welcome to gogo v%s" % __version__)
 
-    setup_globals()
-    setup_vkits()
+    gvars.setup_globals()
+    gvars.setup_vkits()
 
     # Prints out the latest of all source files
-    if 'latest' in gadgets_to_run:
-        print_latest()
-        sys.exit(0)
-
     try:
+        if 'latest' in gadgets_to_run:
+            import gadgets.latest
+            schedule.add_gadget(gadgets.latest.LatestGadget())
+
         if 'clean' in gadgets_to_run:
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
@@ -247,7 +76,7 @@ if __name__ == '__main__':
         sge.killAll()
         Log.critical("Exiting due to Ctrl-C.")
 
-    except gadget.GadgetFailed as inst:
+    except GadgetFailed as inst:
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     # if we get here, we must have passed

@@ -37,18 +37,21 @@ class VarType(object):
         # value will be a string
         # cast for correct type if necessary
         my_value = self.cast_for_types(name, value)
+        Log.debug("Setting %s to %s" % (name, my_value))
         self.__setattr__(name, my_value)
 
     #--------------------------------------------
     def incr_value(self, name, value):
         my_value = self.cast_for_types(name, value)
         curr_val = self.__getattr__(name)
+        Log.debug("Setting %s to %s + %s = %s" % (name, curr_val, my_value, (curr_val + my_value)))
         self.__setattr__(name, (curr_val + my_value))
 
     #--------------------------------------------
     def help(self, name):
         return self.myvars[name][__HELP__]
 
+    #--------------------------------------------
     def cast_for_types(self, name, value):
         my_value = value if isinstance(value, self.myvars[name][__TYPES__]) else None
         if not my_value:

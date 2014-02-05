@@ -1,5 +1,5 @@
 """
-An gadget class that executes the simulation
+Runs the simulation.
 """
 
 from __future__ import print_function
@@ -8,7 +8,7 @@ import gadget
 import gvars
 import os
 import schedule
-from utils import check_files_exist
+import utils
 
 Log = gvars.Log
 
@@ -24,13 +24,13 @@ class SimulateGadget(gadget.Gadget):
 
         self.schedule_phase = 'simulate'
 
-        self.name      = gvars.SIM.DIR if gvars.SIM.DIR else gvars.SIM.TEST
+        self.name      = gvars.SIM.DIR
         self.resources = gvars.PROJ.LSF_SIM_LICS
         self.queue     = 'verilog'
 
         # ensure that the SIM.TEST exists!
         test_file = os.path.join('tests', (gvars.SIM.TEST + '.sv'))
-        if check_files_exist(test_file) == 0:
+        if utils.check_files_exist(test_file) == 0:
             raise gadget.GadgetFailed("%s is not a legal test." % test_file)
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
@@ -49,6 +49,17 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.WAVE == 'fsdb':
             self.handle_fsdb()
 
+        # set the simulation's seed
+        if gvars.SIM.SEED == 0:
+            import random
+            gvars.SIM.SEED = random.getrandbits(32)
+
+        # create rerun/qrun scripts when we're done
+        from gadgets.rerun import RerunGadget
+        rerun = RerunGadget(self.sim_dir)
+        schedule.add_gadget(rerun)
+
+        # run simrpt when we're done
         from gadgets.simrpt import SimrptGadget
         simrpt = SimrptGadget(self.sim_dir)
         schedule.add_gadget(simrpt)
@@ -66,16 +77,12 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        if check_files_exist(self.sim_exe) == 0:
+        if utils.check_files_exist(self.sim_exe) == 0:
             raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.sim_exe)
 
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST
         sim_cmd += " -l %s/logfile" % self.sim_dir
-
-        if gvars.SIM.SEED == 0:
-            import random
-            gvars.SIM.SEED = random.getrandbits(32)
         sim_cmd += " +seed=%d" % gvars.SIM.SEED
 
         # options
@@ -100,7 +107,8 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
 
         if gvars.SIM.SVFCOV:
-            sim_cmd += " +svfcov"
+            cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
+            sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (gvars.SIM.SVFCOV, cm_name)
 
         # add simulation command-line options
         if gvars.SIM.OPTS:
@@ -114,7 +122,7 @@ class SimulateGadget(gadget.Gadget):
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):
         "Create the .wave_script file that VCS will do."
-        with open(wave_script_name, 'w') as wfile:
+        with utils.open(wave_script_name, 'w') as wfile:
             print("""set d [string map {logfile waves.vpd} [senv logFilename] ]
             dump -file $d -type vpd
             dump -add %(tb_top)s -depth 0

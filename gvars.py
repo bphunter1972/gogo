@@ -4,6 +4,10 @@ Contains all of the global variables.
 
 import sys
 import var_type
+import gadget
+import os.path
+from area_utils import calcRootDir
+
 
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
@@ -69,6 +73,7 @@ VTYPES = {
 }
 
 # This code creates the variables PROJ, VLOG, SIM, etc.
+SIM = TB = None # this just gets rid of any lint errors
 for key in VTYPES.keys():
     setattr(sys.modules[__name__], key, var_type.VarType(VTYPES[key], key))
 
@@ -84,17 +89,34 @@ Vkits = StaticVkits = None
 # The root directory of the project
 RootDir = None
 
+# Variables that were Culled from the Command Line
+CommandLineVariables = None
+
+# The directory that will be used to store all temporary files
+GogoDir = None
+
 ########################################################################################
 def get_vtype(vtype):
     return getattr(sys.modules[__name__], vtype)
 
 ########################################################################################
 def command_line_assignment(vars):
-    for var in vars:
+    "Assign variables based on the command-line arguments that look like assignments"
+
+    var_type.Log = Log
+
+    # perform work on any SIM.TEST first, then check rest of command-line work to be done
+    test_work = None
+    cl_work = []
+
+    #--------------------------------------------
+    def parse_var(var):
         if '+=' in var:
-            (vname, value) = var.split('+=')
+            (vname, value) = var.split('+=', 1)
+            use_incr = True
         elif '=' in var:
-            (vname, value) = var.split('=')
+            (vname, value) = var.split('=', 1)
+            use_incr = False
 
         try:
             (vtype_name, var_name) = vname.split('.')
@@ -107,5 +129,76 @@ def command_line_assignment(vars):
         vtype = get_vtype(vtype_name)
 
         # either append to or set the value
-        func = vtype.incr_value if '+=' in var else vtype.set_value
-        func(var_name, value)
+        func = vtype.incr_value if use_incr else vtype.set_value
+        return (var_name, value, func)
+
+    #--------------------------------------------
+    for var in vars:
+        var_name, value, func = parse_var(var)
+        if var_name == 'TEST':
+            test_work = [var_name, value, func]
+        else:
+            cl_work.append([var_name, value, func])
+
+    # assign test-name first
+    if test_work:
+        test_work[2](test_work[0], test_work[1])
+
+    # assign test-name to directory
+    SIM.DIR = SIM.TEST
+
+    # perform all other assignements
+    for work in cl_work:
+        work[2](work[0], work[1])
+
+########################################################################################
+def setup_globals():
+    """
+    Set up the variables in gvars by importing all of the import files for this testbench
+    """
+
+    global RootDir
+    global GogoDir
+
+    var_type.Log = Log
+    gadget.Log = Log
+    RootDir = calcRootDir()
+
+    GogoDir = os.path.join(RootDir, '.gogo')
+
+    # The names of all the library files that will be imported
+    libraries = ('project', Options.tb)
+
+    #--------------------------------------------
+    def import_lib(mod_name):
+        try:
+            __import__(mod_name)
+        except ImportError:
+            Log.critical("'%s.py' file not found. Make sure you are in a testbench directory and that your PYTHONPATH is set correctly." % mod_name)
+
+    # import each of the libraries
+    map(import_lib, libraries)
+
+    # now, handle the variables that were on the command-line
+    try:
+        command_line_assignment(CommandLineVariables)
+    except Exception as ex:
+        if Options.dbg:
+            raise
+        Log.critical("Unable to parse command-line: %s" % ex)
+
+########################################################################################
+def setup_vkits():
+    "Set up the vkits in gvars"
+
+    global Vkits, StaticVkits    
+    from vkit import Vkit
+
+    Vkits = [Vkit(it) for it in TB.VKITS]
+    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
+    Vkits.insert(0, uvm_vkit)
+
+    try:
+        StaticVkits = [it for it in Vkits if it.name in TB.STATIC_VKITS]
+    except AttributeError:
+        Log.critical("A Vkit below has no name:\n%s" % Vkits)
