@@ -17,9 +17,10 @@ class CleanGadget(gadget.Gadget):
         super(CleanGadget, self).__init__()
 
         self.schedule_phase = 'clean'
-        
+        clean_dirs = gvars.PROJ.CLEAN_DIRS + [gvars.GogoDir]
+
         gvars.Log.info("Cleaning...")
-        for dname in gvars.PROJ.CLEAN_DIRS:
+        for dname in clean_dirs:
             try:
                 rmtree(dname)
                 Log.info("Removed dir %s" % dname)
