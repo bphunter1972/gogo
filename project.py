@@ -16,7 +16,7 @@ PROJ.LSF_SIM_LICS = ['lic_sim_vcs']
 
 # How to Clean Up
 PROJ.CLEAN_DIRS = ['sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib']
-PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project']
+PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project', '.vcs_lib_lock']
 
 # Miscellaneous
 PROJ.VERDI_MODULE = 'synopsys-verdi'
