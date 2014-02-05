@@ -4,6 +4,7 @@ Common utilities module.
 
 import gvars
 import os
+from __builtin__ import open as builtin_open
 
 AllVerilogSources = None
 
@@ -75,7 +76,7 @@ def open(filename, mode='w'):
     """
 
     filename = get_filename(filename)
-    afile = open(filename, mode)
+    afile = builtin_open(filename, mode)
 
     return afile
 
@@ -90,11 +91,10 @@ def get_filename(filename):
     =>       : (str) The translated name
     """
 
-    gogo_dir = os.path.join(gvars.RootDir, '.gogo')
-    if not os.path.exists(gogo_dir):
-        os.mkdir(gogo_dir)
+    if not os.path.exists(gvars.GogoDir):
+        os.mkdir(gvars.GogoDir)
 
-    # calculate the directory name underneat the gogo_dir in which the file will be
+    # calculate the directory name underneath the gvars.GogoDir in which the file will be
     filename = os.path.abspath(filename)
     if not filename.startswith(gvars.RootDir):
         raise IOError("Cannot create a file in %s" % filename)
@@ -102,7 +102,7 @@ def get_filename(filename):
 
     dirname = dirname.replace(gvars.RootDir, '')
     dirname = dirname.replace('/', '_')[1:]
-    dirname = os.path.join(gogo_dir, dirname)
+    dirname = os.path.join(gvars.GogoDir, dirname)
 
     if not os.path.exists(dirname):
         os.mkdir(dirname)

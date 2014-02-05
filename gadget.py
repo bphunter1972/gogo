@@ -107,7 +107,8 @@ class Gadget(sge.Job):
                 else:
                     Log.critical("Command '%s' is neither a string nor a tuple." % command)
             print(file=f)
-            self.turds.append(os.path.abspath(file_name))
+            # self.turds.append(os.path.abspath(file_name))
+        file_name = utils.get_filename(file_name)
         self.cmd = "source %s" % (file_name)
 
         # Launch me!

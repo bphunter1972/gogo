@@ -4,6 +4,10 @@ Contains all of the global variables.
 
 import sys
 import var_type
+import gadget
+import os.path
+from area_utils import calcRootDir
+
 
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
@@ -88,6 +92,9 @@ RootDir = None
 # Variables that were Culled from the Command Line
 CommandLineVariables = None
 
+# The directory that will be used to store all temporary files
+GogoDir = None
+
 ########################################################################################
 def get_vtype(vtype):
     return getattr(sys.modules[__name__], vtype)
@@ -150,14 +157,14 @@ def setup_globals():
     Set up the variables in gvars by importing all of the import files for this testbench
     """
 
-    import var_type
-    import gadget
-    from area_utils import calcRootDir
     global RootDir
+    global GogoDir
 
     var_type.Log = Log
     gadget.Log = Log
     RootDir = calcRootDir()
+
+    GogoDir = os.path.join(RootDir, '.gogo')
 
     # The names of all the library files that will be imported
     libraries = ('project', Options.tb)

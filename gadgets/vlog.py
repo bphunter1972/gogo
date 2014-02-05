@@ -6,7 +6,7 @@ import gadget
 import gvars
 import os
 import schedule
-from utils import check_files_exist
+from utils import check_files_exist, get_filename
 
 Log = gvars.Log
 
@@ -67,6 +67,7 @@ class VlogGadget(gadget.Gadget):
         run_partition = vlog_partition != 'off'
         if run_partition:
             partition_cfg_name = '.partition.cfg' if vlog_partition == 'auto' else vlog_partition
+            partition_cfg_name = get_filename(partition_cfg_name)
             if check_files_exist(partition_cfg_name) == 0:
                 raise gadget.GadgetFailed("%s does not exist." % partition_cfg_name)
 
@@ -133,7 +134,7 @@ def get_flists():
     vkits = [it.flist_name for it in gvars.Vkits]
 
     # all the flist files in total
-    flists = vkits + gvars.TB.FLISTS + ['.flist']
+    flists = vkits + gvars.TB.FLISTS + [get_filename('.flist')]
     return '-f ' + ' -f '.join(flists)
 
 ########################################################################################
