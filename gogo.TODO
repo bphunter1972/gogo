@@ -1,4 +1,4 @@
-Minor Enhancements:
+Fixes:
 
  ☐ Accept PLUSARGS, SIM.OPTS from the command-line. Currently these are lists, but we need to be able to append strings.
  ✔ Fix parsing of DIR, TEST on the command-line @done (14-01-21 16:50)
@@ -6,6 +6,8 @@ Minor Enhancements:
 
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
+ ☐ Add tool logging.
+ ☐ Add traceback emails.
 
 Major Enhancements:
  ☐ genip
