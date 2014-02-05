@@ -7,9 +7,8 @@ from __future__ import print_function
 import os.path
 import gvars
 import gadget
-from sync_nfs import sync_open
-# from utils import touch
 from os_utils import touch
+import utils
 
 Log = gvars.Log
 
@@ -46,10 +45,11 @@ class VkitGadget(gadget.Gadget):
         self.runmod_modules = gvars.VLOG.MODULES
         self.cwd = self.dir_name
         self.lib_name = '%s_LIB' % self.name.upper()
-        self.stdoutPath = os.path.join(self.dir_name, '.genip_stdout')
+        self.stdoutPath = utils.get_filename(os.path.join(self.dir_name, '.genip_stdout'))
         self.mergeStderr = True
-        self.genip_done_file = os.path.join(self.dir_name, self.pkg_name, '.genip_done')
+        self.genip_done_file =utils.get_filename(os.path.join(self.dir_name, self.pkg_name, '.genip_done'))
         self.genip_completed = False
+        self.pkg_dir = os.path.join(self.dir_name , self.pkg_name)
 
         # in genip mode, run as a gadget, add the ssim gadget to
         # ensure that the synopsys_sim.setup file is created.
@@ -159,8 +159,7 @@ class VkitGadget(gadget.Gadget):
         srcs = glob_files([self.dir_name], patterns, recursive=True)
 
         # remove any sv files that VCS creates during genip 
-        pkg_dir = os.path.abspath(os.path.join(self.dir_name, self.pkg_name))
-        srcs = [it for it in srcs if not it.startswith(pkg_dir)]
+        srcs = [it for it in srcs if not it.startswith(self.pkg_dir)]
 
         return srcs
 
@@ -187,10 +186,10 @@ class VkitGadget(gadget.Gadget):
         so_files = vlog.get_so_files(self.VLOG.SO_FILES)
         arc_libs = vlog.get_arc_libs(self.VLOG.ARC_LIBS)
         parallel = vlog.get_parallel()
-        if self.libs:
-            v_libs = ' -v ' + ' -v '.join(["%s.%s" % (it.lib_name, it.pkg_name) for it in self.libs])
-        else:
-            v_libs = ''
+        # if self.libs:
+        #     v_libs = ' -v ' + ' -v '.join(["%s.%s" % (it.lib_name, it.pkg_name) for it in self.libs])
+        # else:
+        v_libs = ''
 
         # create vlogan command
         vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
@@ -200,9 +199,11 @@ class VkitGadget(gadget.Gadget):
         cmds.append(('Running vlogan...',vlogan_cmd))
 
         # create VCS command
+        vcs_dir = '-dir=%s' % self.pkg_dir
         vcs_cmd = gvars.VLOG.TOOL
         vcs_cmd += ' -genip %s.%s +vpi -lca' % (self.lib_name, self.pkg_name) 
-        vcs_args = [vlog_warnings, self.VLOG.OPTIONS, self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel]
+        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
+                    self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, vcs_dir]
         vcs_cmd += ' ' + ' '.join(vcs_args)
         cmds.append(('Running vcs...', vcs_cmd))
 
@@ -238,9 +239,13 @@ class VkitGadget(gadget.Gadget):
         exit_status = self.getExitStatus()
         if exit_status != 0:
             Log.info("%s We are going down because of me! exit_status=%0d" % (self.name, exit_status))
-            with open('.genip_stdout') as f:
-                lines = f.readlines()
-            print("%s" % '\n'.join(lines))
+            try:
+                with open(self.stdoutPath) as f:
+                    lines = f.readlines()
+            except IOError:
+                Log.critical("Unable to read stdout file %s" % self.stdoutPath)
+            for line in lines:
+                print(line, end="")
             if os.path.exists(self.genip_done_file):
                 os.remove(self.genip_done_file)
             raise gadget.GadgetFailed("genip of %s failed with exit status %0d. See %s" % (self.name, exit_status, self.stdoutPath))
@@ -249,7 +254,6 @@ class VkitGadget(gadget.Gadget):
                 touch(self.genip_done_file)
             except IOError:
                 Log.critical("Unable to touch file %s" % self.genip_done_file)
-            # sync_open(self.genip_done_file, unopened=True)
 
     #--------------------------------------------
     def check_dependencies(self):

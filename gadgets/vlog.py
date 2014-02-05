@@ -89,7 +89,7 @@ class VlogGadget(gadget.Gadget):
 
         #--------------------------------------------
         # get common command-line arguments
-        flists   = gvars.TB.FLISTS + ['.flist']
+        flists =  [get_filename('.flist')]
         if not self.run_genip:
             flists   = [it.flist_name for it in gvars.Vkits] + flists
         flists       = get_flists(flists)
@@ -120,7 +120,8 @@ class VlogGadget(gadget.Gadget):
             # annoyingly, VCS doesn't support these here
             gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('+libext+.v+.sv','')
             gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('-sv_pragma','')
-
+            all_libs = ':'.join([it.pkg_dir for it in gvars.Vkits])
+            vcs_args.append(' -sharedlib=%s' % all_libs)
         vcs_args.extend([vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel])
 
         if not self.run_genip:
@@ -156,13 +157,10 @@ def get_defines(defs):
     else:
         return ""
 
-<<<<<<< HEAD
 ########################################################################################
 def get_flists(flists):
-=======
     # all the flist files in total
-    flists = vkits + gvars.TB.FLISTS + [get_filename('.flist')]
->>>>>>> devel
+    flists = gvars.TB.FLISTS + flists
     return '-f ' + ' -f '.join(flists)
 
 ########################################################################################
