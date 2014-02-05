@@ -19,7 +19,7 @@ class CleanGadget(gadget.Gadget):
         self.schedule_phase = 'clean'
 
         clean_files = gvars.PROJ.CLEAN_FILES
-        clean_dirs = gvars.PROJ.CLEAN_DIRS
+        clean_dirs = gvars.PROJ.CLEAN_DIRS + [gvars.GogoDir]
 
         for vkit in gvars.Vkits:
             dirs,files = vkit.cleanup()
