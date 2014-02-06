@@ -100,20 +100,19 @@ class VlogGadget(gadget.Gadget):
             cmds.append(('Running vlogan...',vlogan_cmd))
 
         #--------------------------------------------
-        # create vlog command
+        # create vcs command
         simv_file = os.path.join(gvars.VLOG.VCOMP_DIR, 'simv')
-        vcs_cmd = gvars.VLOG.TOOL
-        vcs_cmd += ' -o %s -Mupdate' % (simv_file)
-        if run_partition:
-            vcs_cmd += ' -partcomp +optconfigfile+%s' % partition_cfg_name
-        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, 
-            vlog_defines, parallel, flists]
-        vcs_cmd += ' ' + ' '.join(vcs_args)
+        vcs_args = [gvars.VLOG.TOOL, ' -o %s -Mupdate' % (simv_file), 
+                    vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, 
+                    tab_files, so_files, arc_libs, parallel
+                    ]
 
         if run_partition:
-            cmds.append(('Running vcs...', vcs_cmd))
-        else:
-            cmds.append(vcs_cmd)
+            vcs_args.append(' -partcomp +optconfigfile+%s' % partition_cfg_name)
+            vcs_args.append(gvars.TB.TOP)
+
+        vcs_cmd = ' ' + ' '.join(vcs_args)
+        cmds.append(('Running vcs...', vcs_cmd))
 
         return cmds
 
