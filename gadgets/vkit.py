@@ -166,12 +166,22 @@ class VkitGadget(gadget.Gadget):
     #--------------------------------------------
     def create_cmds(self):
         """
-        echo "Running vlogan"
-        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vlogan ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -nc -q -notice -unit_timescale=1ns/1ps -sverilog +define+PROJ_INCLUDES_UVM+VCS+HAVE_VERDI_WAVE_PLI+RANDOM_SYNC_DELAY+TBV+BEHAVE+USE_ASSERTIONS+UVM_NO_DEPRECATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR +libext+.v+.sv -full64 +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma +lint=noPCTIO-L,noPCTI-L +vcsd -f swi.flist -work SWI_LIB
+        echo ">>>> Running vlogan"
+        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vlogan
+        ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -nc -q -notice
+        -unit_timescale=1ns/1ps -sverilog +define+PROJ_INCLUDES_UVM+VCS+HAVE_V
+        ERDI_WAVE_PLI+RANDOM_SYNC_DELAY+TBV+BEHAVE+USE_ASSERTIONS+UVM_NO_DEPRE
+        CATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR +libext+.v+.sv -full64
+        +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma
+        +lint=noPCTIO-L,noPCTI-L +vcsd -f swi.flist -work SWI_LIB
 
-        echo "Running vcs"
-        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vcs -lca +warn=noLCA_FEATURES_ENABLED,noACC_CLI_ON -genip SWI_LIB.swi_pkg ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -CFLAGS -DVCS +vpi -P /nfs/cadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab -P project/verif/vpi/vpi_msg.tab
-        """     
+        echo ">>>> Running vcs"
+        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vcs -lca
+        +warn=noLCA_FEATURES_ENABLED,noACC_CLI_ON -genip SWI_LIB.swi_pkg
+        ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -CFLAGS -DVCS +vpi -P
+        /nfs/cadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab -P
+        project/verif/vpi/vpi_msg.tab 
+        """
 
         cmds = []
 
@@ -199,7 +209,7 @@ class VkitGadget(gadget.Gadget):
         cmds.append(('Running vlogan...',vlogan_cmd))
 
         # create VCS command
-        vcs_dir = '-dir=%s' % self.pkg_dir
+        vcs_dir = '-dir=%s' % self.pkg_name
         vcs_cmd = gvars.VLOG.TOOL
         vcs_cmd += ' -genip %s.%s +vpi -lca' % (self.lib_name, self.pkg_name) 
         vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
