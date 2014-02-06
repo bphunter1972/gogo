@@ -6,11 +6,12 @@ Fixes:
 
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
- ☐ Add tool logging.
- ☐ Add traceback emails.
+ ✔ Add tool logging. @done (14-02-06 13:47)
+ ✔ Add traceback emails. @done (14-02-06 13:47)
 
 Major Enhancements:
  ☐ genip
+ ☐ Build .so files
    
 
 
