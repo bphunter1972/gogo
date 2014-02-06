@@ -43,13 +43,13 @@ class VkitGadget(gadget.Gadget):
         self.queue = 'build'
         self.interactive = False
         self.runmod_modules = gvars.VLOG.MODULES
-        self.cwd = self.dir_name
+        self.cwd = os.getcwd()
         self.lib_name = '%s_LIB' % self.name.upper()
         self.stdoutPath = utils.get_filename(os.path.join(self.dir_name, '.genip_stdout'))
         self.mergeStderr = True
         self.genip_done_file =utils.get_filename(os.path.join(self.dir_name, self.pkg_name, '.genip_done'))
         self.genip_completed = False
-        self.pkg_dir = os.path.join(self.dir_name , self.pkg_name)
+        self.pkg_dir = os.path.join(self.cwd, self.pkg_name)
 
         # in genip mode, run as a gadget, add the ssim gadget to
         # ensure that the synopsys_sim.setup file is created.
@@ -196,14 +196,10 @@ class VkitGadget(gadget.Gadget):
         so_files = vlog.get_so_files(self.VLOG.SO_FILES)
         arc_libs = vlog.get_arc_libs(self.VLOG.ARC_LIBS)
         parallel = vlog.get_parallel()
-        # if self.libs:
-        #     v_libs = ' -v ' + ' -v '.join(["%s.%s" % (it.lib_name, it.pkg_name) for it in self.libs])
-        # else:
-        v_libs = ''
 
         # create vlogan command
         vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
-                        self.VLOG.VLOGAN_OPTIONS, vlog_defines, v_libs, flists]                        
+                        self.VLOG.VLOGAN_OPTIONS, vlog_defines, flists]                        
         vlogan_cmd = 'vlogan ' + ' '.join(vlogan_args)
         vlogan_cmd += ' -work %s' % self.lib_name
         cmds.append(('Running vlogan...',vlogan_cmd))
@@ -211,7 +207,7 @@ class VkitGadget(gadget.Gadget):
         # create VCS command
         vcs_dir = '-dir=%s' % self.pkg_name
         vcs_cmd = gvars.VLOG.TOOL
-        vcs_cmd += ' -genip %s.%s +vpi -lca' % (self.lib_name, self.pkg_name) 
+        vcs_cmd += ' -genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
         vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
                     self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, vcs_dir]
         vcs_cmd += ' ' + ' '.join(vcs_args)
@@ -290,7 +286,7 @@ class VkitGadget(gadget.Gadget):
 
     #--------------------------------------------
     def cleanup(self):
-        "Report back any directories or files that should be cleaned up from this vkit."
+        "Report back any directories and/or files that should be cleaned up from this vkit."
 
         files = [self.genip_done_file, 
                  self.stdoutPath, 
@@ -299,8 +295,6 @@ class VkitGadget(gadget.Gadget):
                  os.path.join(self.dir_name, '.vcs_lib_lock'),
                 ] 
 
-        dirs = [os.path.join(self.dir_name, self.pkg_name),
-                os.path.join(self.dir_name, 'partitionlib'),
-                ]
+        dirs = [self.pkg_dir,]
 
         return (dirs, files)
