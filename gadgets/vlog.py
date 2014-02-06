@@ -112,21 +112,18 @@ class VlogGadget(gadget.Gadget):
         #--------------------------------------------
         # create vcs command
         simv_file = os.path.join(gvars.VLOG.VCOMP_DIR, 'simv')
-        vcs_args = [gvars.VLOG.TOOL, ' -o %s -Mupdate' % (simv_file)]
+        vcs_args = [gvars.VLOG.TOOL, ' -o %s -Mupdate' % (simv_file), 
+                    vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, 
+                    tab_files, so_files, arc_libs, parallel
+                    ]
+
         if self.run_partition:
             vcs_args.append(' -partcomp +optconfigfile+%s' % partition_cfg_name)
+            vcs_args.append(gvars.TB.TOP)
         if self.run_genip:
+            sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in gvars.Vkits])
+            vcs_args.append(sharedlib)
             vcs_args.append(' -integ work.%s' % gvars.TB.TOP)
-            # annoyingly, VCS doesn't support these here
-            gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('+libext+.v+.sv','')
-            gvars.VLOG.OPTIONS = gvars.VLOG.OPTIONS.replace('-sv_pragma','')
-            all_libs = ':'.join([it.pkg_dir for it in gvars.Vkits])
-            vcs_args.append(' -sharedlib=%s' % all_libs)
-        vcs_args.extend([vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel])
-
-        if not self.run_genip:
-            vcs_args.append(vlog_defines)
-            vcs_args.append(flists)
 
         vcs_cmd = ' ' + ' '.join(vcs_args)
 
