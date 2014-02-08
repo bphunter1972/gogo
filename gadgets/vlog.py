@@ -37,6 +37,7 @@ class VlogGadget(gadget.Gadget):
 
         self.run_partition = gvars.VLOG.COMPTYPE == 'partition'
         self.run_genip = gvars.VLOG.COMPTYPE == 'genip'
+        self.run_normal = gvars.VLOG.COMPTYPE == 'normal'
 
         # create the partition configuration file in auto mode
         if self.run_partition:
@@ -118,14 +119,16 @@ class VlogGadget(gadget.Gadget):
                     ]
 
         if self.run_partition:
-            vcs_args.append(' -partcomp +optconfigfile+%s' % partition_cfg_name)
+            vcs_args.append('-partcomp +optconfigfile+%s' % partition_cfg_name)
+        if self.run_partition or self.run_normal:
             vcs_args.append(gvars.TB.TOP)
         if self.run_genip:
             sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in gvars.Vkits])
             vcs_args.append(sharedlib)
-            vcs_args.append(' -integ work.%s' % gvars.TB.TOP)
+            vcs_args.append('-integ work.%s' % gvars.TB.TOP)
 
-        vcs_cmd = ' ' + ' '.join(vcs_args)
+        # generate vcs command by joining all args
+        vcs_cmd = ' '.join(vcs_args)
 
         if self.run_partition or self.run_genip:
             cmds.append(('Running vcs...', vcs_cmd))
