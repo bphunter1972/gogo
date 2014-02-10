@@ -28,9 +28,12 @@ class FsdbGadget(gadget.Gadget):
     def create_cmds(self):
         self.turds.append(self.fsdb_name)
 
-        with utils.open(self.fsdb_name, 'w') as fsdb_file:
-            print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
-        os.chmod(self.fsdb_name, 0o777)
+        try:
+            with utils.open(self.fsdb_name, 'w') as fsdb_file:
+                print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
+            os.chmod(self.fsdb_name, 0o777)
+        except OSError:
+            Log.error("Unable to create '%s' (%s)" % (self.fsdb_name, os.path.abspath(self.fsdb_name)))
 
     #--------------------------------------------
     def check_dependencies(self):
