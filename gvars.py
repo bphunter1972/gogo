@@ -137,6 +137,10 @@ def command_line_assignment(vars):
         var_name, value, func = parse_var(var)
         if var_name == 'TEST':
             test_work = [var_name, value, func]
+        elif var_name == 'PLUSARGS':
+            # as a list, PLUSARGS is special
+            values = value.split(',')
+            func(var_name, values)
         else:
             cl_work.append([var_name, value, func])
 
@@ -148,8 +152,8 @@ def command_line_assignment(vars):
     SIM.DIR = SIM.TEST
 
     # perform all other assignements
-    for work in cl_work:
-        work[2](work[0], work[1])
+    for name, value, func in cl_work:
+        func(name, value)
 
 ########################################################################################
 def setup_globals():
