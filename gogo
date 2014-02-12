@@ -13,7 +13,7 @@ A lightweight compile and simulate script.
 
 from __future__ import print_function
 
-__version__       = '0.0.8'
+__version__       = '0.0.9'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -36,10 +36,8 @@ Log = None
 if __name__ == '__main__':
 
     from cmdline import logUsage
-    from exceptions import SystemExit
 
     logUsage('gogo', __version__)
-
 
     gadgets_to_run = command_line.parse_args(__version__, __doc__)
     Log = gvars.Log
