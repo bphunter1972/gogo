@@ -84,6 +84,7 @@ class SimulateGadget(gadget.Gadget):
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST
         sim_cmd += " -l %s/logfile" % self.sim_dir
         sim_cmd += " +seed=%d" % gvars.SIM.SEED
+        sim_cmd += " +sim_dir=%s" % self.sim_dir
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.SIM.DBG
