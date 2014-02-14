@@ -99,7 +99,12 @@ class VlogGadget(gadget.Gadget):
         vlog_defines = get_defines(gvars.VLOG.DEFINES)
         arc_libs     = get_arc_libs(gvars.VLOG.ARC_LIBS)
         parallel     = '-fastpartcomp=j%d' % gvars.VLOG.PARALLEL if gvars.VLOG.PARALLEL else ""
-        vlog_warnings = get_warnings(gvars.VLOG.IGNORE_WARNINGS)
+        if gvars.VLOG.IGNORE_WARNINGS:
+            vlog_warnings = get_warnings(gvars.VLOG.IGNORE_WARNINGS)
+        else:
+            vlog_warnings = ""
+        if gvars.SIM.WAVE != None:
+            gvars.VLOG.VCS_OPTIONS += [' -debug_pp']
 
         #--------------------------------------------
         # create vlogan command if running partition compile
@@ -118,22 +123,17 @@ class VlogGadget(gadget.Gadget):
                     tab_files, so_files, arc_libs, parallel
                     ]
 
-        if self.run_partition:
-            vcs_args.append('-partcomp +optconfigfile+%s' % partition_cfg_name)
-        if self.run_partition or self.run_normal:
-            vcs_args.append(gvars.TB.TOP)
         if self.run_genip:
             sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in gvars.Vkits])
             vcs_args.append(sharedlib)
             vcs_args.append('-integ work.%s' % gvars.TB.TOP)
 
-        # generate vcs command by joining all args
-        vcs_cmd = ' '.join(vcs_args)
+        if self.run_partition:
+            vcs_args.append(' -partcomp +optconfigfile+%s' % partition_cfg_name)
+            vcs_args.append(gvars.TB.TOP)
 
-        if self.run_partition or self.run_genip:
-            cmds.append(('Running vcs...', vcs_cmd))
-        else:
-            cmds.append(vcs_cmd)
+        vcs_cmd = ' ' + ' '.join(vcs_args)
+        cmds.append(('Running vcs...', vcs_cmd))
 
         return cmds
 
