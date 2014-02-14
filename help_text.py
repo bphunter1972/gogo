@@ -20,8 +20,11 @@ to override or '+=' to append.
 Example:
    % gogo SIM.TEST=exer SIM.DBG=200 SIM.WDOG+=2000 vlog sim
 
-For SIM assignments, you may skip specifying SIM:
+For assignments to SIM variables, you may skip specifying SIM:
    % gogo TEST=exer DBG=200 WDOG+=2000 vlog sim
+
+Plusargs must be separated by commas:
+   % gogo TEST=exer PLUSARGS+=my_plusarg=150,your_plusarg
 
 """)
 
