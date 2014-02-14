@@ -51,8 +51,6 @@ class VlogGadget(gadget.Gadget):
         cmd_line = super(VlogGadget, self).genCmdLine()
         if gvars.VLOG.PARALLEL:
             cmd_line += ' -pe smp_pe %d' % int(gvars.VLOG.PARALLEL)
-        if gvars.SIM.WAVE != None:
-            cmd_line += ' -debug_pp'
         return cmd_line
 
     #--------------------------------------------
@@ -93,6 +91,8 @@ class VlogGadget(gadget.Gadget):
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
         else:
             vlog_warnings = ""
+        if gvars.SIM.WAVE != None:
+            gvars.VLOG.VCS_OPTIONS += [' -debug_pp']
 
         #--------------------------------------------
         # create vlogan command if running partition compile
