@@ -13,7 +13,7 @@ A lightweight compile and simulate script.
 
 from __future__ import print_function
 
-__version__       = '0.0.7-genip'
+__version__       = '0.0.9-genip'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -25,6 +25,7 @@ import logging
 import gvars
 import sge_tools as sge
 from gadget import GadgetFailed
+import schedule
 
 ########################################################################################
 # Globals
@@ -33,7 +34,10 @@ Log = None
 
 ########################################################################################
 if __name__ == '__main__':
-    import schedule
+
+    from cmdline import logUsage
+
+    logUsage('gogo', __version__)
 
     gadgets_to_run = command_line.parse_args(__version__, __doc__)
     Log = gvars.Log
@@ -85,6 +89,15 @@ if __name__ == '__main__':
         if gvars.Options.dbg:
             raise
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
+
+    except:
+        # all unhandled exceptions get sent to me
+        import email_utils
+        email_utils.mail_traceback('webmaster@cavium.com', [__email__],
+                                   'gogo v%s Error Detected' % (__version__),
+                                   toolname='gogo')
+        raise
+
 
     # if we get here, we must have passed
     logging.shutdown()
