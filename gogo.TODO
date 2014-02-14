@@ -5,7 +5,8 @@ Fixes:
      ✔ Fix rerun/qrun directory accordingly @done (14-01-21 16:50)
  ☐ Fix FSDB.
  ☐ Set VCS_OPTIONS, VLOGAN_OPTIONS to be lists instead of strings
-   
+ ☐ Fix dwpciesvt gadget to use check_dependencies instead.
+
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
  ✔ Add tool logging. @done (14-02-06 13:47)
