@@ -10,10 +10,11 @@ Small Enhancements:
  ✔ Add tool logging. @done (14-02-06 13:47)
  ✔ Add traceback emails. @done (14-02-06 13:47)
  ☐ Make sense of svfcov parameters
-   
+ 
 Major Enhancements:
  ☐ genip
  ☐ Build .so files
+ ☐ Separate compiles for different flags (md5)
+ ☐ GUI mode
    
-
 
