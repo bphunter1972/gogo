@@ -52,9 +52,9 @@ VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
 VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
 
 # VCS/VLOGAN Options
-VLOG.OPTIONS = '-notice -unit_timescale=1ns/1fs -sverilog -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
-VLOG.VCS_OPTIONS = '-CFLAGS -DVCS -lca -debug_pp'
-VLOG.VLOGAN_OPTIONS = '+libext+.v+.sv -sv_pragma'
+VLOG.OPTIONS = ' -notice -unit_timescale=1ns/1fs -sverilog -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
+VLOG.VLOGAN_OPTIONS = ' +libext+.v+.sv -sv_pragma'
+VLOG.VCS_OPTIONS = ' -CFLAGS -DVCS -lca -debug_pp'
 VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 
                         'PC_SKIP_FULLDR', 'UII-L']
 VLOG.DEFINES = ['VCS', 'PROJ_INCLUDES_UVM', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 'HAVE_VERDI_WAVE_PLI', 
