@@ -48,10 +48,12 @@ class VlogGadget(gadget.Gadget):
         Parallel partition compiles on a multi-core machine 
         """
 
-        cmdLine = super(VlogGadget, self).genCmdLine()
+        cmd_line = super(VlogGadget, self).genCmdLine()
         if gvars.VLOG.PARALLEL:
-            cmdLine += ' -pe smp_pe %d' % int(gvars.VLOG.PARALLEL)
-        return cmdLine
+            cmd_line += ' -pe smp_pe %d' % int(gvars.VLOG.PARALLEL)
+        if gvars.SIM.WAVE != None:
+            cmd_line += ' -debug_pp'
+        return cmd_line
 
     #--------------------------------------------
     def create_cmds(self):

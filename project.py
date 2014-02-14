@@ -53,7 +53,7 @@ VLOG.GUI = ' -gui'
 VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
 
 # VCS/VLOGAN Options
-VLOG.OPTIONS = '-q -debug_pp -notice -unit_timescale=1ns/1ps -sverilog -fastcomp=1 -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
+VLOG.OPTIONS = '-q -notice -unit_timescale=1ns/1ps -sverilog -fastcomp=1 -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
 VLOG.VLOGAN_OPTIONS = '+libext+.v+.sv -sv_pragma'
 VLOG.VCS_OPTIONS = '-CFLAGS -DVCS -lca'
 VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'UII-L', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 'PC_SKIP_FULLDR']
