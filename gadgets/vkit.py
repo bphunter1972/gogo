@@ -205,7 +205,7 @@ class VkitGadget(gadget.Gadget):
         cmds.append(('Running vlogan...',vlogan_cmd))
 
         # create VCS command
-        sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in self.libs])
+        sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in self.libs]) if self.libs else ''
         vcs_dir = '-dir=%s' % self.pkg_name
         vcs_cmd = gvars.VLOG.TOOL
         vcs_cmd += ' -genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
