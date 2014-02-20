@@ -28,6 +28,11 @@ class BuildGadget(gadget.Gadget):
         except OSError:
             pass
 
+        # add the CSR gadget to pre_build phase
+        import gadgets.csr_build
+        import schedule
+        schedule.add_gadget(gadgets.csr_build.CsrBuildGadget())
+
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -35,4 +40,4 @@ class BuildGadget(gadget.Gadget):
         """
 
         cmd_line = "build.pl -libdir=lib -initlocal -bsubblds -blddep -64bit -sim=VCS"
-        return [cmd_line]
+        return [("Running build.pl", cmd_line)]
