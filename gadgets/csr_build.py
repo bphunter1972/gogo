@@ -31,11 +31,9 @@ class CsrBuildGadget(gadget.Gadget):
     def check_dependencies(self):
         "Returns True if .csr3_done happened before any of the target CSR files"
 
-        Log.info("Looking at %s" % gvars.TB.CSR_FILES)
         pymake.Log = Log
         answer = pymake(self.done_file, gvars.TB.CSR_FILES, get_cause=True)
 
-        Log.info("Returning %s because %s" % (answer.result, answer.cause))
         return answer.result
 
     #--------------------------------------------
@@ -43,7 +41,6 @@ class CsrBuildGadget(gadget.Gadget):
         exit_status = self.getExitStatus()
         Log.info("Received exit_status=%d" % exit_status)
         if exit_status == 0:
-            Log.info("Creating %s" % self.done_file)
             f = open(self.done_file, "w")
             f.close()
         else:
