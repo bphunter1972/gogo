@@ -12,7 +12,8 @@ Small Enhancements:
  ✔ Add tool logging. @done (14-02-06 13:47)
  ✔ Add traceback emails. @done (14-02-06 13:47)
  ☐ Make sense of svfcov parameters
- 
+ ☐ create_cmds should return list of dictionaries, with keys: comments, commands, check_after, and runmods
+   
 Major Enhancements:
  ☐ genip
      ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
