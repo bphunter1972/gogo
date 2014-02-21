@@ -43,7 +43,7 @@ class VkitGadget(gadget.Gadget):
         self.queue = 'build'
         self.interactive = False
         self.runmod_modules = gvars.VLOG.MODULES
-        self.cwd = os.getcwd()
+        self.cwd = self.dir_name
         self.lib_name = '%s_LIB' % self.name.upper()
         self.stdoutPath = utils.get_filename(os.path.join(self.dir_name, '.genip_stdout'))
         self.mergeStderr = True

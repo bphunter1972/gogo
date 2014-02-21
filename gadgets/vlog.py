@@ -124,7 +124,7 @@ class VlogGadget(gadget.Gadget):
                     ]
 
         if self.run_genip:
-            sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in gvars.Vkits])
+            sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_dir for it in gvars.Vkits])
             vcs_args.append(sharedlib)
             vcs_args.append('-integ work.%s' % gvars.TB.TOP)
 
