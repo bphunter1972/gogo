@@ -38,18 +38,20 @@ class VkitGadget(gadget.Gadget):
         self.make_assignments(config, entry)
 
         # these variables are necessary when running in genip mode
-        self.schedule_phase = 'genip'
-        self.resources = gvars.PROJ.LSF_VLOG_LICS
-        self.queue = 'build'
-        self.interactive = False
-        self.runmod_modules = gvars.VLOG.MODULES
-        self.cwd = self.dir_name
-        self.lib_name = '%s_LIB' % self.name.upper()
-        self.stdoutPath = utils.get_filename(os.path.join(self.dir_name, '.genip_stdout'))
-        self.mergeStderr = True
-        self.genip_done_file =utils.get_filename(os.path.join(self.dir_name, self.pkg_name, '.genip_done'))
+        self.schedule_phase  = 'genip'
+        self.resources       = gvars.PROJ.LSF_VLOG_LICS
+        self.queue           = 'build'
+        self.interactive     = False
+        self.runmod_modules  = gvars.VLOG.MODULES
+
+        self.cwd             = self.dir_name
+        self.lib_name        = '%s_LIB' % self.name.upper()
+        self.stdoutPath      = utils.get_filename(os.path.join(self.dir_name, '%s.stdout' % self.lib_name))
+        self.mergeStderr     = True
+        self.genip_done_file = utils.get_filename(os.path.join(self.dir_name, '%s.genip_done' % self.lib_name))
         self.genip_completed = False
-        self.pkg_dir = os.path.join(self.cwd, self.pkg_name)
+        self.pkg_dir         = os.path.join(self.dir_name, self.pkg_name)
+        Log.info("Sending to pkg_dir: %s" % self.pkg_dir)
 
         # in genip mode, run as a gadget, add the ssim gadget to
         # ensure that the synopsys_sim.setup file is created.
@@ -166,21 +168,7 @@ class VkitGadget(gadget.Gadget):
     #--------------------------------------------
     def create_cmds(self):
         """
-        echo ">>>> Running vlogan"
-        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vlogan
-        ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -nc -q -notice
-        -unit_timescale=1ns/1ps -sverilog +define+PROJ_INCLUDES_UVM+VCS+HAVE_V
-        ERDI_WAVE_PLI+RANDOM_SYNC_DELAY+TBV+BEHAVE+USE_ASSERTIONS+UVM_NO_DEPRE
-        CATED+UVM_OBJECT_MUST_HAVE_CONSTRUCTOR +libext+.v+.sv -full64
-        +warn=noISALS,noULSU,noIDTS,noLCA_FEATURES_ENABLED -sv_pragma
-        +lint=noPCTIO-L,noPCTI-L +vcsd -f swi.flist -work SWI_LIB
-
-        echo ">>>> Running vcs"
-        runmod -m synopsys-vcs_mx/H-2013.06-SP1 vcs -lca
-        +warn=noLCA_FEATURES_ENABLED,noACC_CLI_ON -genip SWI_LIB.swi_pkg
-        ../vkits/uvm/1_1d/src/dpi/uvm_dpi.cc -CFLAGS -DVCS +vpi -P
-        /nfs/cadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab -P
-        project/verif/vpi/vpi_msg.tab 
+        Create vlogan and vcs commands.
         """
 
         cmds = []
@@ -190,28 +178,32 @@ class VkitGadget(gadget.Gadget):
 
         import vlog
         vlog_warnings = vlog.get_warnings(self.VLOG.IGNORE_WARNINGS)
-        vlog_defines = vlog.get_defines(self.VLOG.DEFINES + gvars.VLOG.DEFINES)
-        flists = vlog.get_flists([self.flist_name])
-        tab_files = vlog.get_tab_files(gvars.VLOG.TAB_FILES + self.VLOG.TAB_FILES)
-        so_files = vlog.get_so_files(self.VLOG.SO_FILES)
-        arc_libs = vlog.get_arc_libs(self.VLOG.ARC_LIBS)
-        parallel = vlog.get_parallel()
+        vlog_defines  = vlog.get_defines(self.VLOG.DEFINES + gvars.VLOG.DEFINES)
+        flists        = vlog.get_flists([self.flist_name])
+        tab_files     = vlog.get_tab_files(gvars.VLOG.TAB_FILES + self.VLOG.TAB_FILES)
+        so_files      = vlog.get_so_files(self.VLOG.SO_FILES)
+        arc_libs      = vlog.get_arc_libs(self.VLOG.ARC_LIBS)
+        parallel      = vlog.get_parallel()
+        work_arg      = '-work %s' % self.lib_name
+        sharedlib     = '-sharedlib=%s' % ':'.join([it.pkg_dir for it in self.libs]) if self.libs else ''
+        vcs_dir       = '-dir=%s' % self.pkg_name
+        genip_cmd     = '-genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
+
+        # set env variable
+        # setenv SYNOPSYS_SIM_SETUP name.setup
+        cmds.append("setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name)
 
         # create vlogan command
-        vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
-                        self.VLOG.VLOGAN_OPTIONS, vlog_defines, flists]                        
-        vlogan_cmd = 'vlogan ' + ' '.join(vlogan_args)
-        vlogan_cmd += ' -work %s' % self.lib_name
+        vlogan_args   = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
+                        self.VLOG.VLOGAN_OPTIONS, vlog_defines, flists, work_arg]
+        vlogan_cmd    = 'vlogan ' + ' '.join(vlogan_args)
         cmds.append(('Running vlogan...',vlogan_cmd))
 
         # create VCS command
-        sharedlib = '-sharedlib=%s' % ':'.join([it.pkg_name for it in self.libs]) if self.libs else ''
-        vcs_dir = '-dir=%s' % self.pkg_name
-        vcs_cmd = gvars.VLOG.TOOL
-        vcs_cmd += ' -genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
-        vcs_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
-                    self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, sharedlib, vcs_dir]
-        vcs_cmd += ' ' + ' '.join(vcs_args)
+        vcs_args      = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
+                        self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, sharedlib, vcs_dir, 
+                        genip_cmd]
+        vcs_cmd       = gvars.VLOG.TOOL + ' ' + ' '.join(vcs_args)
         cmds.append(('Running vcs...', vcs_cmd))
 
         return cmds

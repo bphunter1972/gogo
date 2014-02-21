@@ -37,7 +37,7 @@ class SsimGadget(gadget.Gadget):
 
         # write out synopsys_sim.setup file if one does not already exist
         if self.vkit:
-            setup_file_name = os.path.join(self.vkit.dir_name, 'synopsys_sim.setup')
+            setup_file_name = os.path.join(self.vkit.dir_name, '%s.setup' % self.vkit.name)
         else:
             setup_file_name = 'synopsys_sim.setup'
 
