@@ -117,7 +117,7 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.PLUSARGS:
             sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.SIM.PLUSARGS])
 
-        return [sim_cmd]
+        return gadget.GadgetCommand(sim_cmd)
         
     #--------------------------------------------
     def handle_vpd(self, wave_script_name):

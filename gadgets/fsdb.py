@@ -32,6 +32,8 @@ class FsdbGadget(gadget.Gadget):
             print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
         os.chmod(self.fsdb_name, 0o777)
 
+        return None
+        
     #--------------------------------------------
     def check_dependencies(self):
         """

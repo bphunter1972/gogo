@@ -32,7 +32,7 @@ class CsrBuildGadget(gadget.Gadget):
         """
 
         cmd_line = "csr3 verif"
-        return [("Running csr3", cmd_line)]
+        return gadget.GadgetCommand(comment="Running csr3", command=cmd_line)
 
     #--------------------------------------------
     def check_dependencies(self):

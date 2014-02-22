@@ -64,7 +64,7 @@ class VericomGadget(gadget.Gadget):
             pass
             
         # return the command
-        return [cmd]
+        return gadget.GadgetCommand(cmd)
 
     #--------------------------------------------
     def check_dependencies(self):

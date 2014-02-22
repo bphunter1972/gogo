@@ -26,7 +26,8 @@ class DWPciesvtGadget(gadget.Gadget):
     def create_cmds(self):
         "Prepend the commands with a call to dw_vip_setup, if necessary."
 
-        return [("Running dw_vip_setup in %s" % self.cwd, "dw_vip_setup -p obj/unit -a pcie_device_agent_svt -svlog")]
+        cmd_line = "dw_vip_setup -p obj/unit -a pcie_device_agent_svt -svlog"
+        return gadget.GadgetCommand(comment="Running dw_vip_setup in %s" % self.cwd, command=cmd_line)
 
     #--------------------------------------------
     def check_dependencies(self):

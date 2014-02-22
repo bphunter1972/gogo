@@ -40,4 +40,4 @@ class BuildGadget(gadget.Gadget):
         """
 
         cmd_line = "build.pl -libdir=lib -initlocal -bsubblds -blddep -64bit -sim=VCS"
-        return [("Running build.pl", cmd_line)]
+        return gadget.GadgetCommand(command=cmd_line, comment="Running build.pl")
