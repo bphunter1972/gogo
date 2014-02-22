@@ -61,12 +61,8 @@ class Gadget(sge.Job):
     #--------------------------------------------
     def create_cmds(self):
         """
-        Returns the commands as a list of strings or as a list of 2-pair tuples.
-        When it is a list of strings, each represents a command.
-        When it is a list of 2-pair tuples, the first entry is an 'echo' to be printed before 
-        the second entry is run.
-
-        Descendants which do not override this will not run on SGE.
+        Returns the commands as a list of GadgetCommand objects, or a single object.
+        Returning None or an empty list will cause nothing to run on SGE.
         """
 
         return None
