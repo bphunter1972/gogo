@@ -42,4 +42,5 @@ class RerunGadget(gadget.Gadget):
         self.make_script(r_name, cmd_line)
 
         # there is nothing to spawn off from this gadget
-        return []
+        return None
+        

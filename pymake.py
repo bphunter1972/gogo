@@ -94,7 +94,7 @@ def calc_mtimes(filenames):
 ########################################################################################
 def pymake(targets, sources, get_cause=False):
     """
-    Returns true (target should be made) if any of the sources are
+    Returns Answer class with result=True if any of the sources are
     newer than any of the targets, or if any of the targets do not exist.
     
     sources  : (list of string, or string) A list of (or one) filenames.

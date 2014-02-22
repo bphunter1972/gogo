@@ -56,6 +56,7 @@ VTYPES = {
         'TOP'            : ["", (str,),       "The module name of the top-level of the testbench"],
         'INCDIRS'        : [[], (list,),      "The list of +incdirs to create for this testbench"],
         'LIBRARIES'      : [[], (list,),      "The list of library directories to create for this testbench"],
+        'CSR_FILES'      : [[], (list,),      "The list of .csr files required for this testbench"],
     },
 
     # Miscellaneous Project settings

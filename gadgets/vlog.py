@@ -113,7 +113,7 @@ class VlogGadget(gadget.Gadget):
             if self.run_genip:
                 vlogan_args.append('-work WORK')
             vlogan_cmd = 'vlogan ' + ' '.join(vlogan_args)
-            cmds.append(('Running vlogan...',vlogan_cmd))
+            cmds.append(gadget.GadgetCommand(comment='Running vlogan...', command=vlogan_cmd))
 
         #--------------------------------------------
         # create vcs command
@@ -133,7 +133,7 @@ class VlogGadget(gadget.Gadget):
             vcs_args.append(gvars.TB.TOP)
 
         vcs_cmd = ' ' + ' '.join(vcs_args)
-        cmds.append(('Running vcs...', vcs_cmd))
+        cmds.append(gadget.GadgetCommand(comment='Running vcs...', command=vcs_cmd))
 
         return cmds
 

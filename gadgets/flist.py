@@ -55,4 +55,4 @@ class FlistGadget(gadget.Gadget):
 
         self.turds.append('.flist')
         
-        return []
+        return None
