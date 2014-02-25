@@ -6,7 +6,8 @@ Fixes:
  ☐ Fix FSDB.
  ☐ Set VCS_OPTIONS, VLOGAN_OPTIONS to be lists instead of strings
  ✔ Fix dwpciesvt gadget to use check_dependencies instead. @done (14-02-14 14:47)
-   
+ ☐ genip Dependencies run multiple times.
+
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
  ✔ Add tool logging. @done (14-02-06 13:47)
@@ -14,8 +15,8 @@ Small Enhancements:
  ☐ Make sense of svfcov parameters
  ✔ create_cmds should return list of dictionaries, with keys: comments, commands, check_after, and runmods @done (14-02-22 13:40)
  ☐ GUI mode
- 
->>>>>>> devel
+ ☐ Create .gogo/logfile as stdout
+
 Major Enhancements:
  ☐ genip
      ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
