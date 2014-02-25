@@ -191,20 +191,20 @@ class VkitGadget(gadget.Gadget):
 
         # set env variable
         # setenv SYNOPSYS_SIM_SETUP name.setup
-        cmds.append("setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name)
+        cmds.append(gadget.GadgetCommand(command="setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name, check_after=False, no_modules=True))
 
         # create vlogan command
         vlogan_args   = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
                         self.VLOG.VLOGAN_OPTIONS, vlog_defines, flists, work_arg]
         vlogan_cmd    = 'vlogan ' + ' '.join(vlogan_args)
-        cmds.append(('Running vlogan...',vlogan_cmd))
+        cmds.append(gadget.GadgetCommand(comment='Running vlogan...', command=vlogan_cmd))
 
         # create VCS command
         vcs_args      = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VCS_OPTIONS, self.VLOG.OPTIONS, 
                         self.VLOG.VCS_OPTIONS, tab_files, so_files, arc_libs, parallel, sharedlib, vcs_dir, 
                         genip_cmd]
         vcs_cmd       = gvars.VLOG.TOOL + ' ' + ' '.join(vcs_args)
-        cmds.append(('Running vcs...', vcs_cmd))
+        cmds.append(gadget.GadgetCommand(comment='Running vcs...', command=vcs_cmd))
 
         return cmds
 
