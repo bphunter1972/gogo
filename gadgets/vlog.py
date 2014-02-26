@@ -92,7 +92,7 @@ class VlogGadget(gadget.Gadget):
         else:
             vlog_warnings = ""
         if gvars.SIM.WAVE != None:
-            gvars.VLOG.VCS_OPTIONS += [' -debug_pp']
+            gvars.VLOG.VCS_OPTIONS += ' -debug_pp'
 
         #--------------------------------------------
         # create vlogan command if running partition compile

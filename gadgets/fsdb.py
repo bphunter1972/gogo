@@ -28,7 +28,7 @@ class FsdbGadget(gadget.Gadget):
     def create_cmds(self):
         self.turds.append(self.fsdb_name)
 
-        with utils.open(self.fsdb_name, 'w') as fsdb_file:
+        with open(self.fsdb_name, 'w') as fsdb_file:
             print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
         os.chmod(self.fsdb_name, 0o777)
 
