@@ -44,7 +44,8 @@ VTYPES = {
         'DIR'            : ['', (str,),       "Specify alternate directory for results."],
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
         'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
-        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."]
+        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."],
+        'ERRBRK'         : [10, (int,),      "The number of errors after which the simulation should stop."],
 
     },
 

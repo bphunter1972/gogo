@@ -87,6 +87,7 @@ class SimulateGadget(gadget.Gadget):
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.SIM.DBG
+        sim_cmd += " +err=%d +UVM_MAX_QUIT_COUNT=%d,0" % (gvars.SIM.ERRBRK, gvars.SIM.ERRBRK)
 
         if gvars.SIM.TOPO:
             sim_cmd += " +UVM_TOPO_DEPTH=%d" % gvars.SIM.TOPO
@@ -117,6 +118,7 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.PLUSARGS:
             sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.SIM.PLUSARGS])
 
+            
         return gadget.GadgetCommand(sim_cmd)
         
     #--------------------------------------------
