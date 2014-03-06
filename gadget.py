@@ -16,6 +16,28 @@ class GadgetFailed(Exception): pass
 class ProgrammingError(Exception): pass
 
 ########################################################################################
+# Arrays of these classes are returned by create_cmds
+class GadgetCommand(object):
+    def __init__(self, command=None, comment=None, no_modules=False, check_after=True):
+        self.command = command
+        self.comment = comment
+        self.no_modules = no_modules
+        self.check_after = check_after
+
+    def get_lines(self, modules=None):
+        result = []
+        if self.comment:
+            result.append('echo ">>>> %s"\n' % self.comment)
+        if modules and not self.no_modules:
+            runmods = "runmod -m %s" % ' -m '.join(modules) + " "
+        else:
+            runmods = ""
+        result.append('%s%s' % (runmods, self.command))
+        if self.check_after:
+            result.extend(["if($?) then", " exit(-1);", "endif"])
+        return result
+
+########################################################################################
 class Gadget(sge.Job):
     """The base class gadget."""
 
@@ -39,12 +61,8 @@ class Gadget(sge.Job):
     #--------------------------------------------
     def create_cmds(self):
         """
-        Returns the commands as a list of strings or as a list of 2-pair tuples.
-        When it is a list of strings, each represents a command.
-        When it is a list of 2-pair tuples, the first entry is an 'echo' to be printed before 
-        the second entry is run.
-
-        Descendants which do not override this will not run on SGE.
+        Returns the commands as a list of GadgetCommand objects, or a single object.
+        Returning None or an empty list will cause nothing to run on SGE.
         """
 
         return None
@@ -75,19 +93,10 @@ class Gadget(sge.Job):
             return
 
         # make it a list if it's just a string
-        if type(self.commands) is str:
+        if type(self.commands) is GadgetCommand:
             self.commands = [self.commands]
 
         Log.info("Running %s" % self.name)
-
-        # Add runmod to each command if necessary
-        if self.runmod_modules:
-            self.prepend_runmod()
-
-        # check for exit status between each (non-echo) command
-        # If it's too long, send it to a dot-file
-        if len(self.commands) > 1:
-            self.add_check_exit_status()
 
         if self.name == '' or self.name is None:
             Log.critical("Gadget has no name!:\n%s" % self)
@@ -98,50 +107,16 @@ class Gadget(sge.Job):
         with utils.open(file_name, 'w') as f:
             print("#!/usr/bin/csh", file=f)
             for command in self.commands:
-                if type(command) == tuple:
-                    (echo, cmd) = command
-                    print('echo ">>>> %s"' % echo, file=f)
-                    print(cmd, file=f)
-                elif type(command) == str:
-                    print(command, file=f)
-                else:
-                    Log.critical("Command '%s' is neither a string nor a tuple." % command)
+                lines = command.get_lines(self.runmod_modules)
+                for line in lines:
+                    print(line, file=f)
             print(file=f)
-            # self.turds.append(os.path.abspath(file_name))
+
         file_name = utils.get_filename(file_name)
         self.cmd = "source %s" % (file_name)
 
         # Launch me!
         return self
-
-    #--------------------------------------------
-    def prepend_runmod(self):
-        """
-        Adds a runmod command in front of every command that doesn't start with an echo
-        """
-
-        modules = ' -m '.join(self.runmod_modules)
-        runmod_cmd = "runmod -m %s" % (modules)
-
-        def prepend_it(cmd):
-            if type(cmd) == tuple:
-                return (cmd[0], "%s %s" % (runmod_cmd, cmd[1]))
-            else:
-                return "%s %s" % (runmod_cmd, cmd)
-
-        self.commands = [prepend_it(it) for it in self.commands]
-
-    #--------------------------------------------
-    def add_check_exit_status(self):
-        """
-        Between each of the commands in self.commands, adds an exit-status checker
-        """
-
-        new_commands = []
-        for cmd in self.commands:
-            new_commands.append(cmd)
-            new_commands.extend(["if($?) then", "exit(-1);", "endif"])
-        self.commands = new_commands
 
     #--------------------------------------------
     def check_dependencies(self):

@@ -29,14 +29,9 @@ class RerunGadget(gadget.Gadget):
         r_name = os.path.join(self.sim_dir, 'rerun')
         q_name = os.path.join(self.sim_dir, 'qrun')
 
-        cmd_line = "gogo vlog sim TEST=%s SEED=%d" % (gvars.SIM.TEST, gvars.SIM.SEED)
-        if gvars.SIM.DIR != gvars.SIM.TEST:
-            cmd_line += " DIR=%s" % gvars.SIM.DIR
-        extras = (('WDOG', gvars.SIM.WDOG), ('TOPO', gvars.SIM.TOPO)) 
-        # These are TODO: ('OPTS', gvars.SIM.OPTS), ('PLUSARGS', gvars.SIM.PLUSARGS), 
-        for extra in extras:
-            if extra[1]:
-                cmd_line += " %s=%s" % extra
+        cmd_line = "gogo sim" #% (gvars.SIM.TEST, gvars.SIM.SEED)
+        cmd_args = list(set(['TEST=%s' % gvars.SIM.TEST, 'SEED=%d' % gvars.SIM.SEED] + gvars.CommandLineVariables))
+        cmd_line += " %s" % ' '.join(cmd_args)
 
         # create qrun script
         self.make_script(q_name, cmd_line)
@@ -47,4 +42,5 @@ class RerunGadget(gadget.Gadget):
         self.make_script(r_name, cmd_line)
 
         # there is nothing to spawn off from this gadget
-        return []
+        return None
+        

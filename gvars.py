@@ -44,8 +44,8 @@ VTYPES = {
         'DIR'            : ['', (str,),       "Specify alternate directory for results."],
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
         'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
-        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."]
-
+        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."],
+        'ERRBRK'         : [10, (int,),       "The number of errors after which the simulation should stop."],
     },
 
     # Testbench Options
@@ -57,6 +57,7 @@ VTYPES = {
         'TOP'            : ["", (str,),       "The module name of the top-level of the testbench"],
         'INCDIRS'        : [[], (list,),      "The list of +incdirs to create for this testbench"],
         'LIBRARIES'      : [[], (list,),      "The list of library directories to create for this testbench"],
+        'CSR_FILES'      : [[], (list,),      "The list of .csr files required for this testbench"],
     },
 
     # Miscellaneous Project settings
@@ -137,6 +138,10 @@ def command_line_assignment(vars):
         var_name, value, func = parse_var(var)
         if var_name == 'TEST':
             test_work = [var_name, value, func]
+        elif var_name == 'PLUSARGS':
+            # as a list, PLUSARGS is special
+            values = value.split(',')
+            func(var_name, values)
         else:
             cl_work.append([var_name, value, func])
 
@@ -148,8 +153,8 @@ def command_line_assignment(vars):
     SIM.DIR = SIM.TEST
 
     # perform all other assignements
-    for work in cl_work:
-        work[2](work[0], work[1])
+    for name, value, func in cl_work:
+        func(name, value)
 
 ########################################################################################
 def setup_globals():

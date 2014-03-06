@@ -48,10 +48,10 @@ class VlogGadget(gadget.Gadget):
         Parallel partition compiles on a multi-core machine 
         """
 
-        cmdLine = super(VlogGadget, self).genCmdLine()
+        cmd_line = super(VlogGadget, self).genCmdLine()
         if gvars.VLOG.PARALLEL:
-            cmdLine += ' -pe smp_pe %d' % int(gvars.VLOG.PARALLEL)
-        return cmdLine
+            cmd_line += ' -pe smp_pe %d' % int(gvars.VLOG.PARALLEL)
+        return cmd_line
 
     #--------------------------------------------
     def create_cmds(self):
@@ -91,13 +91,15 @@ class VlogGadget(gadget.Gadget):
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
         else:
             vlog_warnings = ""
+        if gvars.SIM.WAVE != None:
+            gvars.VLOG.VCS_OPTIONS += ' -debug_pp'
 
         #--------------------------------------------
         # create vlogan command if running partition compile
         if run_partition:
             vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VLOGAN_OPTIONS, vlog_defines, flists]
             vlogan_cmd = 'vlogan ' + ' '.join(vlogan_args)
-            cmds.append(('Running vlogan...',vlogan_cmd))
+            cmds.append(gadget.GadgetCommand(comment='Running vlogan...', command=vlogan_cmd))
 
         #--------------------------------------------
         # create vcs command
@@ -112,7 +114,7 @@ class VlogGadget(gadget.Gadget):
             vcs_args.append(gvars.TB.TOP)
 
         vcs_cmd = ' ' + ' '.join(vcs_args)
-        cmds.append(('Running vcs...', vcs_cmd))
+        cmds.append(gadget.GadgetCommand(comment='Running vcs...', command=vcs_cmd))
 
         return cmds
 

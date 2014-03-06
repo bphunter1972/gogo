@@ -33,7 +33,8 @@ class FsdbGadget(gadget.Gadget):
             os.chmod(self.fsdb_name, 0o777)
         except OSError:
             Log.error("Unable to create '%s' (%s)" % (self.fsdb_name, os.path.abspath(self.fsdb_name)))
-
+        return None
+        
     #--------------------------------------------
     def check_dependencies(self):
         """
