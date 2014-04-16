@@ -7,7 +7,6 @@ from __future__ import print_function
 import gadget
 import gvars
 import os
-import utils
 
 Log = gvars.Log
 
@@ -37,7 +36,7 @@ class FsdbGadget(gadget.Gadget):
     #--------------------------------------------
     def check_dependencies(self):
         """
-        Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
+        Returns true if the fsdb.sh file needs to be created
         """
 
         return not os.path.exists(self.fsdb_name)
