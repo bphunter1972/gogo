@@ -3,7 +3,7 @@ Fixes:
  ✔ Accept PLUSARGS from the command-line. Currently these are lists, but we need to be able to append strings. @done (14-02-11 17:25)
  ✔ Fix parsing of DIR, TEST on the command-line @done (14-01-21 16:50)
      ✔ Fix rerun/qrun directory accordingly @done (14-01-21 16:50)
- ☐ Fix FSDB.
+ ✔ Fix FSDB. @done (14-04-16 09:32)
  ☐ Set VCS_OPTIONS, VLOGAN_OPTIONS to be lists instead of strings
  ✔ Fix dwpciesvt gadget to use check_dependencies instead. @done (14-02-14 14:47)
    
@@ -12,11 +12,13 @@ Small Enhancements:
  ✔ Add tool logging. @done (14-02-06 13:47)
  ✔ Add traceback emails. @done (14-02-06 13:47)
  ☐ Make sense of svfcov parameters
- ☐ GUI mode
+ ✔ GUI mode @done (14-04-16 09:32)
  
 Major Enhancements:
  ☐ genip
  ☐ Build .so files
  ☐ Separate compiles for different flags (md5)
  ☐ Build CSR files
+ ☐ Add save/restore capability
+   
 
