@@ -108,8 +108,10 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
 
         if gvars.SIM.SVFCOV:
-            cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
-            sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (gvars.SIM.SVFCOV, cm_name)
+            svfcov_value = self.handle_svfcov(gvars.SIM.SVFCOV)
+            if svfcov_value:
+                cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
+                sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (svfcov_value, cm_name)
 
         # add simulation command-line options
         if gvars.SIM.OPTS:
@@ -144,3 +146,25 @@ class SimulateGadget(gadget.Gadget):
 
         fsdb = gadgets.fsdb.FsdbGadget(self.sim_dir)
         schedule.add_gadget(fsdb)
+
+    #--------------------------------------------
+    def handle_svfcov(self, svfcov):
+        "Determine what value to add to the command-line for +svfcov"
+
+        value = 0
+        if type(svfcov) is str:
+            spl = svfcov.split(',')
+            if 'all' in spl:
+                value = 15
+            else:
+                if 'func' in spl:
+                    value |= 1
+                if 'bits' in spl:
+                    value |= 2
+                if 'vals' in spl:
+                    value |= 8
+        elif type(svfcov) is int:
+            value = svfcov
+
+        return value
+

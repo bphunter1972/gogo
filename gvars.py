@@ -43,9 +43,9 @@ VTYPES = {
         'GUI'            : [0, (int,bool),    "Run VCS in GUI mode with DVE"],
         'DIR'            : ['', (str,),       "Specify alternate directory for results."],
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
-        'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
+        'SVFCOV'         : [0, (int,str,),    "Run with SV Functional Coverage. The words (all, func, bits, vals) must be separated by commas."],
         'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."],
-        'ERRBRK'         : [10, (int,),      "The number of errors after which the simulation should stop."],
+        'ERRBRK'         : [10, (int,),       "The number of errors after which the simulation should stop."],
 
     },
 
