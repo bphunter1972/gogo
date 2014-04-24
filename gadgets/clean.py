@@ -21,6 +21,7 @@ class CleanGadget(gadget.Gadget):
 
         gvars.Log.info("Cleaning...")
         for dname in clean_dirs:
+            Log.debug("Removing...%s" % dname)
             try:
                 rmtree(dname)
                 Log.info("Removed dir %s" % dname)
@@ -28,6 +29,7 @@ class CleanGadget(gadget.Gadget):
                 pass
 
         for fname in gvars.PROJ.CLEAN_FILES:
+            Log.debug("Removing...%s" % fname)
             try:
                 os.remove(fname)
                 Log.info("Removed file %s" % fname)

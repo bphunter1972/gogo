@@ -7,6 +7,7 @@ Also, it's not working yet, so don't run this gadget.
 import gadget
 import gvars
 import os
+from utils import get_filename
 
 Log = gvars.Log
 
@@ -36,8 +37,34 @@ class BuildGadget(gadget.Gadget):
     #--------------------------------------------
     def create_cmds(self):
         """
-        Just run build.pl for now.        
+        TODO: Still Not Working
+
+        $(_EXP_SO_FILES) : $(_OBJ_DIR)/obj.d $(_EXP_LIB) $(EXP_DEP_FILE)
+            @ echo "$(ECHOPRE)making $@ (because $?)"
+            $(ECHO) mkdir -m 777 -p $(TB_LIB_DIR)
+            $(ECHO) $(AR) p $(_EXP_LIB) $(notdir $(basename $@)).o > $(basename $@).o
+            $(ECHO) if [ ! -f $(basename $@).o ]; then echo "***ERROR: $(_EXP_LIB) does not contain $(basename $@).o!"; exit 1; fi
+            $(ECHO) $(LD) -o $@ $(LDOPTS) $(basename $@).o
+            $(ECHO) rm -f $(basename $@).o
+
+        $(_EXP_LIB) :
+            @ echo "$(ECHOPRE)***ERROR: $(_EXP_LIB) does not exist!"
+            @ exit 1
+
+        $(EXP_DEP_FILE) : $(_OBJ_DIR)/obj.d $(REMAKE_DEP_FILE)
+            $(ECHO) mkdir -m 777 -p $(TB_LIB_DIR)
+            $(ECHO) $(subst CMD, echo "$(LD) $(LDOPTS)" ,$(UPDATE_IF_DIFF))
+
+        $(VLOG) : $(_EXP_SO_FILES)
         """
 
-        cmd_line = "build.pl -libdir=lib -initlocal -bsubblds -blddep -64bit -sim=VCS"
-        return gadget.GadgetCommand(command=cmd_line, comment="Running build.pl")
+        cmds = []
+        libraries = ['vpi_msg', 'cn_rand', 'cn_gate', 'fake_VCStbv', 'cn_bist_mon']
+        for lib in libraries:
+            libdir = get_filename(os.path.join(gvars.RootDir, "verif/lib/commonVCS.a"))
+            cmd = "mkdir -m 777 -p obj/VCS; ar p %(libdir)s %(lib)s.o > obj/VCS/%(lib)s.o" % locals()
+            cmds.append(gadget.GadgetCommand(command=cmd, no_modules=True, comment="Making %s" % lib))
+            cmd = "g++ -o obj/VCS/%(lib)s.so -fPIC -shared --export-dynamic -Wl,--fatal-warnings -ggdb -m64 obj/VCS/%(lib)s.o; rm -f obj/VCS/%(lib)s.o " % locals()
+            cmds.append(gadget.GadgetCommand(command=cmd, no_modules=True))
+
+        return cmds

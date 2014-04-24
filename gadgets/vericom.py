@@ -24,6 +24,7 @@ class VericomGadget(gadget.Gadget):
         self.queue          = 'build'
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
         self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
+        self.sig_list_name  = os.path.join(self.sim_dir, '.signal_list')
         self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
         
     #--------------------------------------------
@@ -47,7 +48,7 @@ class VericomGadget(gadget.Gadget):
             except OSError:
                 raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
-        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as sfile:
+        with open(self.sig_list_name, 'w') as sfile:
             print("0 %s" % self.tb_top, file=sfile)
             self.turds.append(os.path.abspath(sfile.name))
 
@@ -72,5 +73,5 @@ class VericomGadget(gadget.Gadget):
         Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
         """
 
-        target = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
-        return not os.path.exists(target)
+        comp_log = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
+        return (not os.path.exists(comp_log)) or (not os.path.exists(self.sig_list_name))

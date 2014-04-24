@@ -38,7 +38,7 @@ class FsdbGadget(gadget.Gadget):
     #--------------------------------------------
     def check_dependencies(self):
         """
-        Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
+        Returns true if the fsdb.sh file needs to be created
         """
 
         return not os.path.exists(self.fsdb_name)
