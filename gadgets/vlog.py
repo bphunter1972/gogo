@@ -135,7 +135,7 @@ def get_flists():
     vkits = [it.flist_name for it in gvars.Vkits]
 
     # all the flist files in total
-    flists = vkits + gvars.TB.FLISTS + [get_filename('.flist')]
+    flists = gvars.TB.INIT_FLISTS + vkits + gvars.TB.FLISTS + [get_filename('.flist')]
     return '-f ' + ' -f '.join(flists)
 
 ########################################################################################

@@ -53,6 +53,7 @@ VTYPES = {
         'VKITS'          : [[], (list,),      "Vkits that this testbench relies upon, in order"],
         'STATIC_VKITS'   : [[], (list,),      "Vkits that should be considered static for the purposes of partition compilation"],
         'PARTITION_CELLS': [[], (list,),      "Cells that should be separate partitions for partition compilation"],
+        'INIT_FLISTS'    : [[], (list,),      "The very first FLISTs that will be compiled."],
         'FLISTS'         : [[], (list,),      "Testbench FLISTs to include"],
         'TOP'            : ["", (str,),       "The module name of the top-level of the testbench"],
         'INCDIRS'        : [[], (list,),      "The list of +incdirs to create for this testbench"],
