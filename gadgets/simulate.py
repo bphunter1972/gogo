@@ -105,8 +105,8 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " -ucli -do %s +vpdupdate +vpdfilesize+2048" % wave_script_name
             self.handle_vpd(wave_script_name)
         elif gvars.SIM.WAVE == 'fsdb':
-            sim_cmd += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
-            sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
+            sim_cmd += " +fsdb_trace +fsdb_outfile=%(sim_dir)s/verilog.fsdb +fsdb_depth=0 " % self.__dict__
+            sim_cmd += " +fsdb+trans_begin_callstack +sps_enable_port_recording +fsdbTrans +fsdbLogOff +fsdb+dumpoff+2147483640"
 
         if gvars.SIM.SVFCOV:
             svfcov_value = self.handle_svfcov(gvars.SIM.SVFCOV)

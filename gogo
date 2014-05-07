@@ -13,7 +13,7 @@ A lightweight compile and simulate script.
 
 from __future__ import print_function
 
-__version__       = '0.0.11'
+__version__       = '0.0.12'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
