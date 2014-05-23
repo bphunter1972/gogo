@@ -25,7 +25,7 @@ class VericomGadget(gadget.Gadget):
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
         self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
         self.sig_list_name  = os.path.join(self.sim_dir, '.signal_list')
-        self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
+        self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
         
     #--------------------------------------------
     def create_cmds(self):

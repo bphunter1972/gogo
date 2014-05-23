@@ -18,7 +18,7 @@ VTYPES = {
         # Name             (default, possible types)   Help
         'PARALLEL'       : [0, (int,),        "The number of cores on which to compile in parallel (partition-compile only)"],
         'TOOL'           : ["", (str,),       "Command needed to run a build"],
-        'MODULES'        : [[], (list,),      "Added to runmod for all builds"],
+        'MODULES'        : [[], (list,),      "Keys to PROJ.MODULES used to add to runmod for all builds"],
         'OPTIONS'        : ["", (str,),       "Build options for both VCS and VLOGAN"],
         'VCS_OPTIONS'    : ["", (str,),       "Build options for VCS only"],
         'VLOGAN_OPTIONS' : ["", (str,),       "Build options for VLOGAN only"],
@@ -28,7 +28,6 @@ VTYPES = {
         'VCOMP_DIR'      : ["", (str,),       "The name of the compile directory"],
         'DEFINES'        : [[], (list,),      "All +defines as needed"],
         'IGNORE_WARNINGS': [[], (list,),      "Warnings that should be ignored by VCS during vlog."],
-        'GUI'            : ["", (str,),       "Add this to simulation command-line when you want to run in GUI mode"],
     },
 
     # Simulation Options
@@ -38,9 +37,10 @@ VTYPES = {
         'TEST'           : ["basic", (str,),  "The name of the test to be run."],
         'SEED'           : [1, (int,),        "The seed to use for the simulation, or 0 for random (TODO)"],
         'DBG'            : [0, (int,str),     "Debug level of simulation"],
+        'MODULES'        : [[], (list,),      "Keys to PROJ.MODULES used to add to runmod for all sims"],
         'INTERACTIVE'    : [0, (int,bool),    "Turn interactive on (1) or off (0)"],
         'WDOG'           : [0, (int,),        "Time (in ns) at which the testbench will watchdog timeout (or zero for no watchdog)."], 
-        'GUI'            : [0, (int,bool),    "Run VCS in GUI mode with DVE"],
+        'GUI'            : ['', (str,),       "Run VCS in GUI mode with (dve) or (verdi)"],
         'DIR'            : ['', (str,),       "Specify alternate directory for results."],
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
         'SVFCOV'         : [0, (int,str,),    "Run with SV Functional Coverage. The words (all, func, bits, vals) must be separated by commas."],
@@ -63,13 +63,12 @@ VTYPES = {
 
     # Miscellaneous Project settings
     'PROJ' : {
-        'RUNMOD_MODULES'   : [[], (list,),      "List of modules, added to runmod for all sims"],
+        'MODULES'          : [{}, (dict,),      "Dictionary of modules, with key equal to toolname, added to all runmod commands"],
         'LSF_VLOG_LICS'    : [[], (list,),      "Additional licenses used for building"],
         'LSF_SIM_LICS'     : [[], (list,),      "Additional licences used for simulation"],
         'CLEAN_DIRS'       : [[], (list,),      "Names of directories to delete"],
         'CLEAN_FILES'      : [[], (list,),      "Names of files to delete"],
         'UVM_REV'          : ["1_1d", (str,),   "UVM Revision to use"],
-        'VERDI_MODULE'     : ["", (str,),       "Module to load for Verdi usage."],
         'VKITS_DIR'        : ["", (str,),       "The location of all vkits directories"],
     }
 }

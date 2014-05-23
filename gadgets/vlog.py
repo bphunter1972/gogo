@@ -23,8 +23,10 @@ class VlogGadget(gadget.Gadget):
         self.resources = gvars.PROJ.LSF_VLOG_LICS
         self.queue = 'build'
         self.interactive = True
-        self.runmod_modules = gvars.VLOG.MODULES
-
+        self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        if gvars.SIM.GUI == 'verdi':
+            self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
+            
         # create a symbolic link called 'project'. 
         try:
             os.symlink('../..', 'project')
@@ -91,9 +93,13 @@ class VlogGadget(gadget.Gadget):
             vlog_warnings = "+warn=" + ','.join(['no%s' % it for it in gvars.VLOG.IGNORE_WARNINGS])
         else:
             vlog_warnings = ""
-        if gvars.SIM.WAVE != None:
+        if gvars.SIM.WAVE != None or gvars.SIM.GUI != '':
             gvars.VLOG.VCS_OPTIONS += ' -debug_pp'
-
+        # if gvars.SIM.GUI == 'verdi':
+        #     gvars.VLOG.VCS_OPTIONS += ' -P /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/novas.tab /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/pli.a'
+            # setenv          tab                    $install_root/debug/share/PLI/VCS/LINUXAMD64/novas.tab
+            # setenv          pli                    $install_root/debug/share/PLI/VCS/LINUXAMD64/pli.a
+            
         #--------------------------------------------
         # create vlogan command if running partition compile
         if run_partition:
