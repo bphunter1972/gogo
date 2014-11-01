@@ -91,6 +91,10 @@ def get_filename(filename):
     =>       : (str) The translated name
     """
 
+    # when handed a previously translated file name...
+    if filename.startswith(gvars.GogoDir):
+        return filename
+
     if not os.path.exists(gvars.GogoDir):
         os.mkdir(gvars.GogoDir)
 

@@ -13,7 +13,7 @@ A lightweight compile and simulate script.
 
 from __future__ import print_function
 
-__version__       = '0.0.12'
+__version__       = '0.0.9-genip'
 __author__        = "Brian Hunter"
 __email__         = 'brian.hunter@cavium.com'
 
@@ -60,6 +60,10 @@ if __name__ == '__main__':
             import gadgets.build
             schedule.add_gadget(gadgets.build.BuildGadget())
 
+        if 'genip' in gadgets_to_run:
+            import gadgets.genip
+            schedule.add_gadget(gadgets.genip.GenipGadget())
+            
         if 'vlog' in gadgets_to_run:
             import gadgets.vlog
             schedule.add_gadget(gadgets.vlog.VlogGadget())
@@ -71,6 +75,7 @@ if __name__ == '__main__':
         # turd files are flushed unless otherwise stated
         if not gvars.Options.noflush:
             import gadgets.flush
+            gadgets_to_run.append('final_cleanup')
             schedule.add_gadget(gadgets.flush.FlushGadget())
 
         schedule.set_schedule(gadgets_to_run)
@@ -81,6 +86,8 @@ if __name__ == '__main__':
         Log.critical("Exiting due to Ctrl-C.")
 
     except GadgetFailed as inst:
+        if gvars.Options.dbg:
+            raise
         Log.critical("%s Failed! Cannot Continue." % inst.args[0])
 
     except:
