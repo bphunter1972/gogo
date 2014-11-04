@@ -23,6 +23,9 @@ class VkitGadget(gadget.Gadget):
     def __init__(self, entry):
         super(VkitGadget, self).__init__()
 
+        # ensure that check_dependencies must only run once
+        self.checked_dependencies = None
+
         # The vkit is either a dictionary, or a vcfg.py file located in the specified path from vkits_dir, 
         # or it's simply a name that can be applied to a default dictionary
         config = {}
@@ -258,6 +261,9 @@ class VkitGadget(gadget.Gadget):
 
     #--------------------------------------------
     def check_dependencies(self):
+        if self.checked_dependencies is not None:
+            return self.checked_dependencies
+
         import pymake
         targets = self.genip_done_file
         sources = self.get_all_sources()
@@ -277,6 +283,7 @@ class VkitGadget(gadget.Gadget):
         # this ensures that any job that calls waitForSomeJobs() will not try to launch this
         if result == False:
             self.doNotLaunch = True
+        self.checked_dependencies = result
         return result
 
     #--------------------------------------------
