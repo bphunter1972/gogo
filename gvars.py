@@ -228,8 +228,27 @@ def setup_vkits():
         Log.critical("A Vkit below has no name:\n%s" % Vkits)
 
 ########################################################################################
-def get_vkits(vkit_names):
-    "Returns the Vkits as named in vkit_names"
+def get_vkits(vkit_names, get_all=False):
+    """
+    Returns the Vkits as named in vkit_names. 
+    If get_all is true, returns all of their dependencies, and so on, as well. Then ensures
+    uniqueness.
+    """
 
-    return [it for it in Vkits if it.name in vkit_names]
+    if not vkit_names:
+        return []
+
+    vkits = [it for it in Vkits if it.name in vkit_names]
+    if get_all and vkits:
+        Log.debug("Here in get_vkits with %s" % vkits)
+        all_deps = [it.dependencies for it in vkits if it.dependencies]
+        Log.debug("all_deps = %s" % all_deps)
+        if all_deps and all_deps != [[]]:
+            new_vkits = [get_vkits(it, True) for it in all_deps]
+            for it in new_vkits:
+                vkits.extend(it)
+            Log.debug("Here in get_vkits with %s" % new_vkits)
+            vkits = list(set(vkits))
+            Log.debug("Now vkits=%s" % vkits)
+    return vkits
 

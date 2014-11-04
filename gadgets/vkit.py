@@ -177,7 +177,8 @@ class VkitGadget(gadget.Gadget):
         cmds = []
 
         # the vkits of our dependencies
-        self.libs = gvars.get_vkits(self.dependencies)
+        Log.debug("Getting the vkits for: %s" % self.lib_name)
+        self.libs = gvars.get_vkits(self.dependencies, False)
 
         import vlog
         vlog_warnings = vlog.get_warnings(self.VLOG.IGNORE_WARNINGS)
@@ -196,7 +197,7 @@ class VkitGadget(gadget.Gadget):
         # setenv SYNOPSYS_SIM_SETUP name.setup
         cmds.append(gadget.GadgetCommand(command="setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name, check_after=False, no_modules=True))
         # TODO: Remove this!
-        cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME /nfs/cadv1/bhunter/t88/t88/verif/vkits/uvm/1_1d/src", check_after=False, no_modules=True))
+        cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME project/verif/vkits/uvm/%s/src" % gvars.PROJ.UVM_REV, check_after=False, no_modules=True))
 
         # create vlogan command
         vlogan_args   = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
