@@ -10,6 +10,7 @@ Log = gvars.Log
 
 class SsimGadget(gadget.Gadget):
     """Creates the synopsys_sim.setup file for the given vkit, during the pre_genip phase"""
+
     def __init__(self, vkit=None):
         super(SsimGadget, self).__init__()
         self.vkit = vkit

@@ -107,6 +107,11 @@ class VlogGadget(gadget.Gadget):
             gvars.VLOG.VCS_OPTIONS += [' -debug_pp']
 
         #--------------------------------------------
+        # set environment variable here in genip mode
+        if self.run_genip:
+            cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME project/verif/vkits/uvm/%s/src" % gvars.PROJ.UVM_REV, check_after=False, no_modules=True))
+            
+        #--------------------------------------------
         # create vlogan command if running partition compile
         if self.run_partition or self.run_genip:
             vlogan_args = [vlog_warnings, gvars.VLOG.OPTIONS, gvars.VLOG.VLOGAN_OPTIONS, vlog_defines, flists]
