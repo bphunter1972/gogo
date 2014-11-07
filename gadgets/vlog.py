@@ -77,7 +77,7 @@ class VlogGadget(gadget.Gadget):
         if self.run_partition:
             partition_cfg_name = gvars.VLOG.PART_CFG
             partition_cfg_name = get_filename(partition_cfg_name)
-            if check_files_exist(partition_cfg_name) == 0:
+            if not check_files_exist(partition_cfg_name):
                 raise gadget.GadgetFailed("%s does not exist." % partition_cfg_name)
 
         #--------------------------------------------
@@ -172,7 +172,7 @@ def get_flists(flists):
 def get_tab_files(tab_files):
     if tab_files:
         for t_file in tab_files:
-            if check_files_exist(t_file) == 0:
+            if not check_files_exist(t_file):
                 raise gadget.GadgetFailed("%s does not exist from %s" % (t_file, os.getcwd()))
         return '-P ' + ' -P '.join(tab_files)
     else:
@@ -182,7 +182,7 @@ def get_tab_files(tab_files):
 def get_so_files(so_files):
     if so_files:
         # check first that they exist
-        if check_files_exist(so_files) == 0:
+        if not check_files_exist(so_files):
             raise gadget.GadgetFailed("%s does not exist." % so_files)
         so_files = [os.path.abspath(it) for it in so_files]
         return " -LDFLAGS '%s'" % (' '.join(so_files))

@@ -30,7 +30,7 @@ class SimulateGadget(gadget.Gadget):
 
         # ensure that the SIM.TEST exists!
         test_file = os.path.join('tests', (gvars.SIM.TEST + '.sv'))
-        if utils.check_files_exist(test_file) == 0:
+        if not utils.check_files_exist(test_file):
             raise gadget.GadgetFailed("%s is not a legal test." % test_file)
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
@@ -77,7 +77,7 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        if utils.check_files_exist(self.sim_exe) == 0:
+        if not utils.check_files_exist(self.sim_exe):
             raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.sim_exe)
 
         sim_cmd = self.sim_exe
