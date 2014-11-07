@@ -20,6 +20,7 @@ PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_au
 
 # Miscellaneous
 PROJ.VERDI_MODULE = 'synopsys-verdi'
+VERDI_HOME = get_env_variable('VERDI_HOME', PROJ.VERDI_MODULE)
 
 # Runmod module for VCS
 VCS_VERSION = 'H-2013.06-SP1'
@@ -35,7 +36,7 @@ VLOG.VCOMP_DIR  = 'sim/.vcomp'
 # .tab files
 VLOG.TAB_FILES = ['project/verif/uvm_common/explicit/vpi_msg.tab',
                  'project/verif/uvm_common/explicit/cn_rand.tab',
-                 '/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/novas.tab',
+                 '%s/share/PLI/VCS/LINUX64/novas.tab' % (VERDI_HOME),
                  'project/verif/common/explicit/cn_bist_mon.tab',
                  'project/verif/uvm_common/explicit/fake_vcsTBV.tab',
                  ]
@@ -50,7 +51,7 @@ VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
                 ]
 
 # .a files
-VLOG.ARC_LIBS = ['/nfs/cacadtools/synopsys/Verdi-201309/share/PLI/VCS/LINUX64/pli.a', ]
+VLOG.ARC_LIBS = ['%s/share/PLI/VCS/LINUX64/pli.a' % (VERDI_HOME), ]
 
 # VCS/VLOGAN Options
 VLOG.OPTIONS = ' -notice -unit_timescale=1ns/1fs -ntb_opts uvm -sverilog -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)

@@ -252,3 +252,13 @@ def get_vkits(vkit_names, get_all=False):
             Log.debug("Now vkits=%s" % vkits)
     return vkits
 
+########################################################################################
+def get_env_variable(var, module=None):
+    if module:
+        import subprocess
+        cmd = 'module load %s; printenv %s' % (module, var)
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = p.communicate()
+        return stdout.strip()
+    else:
+        return os.environ[var]
