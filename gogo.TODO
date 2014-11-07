@@ -16,14 +16,16 @@ Small Enhancements:
  ✔ create_cmds should return list of dictionaries, with keys: comments, commands, check_after, and runmods @done (14-02-22 13:40)
  ☐ GUI mode
  ☐ Create .gogo/logfile as stdout
+   
+Genip
+ ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
+ ✔ Handle 'clean' of vkit libraries @done (14-11-04 16:02)
+ ☐ All dependency vkits, plus their dependencies, etc., should be in the synopsys_sim.setup file. 
+ ☐ Create the .flists for vkits instead of relying on what is already there.
+ ☐ Generate RTL as its own IP
+ ☐ Understand why only 1 or 2 jobs are running in parallel
 
 Major Enhancements:
- ☐ genip
-     ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
-     ☐ Handle 'clean' of vkit libraries
-     ☐ All dependency vkits, plus their dependencies, etc., should be in the synopsys_sim.setup file.
-     ☐ Re-name to a libs directory instead of (vkit_pkg)
-     ☐ Create the .flists for vkits
  ☐ Build .so files
  ☐ Separate compiles for different flags (md5)
  ✔ Build CSR files @done (14-02-22 13:40)
