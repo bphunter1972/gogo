@@ -193,10 +193,9 @@ class VkitGadget(gadget.Gadget):
         vcs_dir       = '-dir=%s' % self.pkg_name
         genip_cmd     = '-genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
 
-        # set env variable
+        # set env variables for VCS
         # setenv SYNOPSYS_SIM_SETUP name.setup
         cmds.append(gadget.GadgetCommand(command="setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name, check_after=False, no_modules=True))
-        # TODO: Remove this!
         cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME project/verif/vkits/uvm/%s/src" % gvars.PROJ.UVM_REV, check_after=False, no_modules=True))
 
         # create vlogan command
@@ -243,9 +242,10 @@ class VkitGadget(gadget.Gadget):
         Log.info("%s genip completed!" % self.name)
         exit_status = self.getExitStatus()
         if exit_status != 0:
+            import sync_nfs
             Log.info("%s We are going down because of me! exit_status=%0d" % (self.name, exit_status))
             try:
-                with open(self.stdoutPath) as f:
+                with sync_nfs.sync_open(self.stdoutPath) as f:
                     lines = f.readlines()
             except IOError:
                 Log.critical("Unable to read stdout file %s" % self.stdoutPath)
