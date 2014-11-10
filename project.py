@@ -18,15 +18,15 @@ PROJ.LSF_SIM_LICS = ['lic_sim_vcs']
 PROJ.CLEAN_DIRS = ['sim', 'csrc', 'DVEfiles', 'AN.DB', 'partitionlib', 'work']
 PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_autopart.txt', 'project', '.vcs_lib_lock']
 
-# Miscellaneous
-PROJ.VERDI_MODULE = 'synopsys-verdi'
-VERDI_HOME = get_env_variable('VERDI_HOME', PROJ.VERDI_MODULE)
-
 # Runmod module for VCS
 # VCS_VERSION = 'H-2013.06-SP1'
 VCS_VERSION = 'I-2014.03-Beta3'
 # VCS_VERSION = 'J-2014.12-BETA'
 PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
+
+# Miscellaneous
+PROJ.VERDI_MODULE = 'synopsys-vc/I-2014.03'
+VERDI_HOME = get_env_variable('VERDI_HOME', PROJ.VERDI_MODULE)
 
 #--------------------------------------------
 # Verilog Variables
