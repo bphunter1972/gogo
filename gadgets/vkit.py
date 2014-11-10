@@ -228,7 +228,7 @@ class VkitGadget(gadget.Gadget):
         if dependent_libs:
             Log.info("%s waiting for %s" % (self.name, dependent_libs))
             sge.waitForSomeJobs(dependent_libs, pollingMode=False)
-            Log.info("%s Launching!" % self.name)
+        Log.info("%s Launching!" % self.name)
 
     #--------------------------------------------
     def completedCallback(self):
