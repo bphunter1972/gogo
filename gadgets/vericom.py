@@ -7,6 +7,7 @@ from __future__ import print_function
 import gadget
 import gvars
 import os.path
+from utils import get_filename
 
 Log = gvars.Log
 
@@ -37,7 +38,7 @@ class VericomGadget(gadget.Gadget):
 
         # get all variables
         self.vlog_defines = vlogger.get_defines(gvars.VLOG.DEFINES)
-        self.flists      = vlogger.get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + ['.flist'])
+        self.flists      = vlogger.get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + [get_filename('.flist')])
         self.tab_files   = vlogger.get_tab_files(gvars.VLOG.TAB_FILES)
 
         # make a file with the tb_top in it, call it .signal_list
