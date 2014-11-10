@@ -16,7 +16,7 @@ Small Enhancements:
  ✔ create_cmds should return list of dictionaries, with keys: comments, commands, check_after, and runmods @done (14-02-22 13:40)
  ☐ GUI mode
  ☐ Create .gogo/logfile as stdout
- ☐ Handle --tb <tbfile>.py on command-line
+ ✔ Handle --tb <tbfile>.py on command-line @done (14-11-10 14:50)
    
 Genip
  ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
@@ -35,4 +35,3 @@ Major Enhancements:
  ☐ Separate compiles for different flags (md5)
  ✔ Build CSR files @done (14-02-22 13:40)
  ☐ Print the vkit dependency tree
-   

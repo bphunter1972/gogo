@@ -178,8 +178,11 @@ def setup_globals():
     GogoDir = os.path.join(RootDir, '.gogo')
 
     # The names of all the library files that will be imported
-    libraries = ('project', Options.tb)
+    libraries = ['project', Options.tb]
 
+    # if any end in .py, then strip that
+    libraries = [it.replace('.py', '') for it in libraries]
+    
     #--------------------------------------------
     def import_lib(mod_name):
         try:
