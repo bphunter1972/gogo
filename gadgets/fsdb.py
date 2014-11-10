@@ -7,7 +7,6 @@ from __future__ import print_function
 import gadget
 import gvars
 import os
-import utils
 
 Log = gvars.Log
 
@@ -28,9 +27,17 @@ class FsdbGadget(gadget.Gadget):
     def create_cmds(self):
         self.turds.append(self.fsdb_name)
 
-        with utils.open(self.fsdb_name, 'w') as fsdb_file:
-            print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
-        os.chmod(self.fsdb_name, 0o777)
+        try:
+            # utils.open would put the file in .gogo, which is not where we want it
+            with open(self.fsdb_name, 'w') as fsdb_file:
+                print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
+        except OSError as exc:
+            Log.error("Unable to create %s:\n%s" % (self.fsdb_name, exc))
+
+        try:
+            os.chmod(self.fsdb_name, 0o777)
+        except OSError as exc:
+            Log.error("Unable to chmod %s:\n%s" % (self.fsdb_name, exc))
 
         return None
         
