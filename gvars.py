@@ -254,11 +254,18 @@ def get_vkits(vkit_names, get_all=False):
 
 ########################################################################################
 def get_env_variable(var, module=None):
+    """
+    Returns the value of an environment variable. If given the name of a module, loads that module first.
+    """
+
     if module:
-        import subprocess
-        cmd = 'module load %s; printenv %s' % (module, var)
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, stderr) = p.communicate()
-        return stdout.strip()
-    else:
+        cn_common_dir = os.environ['CN_COMMON_DIR']
+        cmd = os.popen('tclsh %s/cad/modulecmd/current/modulecmd.tcl python load %s' % (cn_common_dir, module))
+        exec(cmd)
+
+    try:
+        Log.debug("Returning for %s: %s" % (var, os.environ[var]))
         return os.environ[var]
+    except KeyError:
+        Log.critical("Unable to load variable %s with module %s" % (var, module))
+
