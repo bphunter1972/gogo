@@ -56,6 +56,9 @@ class VkitGadget(gadget.Gadget):
         self.pkg_dir         = os.path.join(self.dir_name, self.pkg_name)
         Log.debug("Sending to pkg_dir: %s" % self.pkg_dir)
 
+        # ensures that the "...waiting for..." message is only printed once per vkit
+        self.printed_waiting_for = False
+
         # in genip mode, run as a gadget, add the ssim gadget to
         # ensure that the synopsys_sim.setup file is created.
         if gvars.VLOG.COMPTYPE == 'genip':
@@ -214,8 +217,21 @@ class VkitGadget(gadget.Gadget):
         return cmds
 
     #--------------------------------------------
+    def pauseJob(self):
+        "Return true if any dependent libs are not yet done."
+
+        dependent_libs = [it for it in self.libs if not (it.doNotLaunch or it.genip_completed)]
+        if dependent_libs:
+            if not self.printed_waiting_for:
+                # ensure that these things only get printed once
+                Log.info("%s waiting for %s" % (self.name, dependent_libs))
+                self.printed_waiting_for = True
+            return True
+        else:
+            return False
+
+    #--------------------------------------------
     def preLaunchCallback(self):
-        import sge_tools as sge
 
         # ensure that the project link exists
         try:
@@ -224,10 +240,6 @@ class VkitGadget(gadget.Gadget):
             pass
 
         # If there are any libraries that this vkit depends on, then wait until they have completed
-        dependent_libs = [it for it in self.libs if not (it.doNotLaunch or it.genip_completed)]
-        if dependent_libs:
-            Log.info("%s waiting for %s" % (self.name, dependent_libs))
-            sge.waitForSomeJobs(dependent_libs, pollingMode=False)
         Log.info("%s Launching!" % self.name)
 
     #--------------------------------------------
