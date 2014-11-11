@@ -7,6 +7,7 @@ Fixes:
  ☐ Set VCS_OPTIONS, VLOGAN_OPTIONS to be lists instead of strings
  ✔ Fix dwpciesvt gadget to use check_dependencies instead. @done (14-02-14 14:47)
  ✔ genip Dependencies run multiple times. @done (14-11-10 11:27)
+ ☐ Randomize seed with SIM.SEED=0.
 
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
@@ -29,7 +30,10 @@ Genip
      OK, this is due to the fact that managePool calls launch() on the first job, then on the second job, its preLaunchCallback waits for that first one to complete during the launch() procedure.
      Only once all of the jobs have successfully completed "launch" will managePool check to see if any have completed.
      Solution was to create a pausedJobs list in managePool.
-     
+ ☐ Have STATIC_VKITS all go into one genip.
+ ☐ Each vkit IP should be based on the md5 hash of the relevant commands.
+ ☐ Add command-line ability to clean a vkit (just delete the .genip_done file(s))
+
 Major Enhancements:
  ☐ Build .so files
  ☐ Separate compiles for different flags (md5)
