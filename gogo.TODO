@@ -8,7 +8,9 @@ Fixes:
  ✔ Fix dwpciesvt gadget to use check_dependencies instead. @done (14-02-14 14:47)
  ✔ genip Dependencies run multiple times. @done (14-11-10 11:27)
  ☐ Randomize seed with SIM.SEED=0.
-
+ ☐ Understand why sps package doesn't work.
+ ☐ Get actual simulations to pass. (Probably a race condition with the new simulator).
+   
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
  ✔ Add tool logging. @done (14-02-06 13:47)
@@ -32,7 +34,7 @@ Genip
      Solution was to create a pausedJobs list in managePool.
  ☐ Have STATIC_VKITS all go into one genip.
  ☐ Each vkit IP should be based on the md5 hash of the relevant commands.
- ☐ Add command-line ability to clean a vkit (just delete the .genip_done file(s))
+ ☐ Add command-line ability to clean a vkit (delete the .genip_done file(s) and remove the *_pkg directory)
 
 Major Enhancements:
  ☐ Build .so files
