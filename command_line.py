@@ -4,7 +4,6 @@ import gvars
 import cn_logging, logging
 import sge_tools as sge
 import argparse
-import os.path
 from sys import exit
 
 Log = None
@@ -16,6 +15,8 @@ SHORTCUTS = {
              'b'        : 'build',
              'build'    : 'build',
              'bld'      : 'build',
+             'g'        : 'genip',
+             'genip'    : 'genip',
              'v'        : 'vlog',
              'vlog'     : 'vlog',
              's'        : 'simulate',
@@ -54,8 +55,6 @@ def parse_args(version, doc):
     p.add_argument('varg',           action='store', nargs='*',  help="Variable assignments or gadgets to run.")
 
     p.add_argument('--tb',           action='store',             default='tb',    help="Specify a different tb.py configuration file.")
-    p.add_argument('--part', '-p',   action='store',             default='auto',  help="When 'auto', gogo generates the partition configuration from settings; when 'off', compile without partitions; else specify your own configuration file.")
-
     p.add_argument('--dbg',          action='store_true',        default=False,   help="Used for debugging gogo.")
     p.add_argument('--noflush',      action='store_true',        default=False,   help="Permit turd files to stay.")
 
@@ -70,9 +69,6 @@ def parse_args(version, doc):
 
     # get the gadgets to run
     gadgets = handle_gadgets(gvars.Options.varg)
-
-    if gvars.Options.part not in ('auto', 'off') and not os.path.exists(gvars.Options.part):
-        Log.critical("Partition configuration file '%s' does not exist." % gvars.Options.part)
 
     return gadgets
 
@@ -104,7 +100,13 @@ def handle_gadgets(vargs):
         if gdt not in SHORTCUTS.keys():
             Log.critical("Unknown gadget: %s" % gdt)
 
-    return [SHORTCUTS[gdt] for gdt in gadgets]
+    # convert all to full-names
+    gadgets = [SHORTCUTS[gdt] for gdt in gadgets]
+
+    if 'vlog' in gadgets and gvars.VLOG.COMPTYPE == 'genip':
+        gadgets.append('genip')
+
+    return gadgets
 
 ########################################################################################
 def send_help(gadgets):
