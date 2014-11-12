@@ -24,18 +24,16 @@ VCS_VERSION = 'I-2014.03-Beta3'
 # VCS_VERSION = 'J-2014.12-BETA'
 VC_VERSION = 'I-2014.03'
 
-PROJ.RUNMOD_MODULES = ['synopsys-vcs_mx/%s' % VCS_VERSION]
 PROJ.MODULES['vcs'] = 'synopsys-vcs_mx/%s' % VCS_VERSION
 PROJ.MODULES['verdi'] = 'synopsys-vc-verdi/%s' % VC_VERSION
-PROJ.MODULES['synopsys-designware'] = 'synopsys-designware'
+PROJ.MODULES['synopsys-designware'] = 'synopsys-designware/20140815'
 
 # Miscellaneous
-PROJ.VERDI_MODULE = 'synopsys-vc/I-2014.03'
-VERDI_HOME = get_env_variable('VERDI_HOME', PROJ.VERDI_MODULE)
+VERDI_HOME = get_env_variable('VERDI_HOME', PROJ.MODULES['verdi'])
 
 #--------------------------------------------
 # Verilog Variables
-VLOG.MODULES = ["synopsys-vcs_mx/%s" % VCS_VERSION]
+VLOG.MODULES = ["vcs"]
 VLOG.TOOL = 'vcs'
 VLOG.VCOMP_DIR  = 'sim/.vcomp'
 
