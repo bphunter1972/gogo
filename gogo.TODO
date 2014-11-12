@@ -17,7 +17,7 @@ Small Enhancements:
  ✔ Add traceback emails. @done (14-02-06 13:47)
  ☐ Make sense of svfcov parameters
  ✔ create_cmds should return list of dictionaries, with keys: comments, commands, check_after, and runmods @done (14-02-22 13:40)
- ☐ GUI mode
+ ☐ Verdi GUI mode
  ☐ Create .gogo/logfile as stdout
  ✔ Handle --tb <tbfile>.py on command-line @done (14-11-10 14:50)
    

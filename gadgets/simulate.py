@@ -39,11 +39,19 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.runmod_modules = gvars.PROJ.RUNMOD_MODULES
+        try:
+            self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        except KeyError:
+            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
         self.tb_top         = gvars.TB.TOP
         self.sim_dir        = os.path.join('sim', self.name)
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
-        self.sim_exe        = os.path.join(self.vcomp_dir, 'simv')
+        self.simv_executable = os.path.join(self.vcomp_dir, 'simv')
+        if gvars.SIM.GUI != 'verdi':
+            self.sim_exe        = self.simv_executable
+        else:
+            self.sim_exe    = 'verdi'
+            self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
 
         # if necessary, add Vericom to the list of gadgets, among other things
         if gvars.SIM.WAVE == 'fsdb':
@@ -77,8 +85,8 @@ class SimulateGadget(gadget.Gadget):
         """
 
         # ensure that executable has been built
-        if not utils.check_files_exist(self.sim_exe):
-            raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.sim_exe)
+        if utils.check_files_exist(self.simv_executable) == 0:
+            raise gadget.GadgetFailed("Simulation Executable %s does not exist." % self.simv_executable)
 
         sim_cmd = self.sim_exe
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST
@@ -94,8 +102,10 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.WDOG:
             sim_cmd += " +wdog=%d" % gvars.SIM.WDOG
 
-        if gvars.SIM.GUI:
-            sim_cmd += gvars.SIM.GUI
+        if gvars.SIM.GUI == 'dve':
+            sim_cmd += ' -gui'
+        elif gvars.SIM.GUI == 'verdi':
+            sim_cmd += ' -simType vcs -simBin %s' % self.simv_executable
 
         if gvars.SIM.WAVE == 'vpd':
             wave_script_name = os.path.join(self.sim_dir, '.wave_script')
@@ -112,6 +122,8 @@ class SimulateGadget(gadget.Gadget):
 
         # add simulation command-line options
         if gvars.SIM.OPTS:
+            if gvars.SIM.GUI == 'verdi':
+                sim_cmd += " -simOpt"
             sim_cmd += " " + gvars.SIM.OPTS
 
         if gvars.SIM.PLUSARGS:
@@ -131,7 +143,7 @@ class SimulateGadget(gadget.Gadget):
             
     #--------------------------------------------
     def handle_fsdb(self):
-        self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
+        self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
 
         # Run vericom gadget during pre_simulate
         import gadgets.vericom

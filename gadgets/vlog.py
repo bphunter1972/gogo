@@ -23,8 +23,16 @@ class VlogGadget(gadget.Gadget):
         self.resources = gvars.PROJ.LSF_VLOG_LICS
         self.queue = 'build'
         self.interactive = True
-        self.runmod_modules = gvars.VLOG.MODULES
-
+        try:
+            self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        except KeyError:
+            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
+        if gvars.SIM.GUI == 'verdi':
+            try:
+                self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
+            except KeyError:
+                Log.critical("runmod module verdi was never specified.")
+        
         # create a symbolic link called 'project'. 
         try:
             os.symlink('../..', 'project')
@@ -103,9 +111,13 @@ class VlogGadget(gadget.Gadget):
             vlog_warnings = get_warnings(gvars.VLOG.IGNORE_WARNINGS)
         else:
             vlog_warnings = ""
-        if gvars.SIM.WAVE != None:
+        if gvars.SIM.WAVE != None or gvars.SIM.GUI != '':
             gvars.VLOG.VCS_OPTIONS += ' -debug_pp'
-
+        # if gvars.SIM.GUI == 'verdi':
+        #     gvars.VLOG.VCS_OPTIONS += ' -P /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/novas.tab /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/pli.a'
+            # setenv          tab                    $install_root/debug/share/PLI/VCS/LINUXAMD64/novas.tab
+            # setenv          pli                    $install_root/debug/share/PLI/VCS/LINUXAMD64/pli.a
+            
         #--------------------------------------------
         # set environment variable here in genip mode
         if self.run_genip:

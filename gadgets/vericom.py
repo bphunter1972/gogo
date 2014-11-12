@@ -25,8 +25,12 @@ class VericomGadget(gadget.Gadget):
         self.queue          = 'build'
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
         self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
-        self.runmod_modules.append(gvars.PROJ.VERDI_MODULE)
-        
+        self.sig_list_name  = os.path.join(self.sim_dir, '.signal_list')
+        try:
+            self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
+        except KeyError:
+            Log.critical("runmod module verdi was never specified.")
+
     #--------------------------------------------
     def create_cmds(self):
         """
