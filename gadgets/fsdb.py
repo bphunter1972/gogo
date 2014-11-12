@@ -28,17 +28,23 @@ class FsdbGadget(gadget.Gadget):
         self.turds.append(self.fsdb_name)
 
         try:
+            # utils.open would put the file in .gogo, which is not where we want it
             with open(self.fsdb_name, 'w') as fsdb_file:
                 print("runmod verdi -rcFile ~/.novas.rc -ssf %(sim_dir)s/verilog.fsdb -logdir %(sim_dir)s/verdiLog -top %(tb_top)s -nologo -lib %(vcomp_dir)s $*" % self.__dict__, file=fsdb_file)
+        except OSError as exc:
+            Log.error("Unable to create %s:\n%s" % (self.fsdb_name, exc))
+
+        try:
             os.chmod(self.fsdb_name, 0o777)
-        except OSError:
-            Log.error("Unable to create '%s' (%s)" % (self.fsdb_name, os.path.abspath(self.fsdb_name)))
+        except OSError as exc:
+            Log.error("Unable to chmod %s:\n%s" % (self.fsdb_name, exc))
+
         return None
         
     #--------------------------------------------
     def check_dependencies(self):
         """
-        Returns true if the fsdb.sh file needs to be created
+        Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
         """
 
         return not os.path.exists(self.fsdb_name)

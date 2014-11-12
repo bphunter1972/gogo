@@ -90,6 +90,7 @@ class Gadget(sge.Job):
         import os.path
         self.commands = self.create_cmds()
         if self.commands is None or self.commands == []:
+            Log.debug("%s Leaving prepare because there are no commands to run." % self.name)
             return
 
         # make it a list if it's just a string

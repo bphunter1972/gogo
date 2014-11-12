@@ -43,6 +43,7 @@ def check_files_exist(files):
 
     files : (list of str) The list of filenames
             (str) A single filename
+    =>    : (bool) Returns True if all of the files exist
     """
 
     # in the case of being passed only 1 string, just put that string in a list
@@ -52,9 +53,9 @@ def check_files_exist(files):
     from os.path import exists
     missing_files = [it for it in files if exists(it) == False]
     if missing_files:
-        return 0
+        return False
     else:
-        return 1
+        return True
 
 ########################################################################################
 def get_time_int():
@@ -90,6 +91,10 @@ def get_filename(filename):
                      to /nfs/.../t88/.gogo/verif_vkits_cn/vlog
     =>       : (str) The translated name
     """
+
+    # when handed a previously translated file name...
+    if filename.startswith(gvars.GogoDir):
+        return filename
 
     if not os.path.exists(gvars.GogoDir):
         os.mkdir(gvars.GogoDir)
