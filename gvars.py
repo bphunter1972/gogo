@@ -215,6 +215,10 @@ def check_vars():
     else:
         Log.critical("VLOG.COMPTYPE value of %s is not recognized." % VLOG.COMPTYPE)
 
+    # These options are not yet available
+    if SIM.GUI == 'verdi':
+        Log.critical("SIM.GUI=verdi is not yet supported")
+        
 ########################################################################################
 def setup_vkits():
     "Set up the vkits in gvars"
