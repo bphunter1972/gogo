@@ -30,7 +30,7 @@ class SimulateGadget(gadget.Gadget):
 
         # ensure that the SIM.TEST exists!
         test_file = os.path.join('tests', (gvars.SIM.TEST + '.sv'))
-        if utils.check_files_exist(test_file) == 0:
+        if not utils.check_files_exist(test_file):
             raise gadget.GadgetFailed("%s is not a legal test." % test_file)
 
         # if verbosity is 0 or --interactive is on the command-line, then run interactively
@@ -89,11 +89,9 @@ class SimulateGadget(gadget.Gadget):
         sim_cmd += " +UVM_TESTNAME=%s_test_c" % gvars.SIM.TEST
         sim_cmd += " -l %s/logfile" % self.sim_dir
         sim_cmd += " +seed=%d" % gvars.SIM.SEED
-        sim_cmd += " +sim_dir=%s" % self.sim_dir
 
         # options
         sim_cmd += " +UVM_VERBOSITY=%s" % gvars.SIM.DBG
-        sim_cmd += " +err=%d +UVM_MAX_QUIT_COUNT=%d,0" % (gvars.SIM.ERRBRK, gvars.SIM.ERRBRK)
 
         if gvars.SIM.TOPO:
             sim_cmd += " +UVM_TOPO_DEPTH=%d" % gvars.SIM.TOPO
@@ -112,14 +110,12 @@ class SimulateGadget(gadget.Gadget):
             sim_cmd += " -ucli -do %s +vpdupdate +vpdfilesize+2048" % wave_script_name
             self.handle_vpd(wave_script_name)
         elif gvars.SIM.WAVE == 'fsdb':
-            sim_cmd += " +fsdb_trace +fsdb_outfile=%(sim_dir)s/verilog.fsdb +fsdb_depth=0 " % self.__dict__
-            sim_cmd += " +fsdb+trans_begin_callstack +sps_enable_port_recording +fsdbTrans +fsdbLogOff +fsdb+dumpoff+2147483640"
+            sim_cmd += " +fsdb_trace +memcbk +fsdb+trans_begin_callstack +sps_enable_port_recording"
+            sim_cmd += " +fsdb_siglist=%(sim_dir)s/.signal_list +fsdb_outfile=%(sim_dir)s/verilog.fsdb" % self.__dict__
 
         if gvars.SIM.SVFCOV:
-            svfcov_value = self.handle_svfcov(gvars.SIM.SVFCOV)
-            if svfcov_value:
-                cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
-                sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (svfcov_value, cm_name)
+            cm_name = gvars.SIM.DIR + "." + str(utils.get_time_int())
+            sim_cmd += " +svfcov=%0d -covg_dump_range -cm_dir coverage/coverage -cm_name %s" % (gvars.SIM.SVFCOV, cm_name)
 
         # add simulation command-line options
         if gvars.SIM.OPTS:
@@ -130,7 +126,6 @@ class SimulateGadget(gadget.Gadget):
         if gvars.SIM.PLUSARGS:
             sim_cmd += " " + ' '.join(['+%s' % it for it in gvars.SIM.PLUSARGS])
 
-            
         return gadget.GadgetCommand(sim_cmd)
         
     #--------------------------------------------
@@ -156,25 +151,3 @@ class SimulateGadget(gadget.Gadget):
 
         fsdb = gadgets.fsdb.FsdbGadget(self.sim_dir)
         schedule.add_gadget(fsdb)
-
-    #--------------------------------------------
-    def handle_svfcov(self, svfcov):
-        "Determine what value to add to the command-line for +svfcov"
-
-        value = 0
-        if type(svfcov) is str:
-            spl = svfcov.split(',')
-            if 'all' in spl:
-                value = 15
-            else:
-                if 'func' in spl:
-                    value |= 1
-                if 'bits' in spl:
-                    value |= 2
-                if 'vals' in spl:
-                    value |= 8
-        elif type(svfcov) is int:
-            value = svfcov
-
-        return value
-

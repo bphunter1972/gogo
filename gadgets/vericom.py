@@ -7,6 +7,7 @@ from __future__ import print_function
 import gadget
 import gvars
 import os.path
+from utils import get_filename
 
 Log = gvars.Log
 
@@ -37,9 +38,9 @@ class VericomGadget(gadget.Gadget):
         import gadgets.vlog as vlogger
 
         # get all variables
-        self.vlog_defines = vlogger.get_defines()
-        self.flists      = vlogger.get_flists()
-        self.tab_files   = vlogger.get_tab_files()
+        self.vlog_defines = vlogger.get_defines(gvars.VLOG.DEFINES)
+        self.flists      = vlogger.get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + [get_filename('.flist')])
+        self.tab_files   = vlogger.get_tab_files(gvars.VLOG.TAB_FILES)
 
         # make a file with the tb_top in it, call it .signal_list
         if not os.path.exists(self.sim_dir):
@@ -48,7 +49,7 @@ class VericomGadget(gadget.Gadget):
             except OSError:
                 raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
 
-        with open(self.sig_list_name, 'w') as sfile:
+        with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as sfile:
             print("0 %s" % self.tb_top, file=sfile)
             self.turds.append(os.path.abspath(sfile.name))
 
@@ -73,5 +74,5 @@ class VericomGadget(gadget.Gadget):
         Returns true if vericom needs to be run because the vericomLog/compiler.log file does not exist.
         """
 
-        comp_log = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
-        return (not os.path.exists(comp_log)) or (not os.path.exists(self.sig_list_name))
+        target = os.path.join(self.lib_dir, 'vericomLog/compiler.log')
+        return not os.path.exists(target)

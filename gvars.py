@@ -4,10 +4,9 @@ Contains all of the global variables.
 
 import sys
 import var_type
+import os
 import gadget
-import os.path
 from area_utils import calcRootDir
-
 
 # Keys is the guideline by how Vars will be created. Each key is the variable name and has the default value, the type, and a comment on its purpose.
 # Vars is a dictionary of values, to be filled in with values by setup-files like project.py and tb.py.
@@ -16,6 +15,8 @@ VTYPES = {
     # How to compile and run with VCS
     'VLOG' : {
         # Name             (default, possible types)   Help
+        'COMPTYPE'       : ['p', (str,),      "The compile type for this testbench: (p)artition, (g)enip, (n)ormal 2-step."],
+        'PART_CFG'       : ['.partition.cfg', (str,), "The name of the partition compile configuration file, when COMPTYPE is 'p'"],
         'PARALLEL'       : [0, (int,),        "The number of cores on which to compile in parallel (partition-compile only)"],
         'TOOL'           : ["", (str,),       "Command needed to run a build"],
         'MODULES'        : [[], (list,),      "Keys to PROJ.MODULES used to add to runmod for all builds"],
@@ -43,9 +44,8 @@ VTYPES = {
         'GUI'            : ['', (str,),       "Run VCS in GUI mode with (dve) or (verdi)"],
         'DIR'            : ['', (str,),       "Specify alternate directory for results."],
         'TOPO'           : [0, (int,),        "Print UVM topology at this depth."],
-        'SVFCOV'         : [0, (int,str,),    "Run with SV Functional Coverage. The words (all, func, bits, vals) must be separated by commas."],
-        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."],
-        'ERRBRK'         : [10, (int,),       "The number of errors after which the simulation should stop."],
+        'SVFCOV'         : [0, (int,bool),    "Run with SV Functional Coverage"],
+        'WAVE'           : [None, (str,),     "Dump waves to 'fsdb' or 'vpd' file."]
     },
 
     # Testbench Options
@@ -53,7 +53,6 @@ VTYPES = {
         'VKITS'          : [[], (list,),      "Vkits that this testbench relies upon, in order"],
         'STATIC_VKITS'   : [[], (list,),      "Vkits that should be considered static for the purposes of partition compilation"],
         'PARTITION_CELLS': [[], (list,),      "Cells that should be separate partitions for partition compilation"],
-        'INIT_FLISTS'    : [[], (list,),      "The very first FLISTs that will be compiled."],
         'FLISTS'         : [[], (list,),      "Testbench FLISTs to include"],
         'TOP'            : ["", (str,),       "The module name of the top-level of the testbench"],
         'INCDIRS'        : [[], (list,),      "The list of +incdirs to create for this testbench"],
@@ -74,7 +73,7 @@ VTYPES = {
 }
 
 # This code creates the variables PROJ, VLOG, SIM, etc.
-SIM = TB = None # this just gets rid of any lint errors
+SIM = TB = VLOG = PROJ = None # these just get rid of any lint errors
 for key in VTYPES.keys():
     setattr(sys.modules[__name__], key, var_type.VarType(VTYPES[key], key))
 
@@ -169,11 +168,21 @@ def setup_globals():
     gadget.Log = Log
     RootDir = calcRootDir()
 
+    # create a symbolic link called 'project' to the Root directory, if one does not ealready exist
+    try:
+        os.symlink(RootDir, 'project')
+    except OSError:
+        pass
+
+    # set the name of the gogo directory where all turd files are kept
     GogoDir = os.path.join(RootDir, '.gogo')
 
     # The names of all the library files that will be imported
-    libraries = ('project', Options.tb)
+    libraries = ['project', Options.tb]
 
+    # if any end in .py, then strip that
+    libraries = [it.replace('.py', '') for it in libraries]
+    
     #--------------------------------------------
     def import_lib(mod_name):
         try:
@@ -192,18 +201,74 @@ def setup_globals():
             raise
         Log.critical("Unable to parse command-line: %s" % ex)
 
+    # check that all global variables are ok
+    check_vars()
+
+########################################################################################
+def check_vars():
+    if VLOG.COMPTYPE.lower() in ('p', 'part', 'partition'):
+        VLOG.COMPTYPE = 'partition'
+    elif VLOG.COMPTYPE.lower() in ('g', 'gen', 'genip'):
+        VLOG.COMPTYPE = 'genip'
+    elif VLOG.COMPTYPE.lower() in ('n', 'norm', 'normal'):
+        VLOG.COMPTYPE = 'normal'
+    else:
+        Log.critical("VLOG.COMPTYPE value of %s is not recognized." % VLOG.COMPTYPE)
+
 ########################################################################################
 def setup_vkits():
     "Set up the vkits in gvars"
 
     global Vkits, StaticVkits    
-    from vkit import Vkit
+    from gadgets.vkit import VkitGadget
 
-    Vkits = [Vkit(it) for it in TB.VKITS]
-    uvm_vkit = Vkit({'NAME':'uvm', 'DEPENDENCIES':[], 'DIR':'uvm/1_1d'})
-    Vkits.insert(0, uvm_vkit)
+    Log.debug("Running setup_vkits() with %s" % TB.VKITS)
+    Vkits = [VkitGadget(it) for it in TB.VKITS]
 
     try:
         StaticVkits = [it for it in Vkits if it.name in TB.STATIC_VKITS]
     except AttributeError:
         Log.critical("A Vkit below has no name:\n%s" % Vkits)
+
+########################################################################################
+def get_vkits(vkit_names, get_all=False):
+    """
+    Returns the Vkits as named in vkit_names. 
+    If get_all is true, returns all of their dependencies, and so on, as well. Then ensures
+    uniqueness.
+    """
+
+    if not vkit_names:
+        return []
+
+    vkits = [it for it in Vkits if it.name in vkit_names]
+    if get_all and vkits:
+        Log.debug("Here in get_vkits with %s" % vkits)
+        all_deps = [it.dependencies for it in vkits if it.dependencies]
+        Log.debug("all_deps = %s" % all_deps)
+        if all_deps and all_deps != [[]]:
+            new_vkits = [get_vkits(it, True) for it in all_deps]
+            for it in new_vkits:
+                vkits.extend(it)
+            Log.debug("Here in get_vkits with %s" % new_vkits)
+            vkits = list(set(vkits))
+            Log.debug("Now vkits=%s" % vkits)
+    return vkits
+
+########################################################################################
+def get_env_variable(var, module=None):
+    """
+    Returns the value of an environment variable. If given the name of a module, loads that module first.
+    """
+
+    if module:
+        cn_common_dir = os.environ['CN_COMMON_DIR']
+        cmd = os.popen('tclsh %s/cad/modulecmd/current/modulecmd.tcl python load %s' % (cn_common_dir, module))
+        exec(cmd)
+
+    try:
+        Log.debug("Returning for %s: %s" % (var, os.environ[var]))
+        return os.environ[var]
+    except KeyError:
+        Log.critical("Unable to load variable %s with module %s" % (var, module))
+
