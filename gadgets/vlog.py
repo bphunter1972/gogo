@@ -23,10 +23,16 @@ class VlogGadget(gadget.Gadget):
         self.resources = gvars.PROJ.LSF_VLOG_LICS
         self.queue = 'build'
         self.interactive = True
-        self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        try:
+            self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        except KeyError:
+            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
         if gvars.SIM.GUI == 'verdi':
-            self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
-            
+            try:
+                self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
+            except KeyError:
+                Log.critical("runmod module verdi was never specified.")
+        
         # create a symbolic link called 'project'. 
         try:
             os.symlink('../..', 'project')

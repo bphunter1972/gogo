@@ -45,7 +45,10 @@ class VkitGadget(gadget.Gadget):
         self.resources       = gvars.PROJ.LSF_VLOG_LICS
         self.queue           = 'build'
         self.interactive     = False
-        self.runmod_modules  = gvars.VLOG.MODULES
+        try:
+            self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        except KeyError:
+            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
 
         self.cwd             = self.dir_name
         self.lib_name        = '%s_LIB' % self.name.upper()

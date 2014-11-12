@@ -12,8 +12,11 @@ class DWPciesvtGadget(gadget.Gadget):
         self.name = 'DWPciesvt'
         self.queue = 'build'
         self.interactive = True
-        self.runmod_modules = gvars.PROJ.MODULES["synopsys-designware"]
-
+        try:
+            self.runmod_modules = gvars.PROJ.MODULES["synopsys-designware"]
+        except KeyError:
+            Log.critical("runmod module synopsys-designware was never specified.")
+            
         # make the obj/unit directory if it doesn't already exist
         self.cwd = os.path.abspath(os.path.join(gvars.PROJ.VKITS_DIR, "designware"))
         self.unit_dir = os.path.join(self.cwd, "obj/unit")

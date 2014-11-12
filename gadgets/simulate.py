@@ -39,7 +39,10 @@ class SimulateGadget(gadget.Gadget):
         else:
             self.interactive = False
 
-        self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        try:
+            self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
+        except KeyError:
+            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
         self.tb_top         = gvars.TB.TOP
         self.sim_dir        = os.path.join('sim', self.name)
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
