@@ -68,7 +68,7 @@ VTYPES = {
         'CLEAN_DIRS'       : [[], (list,),      "Names of directories to delete"],
         'CLEAN_FILES'      : [[], (list,),      "Names of files to delete"],
         'UVM_REV'          : ["1_1d", (str,),   "UVM Revision to use"],
-        'VKITS_DIR'        : ["", (str,),       "The location of all vkits directories"],
+        'VKITS_DIR'        : ["", (str,),       "The location of all vkit directories"],
     }
 }
 
