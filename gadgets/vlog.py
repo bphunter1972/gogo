@@ -113,10 +113,11 @@ class VlogGadget(gadget.Gadget):
             vlog_warnings = ""
         if gvars.SIM.WAVE != None or gvars.SIM.GUI != '':
             gvars.VLOG.VCS_OPTIONS += ' -debug_pp'
-        # if gvars.SIM.GUI == 'verdi':
-        #     gvars.VLOG.VCS_OPTIONS += ' -P /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/novas.tab /nfs/cacadtools/synopsys/vc/I-2014.03/debug/share/PLI/VCS/LINUXAMD64/pli.a'
-            # setenv          tab                    $install_root/debug/share/PLI/VCS/LINUXAMD64/novas.tab
-            # setenv          pli                    $install_root/debug/share/PLI/VCS/LINUXAMD64/pli.a
+        if gvars.SIM.GUI == 'verdi':
+            vc_home = "/nfs/cacadtools/synopsys/vc/J-2014.12/"
+            gvars.VLOG.VCS_OPTIONS += ' -P %s/debug/share/PLI/VCS/LINUXAMD64/novas.tab %s/debug/share/PLI/VCS/LINUXAMD64/pli.a' % (vc_home, vc_home)
+            gvars.VLOG.TAB_FILES += "%s/debug/share/PLI/VCS/LINUXAMD64/novas.tab" % (vc_home)
+            gvars.VLOG.ARC_LIBS += "%s/debug/share/PLI/VCS/LINUXAMD64/pli.a" % (vc_home)
             
         #--------------------------------------------
         # set environment variable here in genip mode
