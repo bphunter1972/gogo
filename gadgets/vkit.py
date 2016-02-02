@@ -183,7 +183,7 @@ class VkitGadget(gadget.Gadget):
         cmds = []
 
         # the vkits of our dependencies
-        Log.debug("Getting the vkits for: %s" % self.lib_name)
+        Log.debug("Getting the vkits for: %s with dependencies: %s" % (self.lib_name, self.dependencies))
         self.libs = gvars.get_vkits(self.dependencies, False)
 
         import vlog
