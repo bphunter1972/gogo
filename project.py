@@ -20,9 +20,9 @@ PROJ.CLEAN_FILES = ['ucli.key', 'vc_hdrs.h', 'vcs_partition_config.file', 'pc_au
 
 # Runmod module for VCS
 # VCS_VERSION = 'H-2013.06-SP1'
-VCS_VERSION = 'I-2014.03-Beta3'
+VCS_VERSION = 'J-2014.12-SP2'
 # VCS_VERSION = 'J-2014.12-BETA'
-VC_VERSION = 'I-2014.03'
+VC_VERSION = 'J-2014.12'
 
 PROJ.MODULES['vcs'] = 'synopsys-vcs_mx/%s' % VCS_VERSION
 PROJ.MODULES['verdi'] = 'synopsys-vc-verdi/%s' % VC_VERSION
