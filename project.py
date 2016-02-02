@@ -58,7 +58,7 @@ VLOG.SO_FILES = ['obj/VCS/vpi_msg.so',
 VLOG.ARC_LIBS = ['%s/share/PLI/VCS/LINUX64/pli.a' % (VERDI_HOME), ]
 
 # VCS/VLOGAN Options
-VLOG.OPTIONS = ' -notice -unit_timescale=1ns/1fs -ntb_opts uvm -sverilog -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
+VLOG.OPTIONS = ' -notice -unit_timescale=1ns/1fs -ntb_opts uvm -sverilog -full64 %s/uvm/%s/src/dpi/uvm_dpi.cc -bc=cb_extended_behavior' % (PROJ.VKITS_DIR, PROJ.UVM_REV)
 VLOG.VLOGAN_OPTIONS = ' -sv_pragma +libext+.v'
 VLOG.VCS_OPTIONS = ' -CFLAGS -DVCS -lca -debug_pp'
 VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 
