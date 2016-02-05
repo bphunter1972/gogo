@@ -7,7 +7,7 @@ from __future__ import print_function
 import gadget
 import gvars
 import os.path
-from utils import get_filename
+from utils import get_filename, sort_vkits
 
 Log = gvars.Log
 
@@ -24,13 +24,14 @@ class VericomGadget(gadget.Gadget):
         self.interactive    = True
         self.queue          = 'build'
         self.vcomp_dir      = gvars.VLOG.VCOMP_DIR
-        self.lib_dir        = "%(vcomp_dir)s.lib++" % self.__dict__
+        self.lib_dir        = "{}.lib++".format(self.vcomp_dir)
         self.sig_list_name  = os.path.join(self.sim_dir, '.signal_list')
         try:
             self.runmod_modules.append(gvars.PROJ.MODULES['verdi'])
         except KeyError:
             Log.critical("runmod module verdi was never specified.")
-
+        self.turds.append(self.lib_dir)
+        
     #--------------------------------------------
     def create_cmds(self):
         """
@@ -42,7 +43,9 @@ class VericomGadget(gadget.Gadget):
 
         # get all variables
         self.vlog_defines = vlogger.get_defines(gvars.VLOG.DEFINES)
-        self.flists      = vlogger.get_flists([it.flist_name for it in gvars.Vkits] + gvars.TB.FLISTS + [get_filename('.flist')])
+        sorted_vkits = sort_vkits(gvars.Vkits)
+
+        self.flists      = vlogger.get_flists([it.flist_name for it in sorted_vkits] + gvars.TB.FLISTS + [get_filename('.flist')])
         self.tab_files   = vlogger.get_tab_files(gvars.VLOG.TAB_FILES)
 
         # make a file with the tb_top in it, call it .signal_list
@@ -50,10 +53,10 @@ class VericomGadget(gadget.Gadget):
             try:
                 os.makedirs(self.sim_dir)
             except OSError:
-                raise gadget.GadgetFailed("Unable to create %s" % self.sim_dir)
+                raise gadget.GadgetFailed("Unable to create {}".format(self.sim_dir))
 
         with open(os.path.join(self.sim_dir, '.signal_list'), 'w') as sfile:
-            print("0 %s" % self.tb_top, file=sfile)
+            print("0 {}".format(self.tb_top), file=sfile)
             self.turds.append(os.path.abspath(sfile.name))
 
         # create the vericom command
