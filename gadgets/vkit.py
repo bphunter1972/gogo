@@ -48,16 +48,17 @@ class VkitGadget(gadget.Gadget):
         try:
             self.runmod_modules = [gvars.PROJ.MODULES[key] for key in gvars.VLOG.MODULES]
         except KeyError:
-            Log.critical("Unknown module in VLOG.MODULES: %s" % gvars.vlog.MODULES)
+            Log.critical("Unknown module in VLOG.MODULES: {}".format(gvars.vlog.MODULES))
 
         self.cwd             = self.dir_name
-        self.lib_name        = '%s_LIB' % self.name.upper()
-        self.stdoutPath      = utils.get_filename(os.path.join(self.dir_name, '%s.stdout' % self.lib_name))
+        self.lib_name        = '{}_LIB'.format(self.name.upper())
+        Log.debug("name={}, dir_name={}, lib_name={}".format(self.name, self.dir_name, self.lib_name))
+        self.stdoutPath      = utils.get_filename(os.path.join(self.dir_name, '{}.stdout'.format(self.lib_name)))
         self.mergeStderr     = True
-        self.genip_done_file = utils.get_filename(os.path.join(self.dir_name, '%s.genip_done' % self.lib_name))
+        self.genip_done_file = utils.get_filename(os.path.join(self.dir_name, '{}.genip_done'.format(self.lib_name)))
         self.genip_completed = False
         self.pkg_dir         = os.path.join(self.dir_name, self.pkg_name)
-        Log.debug("Sending to pkg_dir: %s" % self.pkg_dir)
+        Log.debug("Sending to pkg_dir: {}".format(self.pkg_dir))
 
         # ensures that the "...waiting for..." message is only printed once per vkit
         self.printed_waiting_for = False
@@ -78,15 +79,17 @@ class VkitGadget(gadget.Gadget):
 
         try:
             self.name = config['NAME']
-            Log.debug("Loaded config for %s" % self.name)
+            Log.debug("Loaded config for {}".format(self.name))
         except KeyError:
-            Log.critical("config for %s has no NAME attribute." % entry)
+            Log.critical("config for {} has no NAME attribute.".format(entry))
 
         try:
             self.dir_name = config['DIR']
             if not isinstance(self.dir_name, str):
-                Log.critical("Directory specified for %s is not a string." % entry)
-            if not self.dir_name.startswith(vkits_dir):
+                Log.critical("Directory specified for {} is not a string.".format(entry))
+            if self.dir_name.startswith('project'):
+                self.dir_name = self.dir_name.replace('project', gvars.RootDir)
+            elif not self.dir_name.startswith(vkits_dir):
                 self.dir_name = os.path.join(vkits_dir, self.dir_name)
         except KeyError:
             self.dir_name = os.path.join(vkits_dir, self.name)
@@ -95,7 +98,7 @@ class VkitGadget(gadget.Gadget):
         try:
             self.flist_name = config['FLIST']
         except KeyError:
-            self.flist_name = os.path.join(self.dir_name, "%s.flist" % self.name)
+            self.flist_name = os.path.join(self.dir_name, "{}.flist".format(self.name))
         if not self.flist_name.startswith(self.dir_name):
             self.flist_name = os.path.join(self.dir_name, self.flist_name)
         if not self.flist_name.endswith(".flist"):
@@ -104,7 +107,7 @@ class VkitGadget(gadget.Gadget):
         try:
             self.pkg_name = config['PKG_NAME']
         except KeyError:
-            self.pkg_name = "%s_pkg" % self.name
+            self.pkg_name = "{}_pkg".format(self.name)
         if not self.pkg_name.endswith("_pkg"):
             self.pkg_name += "_pkg"
 
@@ -136,11 +139,11 @@ class VkitGadget(gadget.Gadget):
             if gvars.Options.dbg:
                 raise
             else:
-                Log.critical("Unable to import %s from %s" % (mod_name))
+                Log.critical("Unable to import {} from {}".format((mod_name)))
 
         result = mod.__dict__.copy()
         del sys.modules[mod_name]
-
+        Log.debug("Loaded cfg:\n{}".format(result))
         return result
 
     #--------------------------------------------
@@ -149,7 +152,7 @@ class VkitGadget(gadget.Gadget):
 
     #--------------------------------------------
     def get_pkg_name(self):
-        return "DEFAULT.%s" % self.pkg_name
+        return "DEFAULT.{}".format(self.pkg_name)
 
     #--------------------------------------------
     def __eq__(self, other):
@@ -166,7 +169,7 @@ class VkitGadget(gadget.Gadget):
         """
 
         from pymake import glob_files
-        patterns = ['*%s' % it for it in patterns]
+        patterns = ['*{}'.format(it) for it in patterns]
         srcs = glob_files([self.dir_name], patterns, recursive=True)
 
         # remove any sv files that VCS creates during genip 
@@ -183,7 +186,7 @@ class VkitGadget(gadget.Gadget):
         cmds = []
 
         # the vkits of our dependencies
-        Log.debug("Getting the vkits for: %s with dependencies: %s" % (self.lib_name, self.dependencies))
+        Log.debug("Getting the vkits for: {} with dependencies: {}".format((self.lib_name, self.dependencies)))
         self.libs = gvars.get_vkits(self.dependencies, False)
 
         import vlog
@@ -194,15 +197,15 @@ class VkitGadget(gadget.Gadget):
         so_files      = vlog.get_so_files(self.VLOG.SO_FILES)
         arc_libs      = vlog.get_arc_libs(self.VLOG.ARC_LIBS)
         parallel      = vlog.get_parallel()
-        work_arg      = '-work %s' % self.lib_name
-        sharedlib     = '-sharedlib=%s' % ':'.join([it.pkg_dir for it in self.libs]) if self.libs else ''
-        vcs_dir       = '-dir=%s' % self.pkg_name
-        genip_cmd     = '-genip %s.%s -lca' % (self.lib_name, self.pkg_name) 
+        work_arg      = '-work {}' % self.lib_name
+        sharedlib     = '-sharedlib={}' % ':'.join([it.pkg_dir for it in self.libs]) if self.libs else ''
+        vcs_dir       = '-dir={}' % self.pkg_name
+        genip_cmd     = '-genip {}.{} -lca' % (self.lib_name, self.pkg_name) 
 
         # set env variables for VCS
         # setenv SYNOPSYS_SIM_SETUP name.setup
-        cmds.append(gadget.GadgetCommand(command="setenv SYNOPSYS_SIM_SETUP %s.setup" % self.name, check_after=False, no_modules=True))
-        cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME project/verif/vkits/uvm/%s/src" % gvars.PROJ.UVM_REV, check_after=False, no_modules=True))
+        cmds.append(gadget.GadgetCommand(command="setenv SYNOPSYS_SIM_SETUP {}.setup".format(self.name, check_after=False, no_modules=True)))
+        cmds.append(gadget.GadgetCommand(command="setenv VCS_UVM_HOME project/verif/vkits/uvm/{}/src".format(gvars.PROJ.UVM_REV, check_after=False, no_modules=True)))
 
         # create vlogan command
         vlogan_args   = [vlog_warnings, gvars.VLOG.OPTIONS, self.VLOG.OPTIONS, '-nc +vcsd', gvars.VLOG.VLOGAN_OPTIONS, 
@@ -227,7 +230,7 @@ class VkitGadget(gadget.Gadget):
         if dependent_libs:
             if not self.printed_waiting_for:
                 # ensure that these things only get printed once
-                Log.info("%s waiting for %s" % (self.name, dependent_libs))
+                Log.info("{} waiting for {}".format((self.name, dependent_libs)))
                 self.printed_waiting_for = True
             return True
         else:
@@ -243,7 +246,7 @@ class VkitGadget(gadget.Gadget):
             pass
 
         # If there are any libraries that this vkit depends on, then wait until they have completed
-        Log.info("%s Launching!" % self.name)
+        Log.info("{} Launching!".format(self.name))
 
     #--------------------------------------------
     def completedCallback(self):
@@ -254,26 +257,26 @@ class VkitGadget(gadget.Gadget):
         if self.doNotLaunch:
             return
 
-        Log.info("%s genip completed!" % self.name)
+        Log.info("{} genip completed!".format(self.name))
         exit_status = self.getExitStatus()
         if exit_status != 0:
             import sync_nfs
-            Log.info("%s We are going down because of me! exit_status=%0d" % (self.name, exit_status))
+            Log.info("{} We are going down because of me! exit_status=%0d".format((self.name, exit_status)))
             try:
                 with sync_nfs.sync_open(self.stdoutPath) as f:
                     lines = f.readlines()
             except IOError:
-                Log.critical("Unable to read stdout file %s" % self.stdoutPath)
+                Log.critical("Unable to read stdout file {}".format(self.stdoutPath))
             for line in lines:
                 print(line, end="")
             if os.path.exists(self.genip_done_file):
                 os.remove(self.genip_done_file)
-            raise gadget.GadgetFailed("genip of %s failed with exit status %0d. See %s" % (self.name, exit_status, self.stdoutPath))
+            raise gadget.GadgetFailed("genip of {} failed with exit status %0d. See {}".format((self.name, exit_status, self.stdoutPath)))
         else:
             try:
                 touch(self.genip_done_file)
             except IOError:
-                Log.critical("Unable to touch file %s" % self.genip_done_file)
+                Log.critical("Unable to touch file {}".format(self.genip_done_file))
 
     #--------------------------------------------
     def check_dependencies(self):
@@ -284,7 +287,7 @@ class VkitGadget(gadget.Gadget):
         targets = self.genip_done_file
         sources = self.get_all_sources()
         answer = pymake.pymake(targets, sources, get_cause=True)
-        Log.debug("dependencies of %s say %s because %s" % (self.name, answer.result, answer.cause))
+        Log.debug("dependencies of {} say {} because {}".format(self.name, answer.result, answer.cause))
         result = answer.result
 
         # also check any of our dependency libraries
@@ -293,7 +296,7 @@ class VkitGadget(gadget.Gadget):
             for lib in self.libs:
                 if lib.check_dependencies():
                     result = True
-                    Log.debug("%s will be built because of %s" % (self.name, lib.name))
+                    Log.debug("{} will be built because of {}".format((self.name, lib.name)))
                     break
 
         # this ensures that any job that calls waitForSomeJobs() will not try to launch this
