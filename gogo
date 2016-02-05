@@ -56,6 +56,10 @@ if __name__ == '__main__':
             import gadgets.clean
             schedule.add_gadget(gadgets.clean.CleanGadget())
 
+        if 'tree' in gadgets_to_run:
+            import gadgets.genip_tree
+            schedule.add_gadget(gadgets.genip_tree.GenipTreeGadget())
+
         if 'build' in gadgets_to_run:
             import gadgets.build
             schedule.add_gadget(gadgets.build.BuildGadget())

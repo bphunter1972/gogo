@@ -24,6 +24,7 @@ SHORTCUTS = {
              'simu'     : 'simulate',
              'simulate' : 'simulate',
              'latest'   : 'latest',
+             'tree'     : 'tree',
              }
 
 ########################################################################################
@@ -103,6 +104,8 @@ def handle_gadgets(vargs):
     # convert all to full-names
     gadgets = [SHORTCUTS[gdt] for gdt in gadgets]
 
+    if 'genip' in gadgets:
+        gvars.VLOG.COMPTYPE = 'genip'
     if 'vlog' in gadgets and gvars.VLOG.COMPTYPE == 'genip':
         gadgets.append('genip')
 

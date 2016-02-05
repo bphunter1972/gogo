@@ -2,6 +2,8 @@
 Common utilities module.
 """
 
+from __future__ import print_function
+
 import gvars
 import os
 from __builtin__ import open as builtin_open
@@ -102,7 +104,7 @@ def get_filename(filename):
     # calculate the directory name underneath the gvars.GogoDir in which the file will be
     filename = os.path.abspath(filename)
     if not filename.startswith(gvars.RootDir):
-        raise IOError("Cannot create a file in %s" % filename)
+        raise IOError("Cannot create a file in {}".format(filename))
     dirname, filename = os.path.split(filename)
 
     dirname = dirname.replace(gvars.RootDir, '')
@@ -113,3 +115,31 @@ def get_filename(filename):
         os.mkdir(dirname)
     filename = os.path.join(dirname, filename)
     return filename
+
+########################################################################################
+def order_vkits(all_vkits):
+    """
+    Returns a dictionary of all vkit names as keys, with their dependency group level
+    See also: depends.order_dependencies()
+    """
+
+    import depends
+    depends.Log = gvars.Log
+
+    vkit_dict = {it.name: it.dependencies for it in all_vkits}
+    ordered = depends.order_dependencies(vkit_dict)
+    return ordered
+
+########################################################################################
+def sort_vkits(all_vkits):
+    """
+    Returns the list of vkits sorted by dependency requirements. UVM will always be
+    the first in the list.
+    """
+
+    sorted_vkits = []
+    ordered = order_vkits(all_vkits)
+    groups = range(max(ordered.values())+1)
+    for group in groups:
+        sorted_vkits.extend([name for name in ordered.keys() if ordered[name]==group])
+    return [next(it for it in all_vkits if it.name == item) for item in sorted_vkits]

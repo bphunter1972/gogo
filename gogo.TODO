@@ -9,7 +9,8 @@ Fixes:
  ✔ genip Dependencies run multiple times. @done (14-11-10 11:27)
  ☐ Randomize seed with SIM.SEED=0.
  ☐ Understand why sps package doesn't work.
- ☐ Get actual simulations to pass. (Probably a race condition with the new simulator).
+ ✔ Get actual simulations to pass. (Probably a race condition with the new simulator).  @done (16-02-03 09:44)
+ 
    
 Small Enhancements:
  ✔ Add flag to turn off certain phases from command-line, such as: --no vlog @done (14-01-22 11:39)
@@ -24,7 +25,7 @@ Small Enhancements:
 Genip
  ✔ Handle vkits compile failures better. @done (14-01-28 14:37)
  ✔ Handle 'clean' of vkit libraries @done (14-11-04 16:02)
- ☐ All dependency vkits, plus their dependencies, etc., should be in the synopsys_sim.setup file. 
+ ✔ All dependency vkits, plus their dependencies, etc., should be in the synopsys_sim.setup file.  @done (16-02-03 09:49)
  ☐ Create the .flists for vkits instead of relying on what is already there.
  ☐ Generate RTL as its own IP
  ✔ vkit completedCallback not getting called until all are done @done (14-11-10 14:47)
@@ -40,4 +41,4 @@ Major Enhancements:
  ☐ Build .so files
  ☐ Separate compiles for different flags (md5)
  ✔ Build CSR files @done (14-02-22 13:40)
- ☐ Print the vkit dependency tree
+ ✔ Print the vkit dependency tree @done (16-02-04 16:50)
