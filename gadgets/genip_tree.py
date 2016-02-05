@@ -24,8 +24,6 @@ class GenipTreeGadget(gadget.Gadget):
 
         ordered = order_vkits(all_vkits)
         depends.print_ordered_deps(ordered)
-        sorted_vkits = sort_vkits(all_vkits)
-        print(sorted_vkits)
 
     #--------------------------------------------
     def genCmdLine(self):
