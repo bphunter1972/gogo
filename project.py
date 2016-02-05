@@ -62,7 +62,7 @@ VLOG.OPTIONS = ' -notice -unit_timescale=1ns/1fs -ntb_opts uvm -sverilog -full64
 VLOG.VLOGAN_OPTIONS = ' -sv_pragma +libext+.v'
 VLOG.VCS_OPTIONS = ' -CFLAGS -DVCS -lca -debug_pp'
 VLOG.IGNORE_WARNINGS = ['ISALS', 'ULSU', 'IDTS', 'LCA_FEATURES_ENABLED', 'LCA_FEATURES_WARN_OPTION', 
-                        'PC_SKIP_FULLDR', 'UII-L']
+                        'PC_SKIP_FULLDR', 'UII-L', 'OBSL_SUB_OPT']
 VLOG.DEFINES = ['VCS', 'PROJ_INCLUDES_UVM', 'RANDOM_SYNC_DELAY', 'TBV', 'BEHAVE', 'USE_ASSERTIONS', 'HAVE_VERDI_WAVE_PLI', 
                 'UVM_NO_DEPRECATED', 'UVM_NO_RELNOTES', 'UVM_OBJECT_MUST_HAVE_CONSTRUCTOR']
 
